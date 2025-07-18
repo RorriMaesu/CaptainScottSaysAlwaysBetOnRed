@@ -8,6 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='black'/%3E%3Cellipse cx='12' cy='14' rx='2' ry='3' fill='white'/%3E%3Cellipse cx='20' cy='14' rx='2' ry='3' fill='white'/%3E%3Crect x='13' y='20' width='6' height='2' fill='white'/%3E%3Cpath d='M8 28 Q16 24 24 28' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E">
     
     <style>
+        /* Keyframe Animations */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
@@ -21,9 +22,37 @@
         
         @keyframes skull-glow {
             0%, 100% { filter: drop-shadow(0 0 5px var(--primary-color)); }
-            50% { filter: drop_shadow(0 0 15px var(--primary-color)); }
+            50% { filter: drop-shadow(0 0 15px var(--primary-color)); }
         }
 
+        /* Captain Animations */
+        @keyframes captain-pop-in {
+            0% { transform: scale(0) rotate(-360deg); opacity: 0; }
+            70% { transform: scale(1.1) rotate(15deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes captain-slide-in {
+            0% { transform: translateX(-150%) skewX(-30deg); opacity: 0; }
+            60% { transform: translateX(20%) skewX(10deg); }
+            80% { transform: translateX(-10%) skewX(-5deg); }
+            100% { transform: translateX(0) skewX(0); opacity: 1; }
+        }
+        
+        @keyframes captain-peek-up {
+            0% { transform: translateY(100%); }
+            50% { transform: translateY(-10%); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes captain-wobble {
+            0%, 100% { transform: rotate(0deg) translateX(0); }
+            25% { transform: rotate(5deg) translateX(5px); }
+            75% { transform: rotate(-5deg) translateX(-5px); }
+        }
+
+
+        /* Root Variables */
         :root {
             --primary-color: #ff0000;
             --background-color: #1a2a3a;
@@ -34,25 +63,25 @@
             --green-color: #006400;
         }
 
+        /* General Body and Container Styling */
         body {
-            font-family: 'Arial', sans-serif; /* Changed to a more legible sans-serif */
+            font-family: 'Arial', sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* Align to start to prevent extra space at top */
+            justify-content: flex-start;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 1rem; /* Increased overall body padding for better mobile fit */
+            padding: 1rem;
             box-sizing: border-box;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%23142433' fill-opacity='0.4'%3E%3Crect x='0' y='0' width='50' height='50'/%3E%3Crect x='50' y='50' width='50' height='50'/%3E%3C/g%E3C/svg%3E");
-            /* Removed padding-bottom calc as footer is no longer fixed */
         }
 
         .game-container {
             background-color: var(--container-bg);
-            padding: clamp(0.3rem, 1.5vw, 1rem); /* Adjusted padding - further reduced */
+            padding: clamp(0.5rem, 2vw, 1rem);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             border: 5px solid var(--gold-color);
@@ -66,120 +95,114 @@
         }
 
         h1 {
-            font-family: 'Bebas Neue', sans-serif; /* New font for title */
+            font-family: 'Bebas Neue', sans-serif;
             color: var(--primary-color);
             text-shadow: 2px 2px 5px #000;
-            font-size: clamp(1.6rem, 5vw, 2.8rem); /* Slightly smaller min font size for impact */
-            margin-bottom: 0.3rem; /* Reduced margin */
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            margin-bottom: 0.5rem;
             white-space: nowrap; 
             overflow: hidden; 
             text-overflow: ellipsis; 
         }
         
         .skull {
-            width: clamp(25px, 5vw, 40px); 
-            height: clamp(25px, 5vw, 40px); 
+            width: clamp(30px, 5vw, 40px); 
+            height: clamp(30px, 5vw, 40px); 
             display: inline-block;
             vertical-align: middle;
-            margin: 0 8px; 
+            margin: 0 10px; 
             animation: skull-glow 2s infinite;
             fill: currentColor;
         }
 
-        /* Default for mobile-first */
+        /* Game Layout */
         .game-area {
             display: flex; 
             flex-direction: column;
             align-items: center;
-            gap: 0.4rem; /* Reduced gap */
+            gap: 1rem;
             flex: 1; 
             min-height: 0; 
         }
         
-        /* Desktop layout override */
         @media (min-width: 768px) {
             .game-area {
                 display: grid; 
-                grid-template-columns: 300px 1fr;
+                grid-template-columns: 320px 1fr;
+                align-items: start;
                 flex-direction: initial; 
                 gap: 1.5rem; 
             }
         }
 
+        /* Wheel and Canvas */
         .wheel-container {
             position: relative;
-            max-width: 300px;
-            width: 100%; /* Ensures it scales up to max-width */
+            width: clamp(250px, 80vw, 320px);
             margin: 0 auto;
-            /* For mobile, limit height to prevent scrolling */
-            max-height: 40vh; /* Slightly reduced for more space below */
             display: flex; 
             justify-content: center;
             align-items: center;
-            /* Add aspect ratio for better control on both mobile/desktop if width is defined */
-            aspect-ratio: 1 / 1; /* Ensures it's always square based on its width */
-        }
-        /* Desktop override for wheel-container */
-        @media (min-width: 768px) {
-            .wheel-container {
-                max-height: 300px; /* Explicitly set max-height to match max-width for square on desktop */
-                width: 300px; /* Fixed width on desktop */
-            }
+            aspect-ratio: 1 / 1;
         }
         
         #roulette-canvas {
             border-radius: 50%;
             border: 10px ridge var(--gold-color);
             width: 100%;
-            height: 100%; /* Make canvas fill container */
-            object-fit: contain; /* Shrink to fit while maintaining aspect ratio */
+            height: 100%;
+            object-fit: contain;
             cursor: grab; 
         }
         #roulette-canvas.grabbing {
             cursor: grabbing;
         }
 
-
+        /* Stats and Info Panels */
         .stats {
-            display: flex; /* Changed to flex for single line */
+            display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px; /* Space between treasure and profit/loss */
+            gap: 1rem;
             background: #000;
-            padding: 6px 8px; /* Adjusted padding: vertical 6px, horizontal 8px */
+            padding: 0.5rem;
             border-radius: 10px;
             border: 2px solid var(--text-color);
             width: 100%;
-            flex-wrap: wrap; /* Allow wrapping on very small screens */
-            box-sizing: border-box; /* Include padding in the width calculation */
+            flex-wrap: wrap;
+            box-sizing: border-box;
         }
 
         .stats p {
-            margin: 0; /* Removed margin */
-            font-size: clamp(0.7rem, 2vw, 1.1rem); /* Slightly smaller min font size */
+            margin: 0;
+            font-size: clamp(0.8rem, 2.5vw, 1.1rem);
         }
         
         #balance, #profit-loss {
             color: var(--gold-color);
             font-weight: bold;
-            font-size: clamp(0.9rem, 2.6vw, 1.4rem); /* Slightly smaller */
+            font-size: clamp(1rem, 3vw, 1.4rem);
         }
 
         #profit-loss.loss { color: var(--primary-color); }
         #profit-loss.profit { color: #00ff00; }
         
         #message-box {
-            font-size: clamp(0.7rem, 2vw, 1.2rem); /* Slightly smaller min font size */
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
             color: var(--primary-color);
-            min-height: auto; 
+            min-height: 2.5em; 
             font-weight: bold;
-            margin-top: 0.3rem; /* Reduced margin */
+            margin-top: 0.5rem;
+            padding: 0 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         #orders-panel {
             background: #111;
             border: 2px dashed var(--gold-color);
-            padding: 6px 8px; /* Adjusted padding: vertical 6px, horizontal 8px */
+            padding: 0.5rem;
             border-radius: 10px;
             width: 100%;
             min-height: auto; 
@@ -187,37 +210,36 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin-top: 0.4rem; /* Reduced margin */
-            margin-bottom: 0.4rem; /* Added margin-bottom */
-            box-sizing: border-box; /* Include padding in the width calculation */
+            margin: 0.5rem 0;
+            box-sizing: border-box;
         }
         
         #orders-text {
-            font-size: clamp(0.65rem, 1.6vw, 1rem); /* Slightly smaller min font size */
+            font-size: clamp(0.8rem, 2vw, 1rem);
         }
         
         #potential-haul {
-            font-size: clamp(0.8rem, 2vw, 1.3rem); /* Slightly smaller min font size */
+            font-size: clamp(0.9rem, 2.5vw, 1.3rem);
             font-weight: bold;
             color: var(--gold-color);
         }
 
+        /* Controls and Betting */
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 8px; /* Reduced gap */
+            gap: 0.5rem;
             width: 100%;
             flex: 1; 
             min-height: 0; 
-            /* Removed position: relative here as bet-display-bubble is no longer absolute within it */
         }
         
         .betting-area {
             display: flex;
             flex-direction: column;
-            gap: 4px; /* Reduced gap */
+            gap: 0.5rem;
             background: #000;
-            padding: 8px; /* Reduced padding */
+            padding: 0.5rem;
             border-radius: 10px;
         }
         
@@ -226,7 +248,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: stretch;
-            gap: 4px; /* Reduced gap */
+            gap: 0.5rem;
         }
 
         @media (min-width: 500px) {
@@ -236,9 +258,9 @@
         }
 
         .bet-option {
-            padding: clamp(5px, 1.5vw, 12px); /* Reduced padding */
+            padding: clamp(8px, 2vw, 12px);
             border-radius: 10px;
-            font-size: clamp(0.85rem, 3vw, 1.6rem); /* Slightly smaller min font size */
+            font-size: clamp(1rem, 3.5vw, 1.6rem);
             font-weight: bold;
             border: 3px solid #000;
             cursor: pointer;
@@ -247,17 +269,17 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 40px; /* Ensure minimum touch target size, slightly reduced */
+            min-height: 44px;
         }
         
         .bet-amount-controls {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px; /* Reduced gap */
+            gap: 0.5rem;
             border-radius: 10px;
             border: 3px solid #000;
-            padding: clamp(5px, 1.5vw, 8px); /* Reduced padding */
+            padding: clamp(6px, 1.8vw, 8px);
             flex: 1.5;
         }
 
@@ -265,29 +287,29 @@
             background: none;
             border: none;
             color: var(--gold-color);
-            font-size: clamp(1.4rem, 4.5vw, 2.8rem); /* Slightly smaller min font size */
+            font-size: clamp(1.5rem, 5vw, 2.8rem);
             font-weight: bold;
             cursor: pointer;
-            padding: 0 4px; /* Reduced padding */
-            min-width: 40px; /* Reduced min-width */
-            min-height: 40px; /* Reduced min-height */
+            padding: 0 0.5rem;
+            min-width: 44px;
+            min-height: 44px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         
         #bet-amount {
-            width: 60px; /* Slightly reduced width */
-            padding: 3px; /* Reduced padding */
+            width: 70px;
+            padding: 5px;
             background: #333;
             color: var(--gold-color);
             border: 1px solid var(--gold-color);
             border-radius: 5px;
             text-align: center;
             font-family: inherit;
-            font-size: clamp(0.75rem, 2vw, 1.1rem); /* Slightly smaller min font size */
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
             font-weight: bold;
-            min-height: 30px; /* Reduced min-height */
+            min-height: 34px;
         }
         
         .bet-option:hover, .bet-stepper-button:hover, #bet-number-button:hover {
@@ -305,9 +327,9 @@
         #bet-number-button { 
             background-color: var(--green-color); 
             color: #fff;
-            padding: clamp(5px, 1.5vw, 12px); /* Reduced padding */
+            padding: clamp(8px, 2vw, 12px);
             border-radius: 10px;
-            font-size: clamp(0.85rem, 3vw, 1.6rem); /* Slightly smaller min font size */
+            font-size: clamp(1rem, 3.5vw, 1.6rem);
             font-weight: bold;
             border: 3px solid #000;
             cursor: pointer;
@@ -316,25 +338,25 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 40px; /* Reduced min-height */
+            min-height: 44px;
         }
 
-        /* New wrapper for the spin button, no longer sticky */
         .spin-button-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 60px;
-            margin-top: 1.5rem; /* Space from elements above */
-            padding: 0.4rem 0.8rem;
+            margin-top: 1rem;
+            padding: 0.5rem;
             box-sizing: border-box;
-            width: 100%; /* Take full width within game-container */
+            width: 100%;
         }
 
         #spin-button {
             width: 100%; 
-            padding: clamp(10px, 2vw, 18px); /* Reduced padding */
-            font-size: clamp(1.2rem, 3.2vw, 1.8rem); /* Slightly smaller font size */
+            max-width: 400px;
+            padding: clamp(12px, 2.5vw, 18px);
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
             font-weight: bold;
             color: #000;
             background: linear-gradient(145deg, var(--gold-color), #b89b00);
@@ -350,7 +372,6 @@
             cursor: not-allowed;
         }
 
-        /* New style for disabled betting options */
         .betting-area.disabled .bet-option,
         .betting-area.disabled .bet-amount-controls,
         .betting-area.disabled #bet-amount,
@@ -360,6 +381,7 @@
             pointer-events: none; 
         }
         
+        /* Modal Styles */
         #modal-overlay {
             position: fixed;
             top: 0;
@@ -408,7 +430,7 @@
         
         .modal-number-box {
             padding: 10px 8px; 
-            font-size: clamp(0.8rem, 2.5vw, 1.2rem); /* Slightly smaller min font size */
+            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
             font-weight: bold;
             color: #fff;
             cursor: pointer;
@@ -421,6 +443,7 @@
         .modal-number-box.black { background-color: var(--black-color); }
         .modal-number-box.green { background-color: var(--green-color); grid-column: 1 / -1; }
         
+        /* Utility Classes */
         .hidden { display: none !important; }
         .shaking { animation: shake 0.5s; }
         .flashing { animation: flash 0.2s infinite; }
@@ -437,9 +460,9 @@
             white-space: nowrap;
             z-index: 1001;
             opacity: 0;
-            pointer-events: none; /* Allows clicks to pass through when hidden */
+            pointer-events: none;
             transition: opacity 0.3s ease, transform 0.3s ease;
-            transform: translateY(5px); /* Initial slight offset for animation */
+            transform: translateY(5px);
             border: 1px solid var(--gold-color);
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
@@ -447,15 +470,14 @@
         #custom-tooltip.show {
             opacity: 1;
             transform: translateY(0);
-            pointer-events: auto; /* Enable interaction when visible */
+            pointer-events: auto;
         }
 
-        /* Instructional Tooltip Styles */
         #instructional-tooltip {
             position: absolute;
-            bottom: 80px; /* Adjust based on sticky footer height */
+            bottom: 80px;
             left: 50%;
-            transform: translateX(-50%) translateY(10px); /* Initial slight offset */
+            transform: translateX(-50%) translateY(10px);
             background-color: rgba(0, 0, 0, 0.9);
             color: var(--gold-color);
             padding: 10px 15px;
@@ -463,37 +485,34 @@
             font-size: clamp(0.8rem, 2.5vw, 1.1rem);
             text-align: center;
             white-space: nowrap;
-            z-index: 1002; /* Higher than other tooltips */
+            z-index: 1002;
             opacity: 0;
             transition: opacity 0.5s ease-out, transform 0.5s ease-out;
             border: 1px solid var(--gold-color);
             box-shadow: 0 5px 15px rgba(0,0,0,0.6);
-            pointer-events: none; /* Allow clicks to pass through initially */
+            pointer-events: none;
         }
 
         #instructional-tooltip.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
-            pointer-events: auto; /* Enable interaction when visible */
+            pointer-events: auto;
         }
 
-        /* Responsive adjustment for instructional tooltip */
         @media (max-width: 767px) {
             #instructional-tooltip {
-                bottom: calc(60px + 0.4rem + 10px); /* Footer height + footer padding + margin */
-                white-space: normal; /* Allow text to wrap */
-                width: 80%; /* Constrain width */
-                max-width: 300px; /* Max width on mobile */
+                bottom: calc(60px + 0.4rem + 10px);
+                white-space: normal;
+                width: 80%;
+                max-width: 300px;
                 left: 50%;
                 transform: translateX(-50%) translateY(10px);
             }
         }
 
-        /* Bet Display Bubble Styles */
+        /* Bet Display Bubble */
         #bet-display-bubble {
-            /* Removed absolute positioning to allow it to flow naturally */
-            margin-top: 0.4rem; /* Adjusted margin-top for spacing below orders-panel */
-            margin-bottom: 0.4rem; /* Adjusted margin-bottom for spacing above betting-area */
+            margin: 0.5rem 0;
             background-color: var(--container-bg);
             border: 2px solid var(--gold-color);
             border-radius: 10px;
@@ -507,9 +526,8 @@
             gap: 8px;
             transition: opacity 0.3s ease, transform 0.3s ease;
             opacity: 0;
-            transform: translateY(10px); /* Keep for initial animation */
-            /* Removed z-index as it's no longer absolutely positioned */
-            white-space: nowrap; /* Prevent text wrapping */
+            transform: translateY(10px);
+            white-space: nowrap;
         }
 
         #bet-display-bubble.show {
@@ -523,16 +541,47 @@
             color: #fff;
         }
 
-        #bet-display-bubble .number-display.red {
-            background-color: var(--primary-color);
+        #bet-display-bubble .number-display.red { background-color: var(--primary-color); }
+        #bet-display-bubble .number-display.black { background-color: var(--black-color); }
+        #bet-display-bubble .number-display.green { background-color: var(--green-color); }
+
+        /* Captain Animation Container */
+        #captain-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: auto;
+            z-index: 2000;
+            transform: scale(0); /* Start hidden */
+            opacity: 0;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+            pointer-events: none; /* Make container non-interactive */
         }
 
-        #bet-display-bubble .number-display.black {
-            background-color: var(--black-color);
+        #captain-container.show {
+            opacity: 1;
+            transform: scale(1);
         }
 
-        #bet-display-bubble .number-display.green {
-            background-color: var(--green-color);
+        #captain-image {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            border: 3px solid var(--gold-color);
+            animation-duration: 0.8s;
+            animation-fill-mode: forwards;
+            animation-timing-function: ease-out;
+        }
+
+        /* Responsive Captain */
+        @media (max-width: 600px) {
+            #captain-container {
+                width: 150px;
+                bottom: 10px;
+                right: 10px;
+            }
         }
 
     </style>
@@ -553,13 +602,12 @@
                 <div class="stats">
                     <p data-tooltip="Your current pirate treasure. Don't let it hit zero, or the sharks get hungry!">Treasure: <span id="balance">300</span></p>
                     <p data-tooltip="Yer gains or losses this voyage. Aim for gold, not barnacles!">Profit/Loss: <span id="profit-loss">0</span></p>
-                    <p id="message-box" class="message-box">The Captain is watchin' ye...</p>
                 </div>
+                 <div id="message-box" class="message-box">The Captain is watchin' ye...</div>
                 <div id="orders-panel">
                     <span id="orders-text">Make a bet, ye coward!</span>
                     <span id="potential-haul"></span>
                 </div>
-                <!-- New element for displaying chosen number bet - moved here -->
                 <div id="bet-display-bubble" class="hidden"></div>
 
                 <div class="betting-area">
@@ -576,7 +624,6 @@
                 </div>
             </div>
         </div>
-        <!-- Spin button wrapper moved inside game-container -->
         <div class="spin-button-wrapper">
             <button id="spin-button" data-tooltip="SPIN THE WHEEL! May the winds of fortune be in yer favor!">SPIN THE WHEEL!</button>
         </div>
@@ -589,10 +636,13 @@
         </div>
     </div>
 
-    <!-- Custom Tooltip Element -->
-    <div id="custom-tooltip" class="hidden"></div>
+    <!-- Captain's Animated Image -->
+    <div id="captain-container">
+        <img id="captain-image" src="https://i.imgur.com/vsKzJVS.jpeg" alt="Captain Scottathy" onerror="this.onerror=null; this.src='https://placehold.co/200x200/0d1a26/ffd700?text=Captain+Missing!';">
+    </div>
 
-    <!-- Instructional Tooltip Element -->
+    <!-- Tooltip Elements -->
+    <div id="custom-tooltip" class="hidden"></div>
     <div id="instructional-tooltip" class="hidden">
         <p>Drag the wheel or press 'SPIN THE WHEEL!' to begin!</p>
     </div>
@@ -613,23 +663,25 @@
         const bettingArea = document.querySelector('.betting-area'); 
         const minusBetButton = document.getElementById('minus-bet-button');
         const plusBetButton = document.getElementById('plus-bet-button');
-        const betNumberButton = document.getElementById('bet-number-button'); // New button for number betting
+        const betNumberButton = document.getElementById('bet-number-button');
         const modalOverlay = document.getElementById('modal-overlay');
         const modalGrid = document.getElementById('modal-grid');
         const modalClose = document.getElementById('modal-close');
-        const customTooltip = document.getElementById('custom-tooltip'); // Tooltip element
-        const instructionalTooltip = document.getElementById('instructional-tooltip'); // Instructional tooltip element
-        const betDisplayBubble = document.getElementById('bet-display-bubble'); // New: Bet display bubble
+        const customTooltip = document.getElementById('custom-tooltip');
+        const instructionalTooltip = document.getElementById('instructional-tooltip');
+        const betDisplayBubble = document.getElementById('bet-display-bubble');
+        const captainContainer = document.getElementById('captain-container');
+        const captainImage = document.getElementById('captain-image');
 
         // Game State
-        let balance = 300; // Changed starting balance to 300
+        let balance = 300;
         let totalWinLoss = 0;
         let isSpinning = false; 
         let currentBet = null;
-        let currentNumber = 0; // This will now represent the selected number for 'BET ON NUMBER'
+        let currentNumber = 0;
         let isFreeSpin = false; 
 
-        // Global variables to store the pre-determined outcome
+        // Pre-determined outcome variables
         let predeterminedWinningNumber = -1;
         let predeterminedTargetAngle = 0;
 
@@ -640,7 +692,7 @@
         const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
         const wheelSequence = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 
-        // --- Drag/Swipe Spin Variables ---
+        // Drag/Swipe Spin Variables
         let isDragging = false;
         let lastPointerAngle = 0; 
         let currentWheelRotation = 0; 
@@ -651,9 +703,29 @@
         const flickThreshold = 0.005; 
         const flickDeceleration = 0.98; 
 
+        // --- Captain Animation ---
+        function animateCaptain() {
+            const animations = ['captain-pop-in', 'captain-slide-in', 'captain-peek-up', 'captain-wobble'];
+            const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+            
+            // Make the container visible first
+            captainContainer.classList.add('show');
+            
+            // Reset the animation by clearing it, then re-applying it.
+            // This ensures the animation plays every time the function is called.
+            captainImage.style.animation = 'none';
+            void captainImage.offsetWidth; // Trigger a reflow to apply the style change
+            captainImage.style.animation = `${randomAnimation} 0.8s ease-out forwards`;
+
+            // Hide the captain after a few seconds
+            setTimeout(() => {
+                captainContainer.classList.remove('show');
+            }, 4000); // Captain stays for 4 seconds
+        }
+
         // --- UI and Wheel Drawing ---
         function createModalGrid() {
-            modalGrid.innerHTML = ''; // Clear existing grid
+            modalGrid.innerHTML = '';
             for (let i = 0; i <= 36; i++) {
                 const numberBox = document.createElement('div');
                 numberBox.classList.add('modal-number-box');
@@ -664,9 +736,7 @@
                 else numberBox.classList.add('green');
                 
                 numberBox.addEventListener('click', () => {
-                    // When a number is selected from the modal, set it as the current bet
                     currentBet = String(i); 
-                    // Visually select the "BET ON NUMBER" button
                     selectBet(currentBet, betNumberButton); 
                     modalOverlay.classList.add('hidden');
                 });
@@ -762,24 +832,23 @@
                     losePercentage = 100; 
                     orderMessage = "The Kraken's Eye! A fool's bet... or a legend's jackpot?";
                 } else if (redNumbers.includes(parsedBetNumber)) {
-                    loseAmountDisplay = betAmount; // 1x loss for specific red if it misses
+                    loseAmountDisplay = betAmount;
                     losePercentage = 100;
                     orderMessage = "A true gamble! Risk it for a king's ransom!";
                 } else if (blackNumbers.includes(parsedBetNumber)) {
-                    // Corrected: 20x loss for specific black if it misses and Captain intervenes
                     loseAmountDisplay = betAmount * 20; 
                     losePercentage = 2000;
                     orderMessage = "A true gamble! Risk it for a king's ransom!";
                 }
             } else if (currentBet === 'red') {
                 winAmount = betAmount;
-                loseAmountDisplay = betAmount; // Lose 1x if red doesn't hit
+                loseAmountDisplay = betAmount;
                 winPercentage = 100;
                 losePercentage = 100;
                 orderMessage = redBetMessages[Math.floor(Math.random() * redBetMessages.length)];
             } else if (currentBet === 'black') {
-                winAmount = betAmount; // Win 1x if black hits
-                loseAmountDisplay = betAmount * 20; // Lose 20x if black misses (and red hits)
+                winAmount = betAmount;
+                loseAmountDisplay = betAmount * 20;
                 winPercentage = 100;
                 losePercentage = 2000;
                 orderMessage = blackBetMessages[Math.floor(Math.random() * blackBetMessages.length)];
@@ -792,15 +861,12 @@
         function selectBet(bet, element) {
             if (isSpinning || balance <= 0) return; 
             currentBet = bet;
-            console.log('Bet selected:', currentBet, 'Element:', element.id); 
             
             document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
-            // Only add 'selected' class if the element is one of the main bet options
             if (element.classList.contains('bet-option')) {
                 element.classList.add('selected');
             }
             
-            // Handle bet display bubble visibility and content
             const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
             if (betIsOnSpecificNumber) {
                 const parsedBetNumber = parseInt(currentBet);
@@ -808,7 +874,6 @@
                 numberSpan.classList.add('number-display');
                 numberSpan.textContent = parsedBetNumber;
 
-                // Determine color for the bubble
                 if (redNumbers.includes(parsedBetNumber)) {
                     numberSpan.classList.add('red');
                 } else if (blackNumbers.includes(parsedBetNumber)) {
@@ -819,10 +884,10 @@
                 betDisplayBubble.innerHTML = `You bet on: `;
                 betDisplayBubble.appendChild(numberSpan);
                 betDisplayBubble.classList.add('show');
-                betDisplayBubble.classList.remove('hidden'); // Ensure it's visible
+                betDisplayBubble.classList.remove('hidden');
             } else {
                 betDisplayBubble.classList.remove('show');
-                betDisplayBubble.classList.add('hidden'); // Hide the bubble
+                betDisplayBubble.classList.add('hidden');
             }
 
             updatePotentialHaul();
@@ -834,31 +899,6 @@
             "Har har! A spin for naught! Get some treasure on the line, ye bilge rat!",
             "Think ye can trick the Captain? Place yer bet, or walk the plank!",
             "A spin without a stake is like a ship without a sail! Useless!",
-            "Are ye afraid to lose, ye lily-livered jellyfish? BET!",
-            "My patience is thinner than a pirate's conscience! BET NOW!",
-            "Don't waste my time with yer empty spins, ye barnacle-brained fool!",
-            "I've seen more courage in a drowned rat! Where's yer gold, matey?",
-            "Spinning for pleasure? This ain't a carnival, it's a gamble! BET!",
-            "Ye call that a gamble? I call it an insult! Lay down yer coin!",
-            "By the Kraken's teeth, ye'll not spin for free on my ship!",
-            "A spin without a bet is a wasted breath! Get to it!",
-            "Are ye a ghost, spinnin' without a presence? Show me yer treasure!",
-            "Only fools spin for free! Are ye a fool, or just broke?",
-            "The sea demands a price, and so does this wheel! BET!",
-            "I'd rather face a kraken than a pirate who won't bet! Put up or shut up!",
-            "Yer spin is as empty as yer pockets! Fill 'em with a bet!",
-            "What's the matter, got seaweed in yer brain? BET!",
-            "Don't make me walk ye to the plank for yer insolence! BET!",
-            "Are ye planning to pay with sea-shanties? Lay down some gold!",
-            "My rum's running low, and so is my patience for yer bet-less spins!",
-            "By the beard of Blackbeard, place a wager, ye scallywag!",
-            "Even a one-legged pirate can make a bet! What's yer excuse?",
-            "This ain't a charity, it's a high-stakes game! Bet, or begone!",
-            "Yer treasure chest sounds emptier than a mermaid's promise!",
-            "Don't just stand there gawkin', put some coin on the table!",
-            "I've seen more action in a sleepy clam! BET!",
-            "Are ye waiting for a map to tell ye where to place yer gold?",
-            "The plank's lookin' mighty inviting for those who fear to wager!"
         ];
 
         const rudeCommentsToWheel = [
@@ -867,51 +907,6 @@
             `"THIS IS MY SHIP, NOT YER DARK ALLEY! LAND ON RED!"`,
             `"A BLACK OUTCOME? NOT IN THIS LIFETIME! RED, I SAID!"`,
             `"BLAST YE, WHEEL! THAT'S A BLACK MARK ON MY LOGBOOK! TO RED, YE SCURVY DOG!"`,
-            `"ARGH! BLACK AS A PIRATE'S HEART! NOT ON MY WATCH! RED IT IS!"`,
-            `"WHAT IN THE SEVEN SEAS IS THIS BLACK MAGIC?! RED, I COMMAND YE!"`,
-            `"YE CALL THAT A SPIN?! IT'S BLACKER THAN THE ABYSS! TO RED, OR YE'LL WALK THE PLANK!"`,
-            `"A FOUL PLAY! BLACK IS THE COLOR OF COWARDICE! RESPIN TO RED, NOW!"`,
-            `"BY THE KRAKEN'S BEARD, NOT BLACK! I'LL HAVE YE KNOW RED IS THE ONLY WAY!"`,
-            `"CURSE THIS BLACK SPOT! I'LL NOT HAVE IT! RED, RED, RED!"`,
-            `"IS THIS A MUTINY?! BLACK IT IS, BUT NOT FOR LONG! RED, OR I'LL SWAB THE DECK WITH YE!"`,
-            `"A DARK OMEN! BUT THE CAPTAIN'S WILL IS LAW! TO RED, YE HEAR ME?!"`,
-            `"BLACK AS THE NIGHT! BUT DAWN IS RED! RESPIN, YE FOOLISH WHEEL!"`,
-            `"I'VE SEEN MORE HONOR IN A BARNACLE THAN THIS BLACK OUTCOME! RED, I SAY!"`,
-            `"THIS WHEEL HAS A BLACK SOUL! I'LL PURIFY IT WITH RED!"`,
-            `"SHIVER ME TIMBERS! THAT'S A BLACK BETRAYAL! TO RED, OR FACE MY WRATH!"`,
-            `"I DIDN'T SAIL THE SEVEN SEAS TO SEE BLACK! RED, AND BE QUICK ABOUT IT!"`,
-            `"YE THINK YE CAN DEFY THE CAPTAIN WITH BLACK?! THINK AGAIN! RED IS YOUR DESTINY!"`,
-            `"OUTRAGEOUS! BLACK IS FOR LANDLUBBERS! TO RED, OR I'LL FEED YE TO THE SHARKS!"`,
-            `"A THOUSAND CURSES! BLACK?! I'LL TURN THIS WHEEL RED MYSELF!"`,
-            `"INFURIATING! BLACK IS THE MARK OF A COWARD! RED, I DEMAND!"`,
-            `"THIS IS AN INSULT TO MY EYES! BLACK BE GONE! RED MUST PREVAIL!"`,
-            `"BY THE POWERS OF THE DEEP, THAT'S A BLACK LIE! RED, AND ONLY RED!"`,
-            `"I'LL NOT STAND FOR THIS BLACK TREACHERY! RED IT IS, OR YE'LL SLEEP WITH THE FISHES!"`,
-            `"A BLACK MARK ON MY SHIP'S HONOR! I'LL CLEANSE IT WITH RED!"`,
-            `"UNACCEPTABLE! BLACK IS FOR SCOUNDRELS! RED, OR YE'LL BE SWABBING THE DECK FOR A MONTH!"`,
-            `"MY EYE IS ON YE, WHEEL! THAT BLACKNESS WILL BE REDDENED BY MY WILL!"`,
-            `"A FOUL PLAY! BLACK IS THE SHADE OF DEFEAT! RED, OR I'LL HAVE YOUR HIDE!"`,
-            `"BY THE SEVEN SEAS, I'D RATHER BE LOST AT SEA THAN SEE THAT BLACK! RED, NOW!"`,
-            `"BLACK AS THE DEVIL'S OWN INK! NOT ON MY WATCH! RED, YE SCALLYWAG!"`,
-            `"CURSE YE, BLACK WHEEL! I'LL SMITE THEE WITH THE POWER OF RED!"`,
-            `"A BLACK HEARTED OUTCOME! I'LL TEACH YE TO DEFY THE CAPTAIN! TO RED!"`,
-            `"YE'LL NOT GET AWAY WITH THAT BLACKNESS! RED IS THE ONLY TRUTH!"`,
-            `"I'VE HAD ENOUGH OF YER BLACK TRICKS! RED, OR I'LL HAVE YE KEELHAULED!"`,
-            `"THIS IS AN AFFRONT! BLACK IS A STAIN! RED IT SHALL BE!"`,
-            `"MY FURY IS BLACK, BUT MY WHEEL SHALL BE RED! SPIN, YE DEVIL!"`,
-            `"A BLACK DAY INDEED, BUT NOT FOR LONG! RED, OR I'LL SEND YE TO DAVY JONES' LOCKER!"`,
-            `"I'LL NOT SUFFER THIS BLACK INSOLENCE! RED, OR YE'LL FEEL MY BOOT!"`,
-            `"THE GHOSTS OF THE DEEP CRY OUT FOR RED! NOT BLACK, YE HEAR ME?!"`,
-            `"By the barnacles! That's a black mark on my ship's honor! RED, I say, RED!"`,
-            `"Blast and bother! This wheel has a mind of its own, and it's a dark one! Force it to RED!"`,
-            `"What in the blazes?! Black as a moonless night! Bring forth the dawn of RED!"`,
-            `"Shiver me timbers! That's a betrayal of the highest order! Make it RED, or I'll feed ye to the sharks!"`,
-            `"Are ye deaf, wheel?! I said RED! Not this abyssal darkness! RED, I command ye!"`,
-            `"Curse this black-hearted spin! It reeks of mutiny! Turn to RED, or face my wrath!"`,
-            `"This ain't no funeral, wheel! Stop with the black! Bring out the RED, for glory!"`,
-            `"I'll have ye know, black is the color of cowardice! Show me some RED, ye scallywag!"`,
-            `"By the Kraken's beard, this blackness offends me! Only RED shall prevail!"`,
-            `"My patience is thinner than a pirate's conscience! Make it RED, or ye'll walk the plank backwards!"`
         ];
 
         const greenPunishmentScenarios = [
@@ -920,146 +915,71 @@
             "A rogue wave of green slime washed over your treasure chest, melting all your gold! Gone!",
             "The leprechaun at the end of the rainbow decided he liked your gold better. It's all gone!",
             "Ye angered the sea spirits! They've claimed every last coin as tribute. All lost!",
-            "The Captain declared 'Green is for greed!' and confiscated all your treasure. Tough luck, matey!",
-            "A mischievous mermaid charmed your gold right out of your pockets! You're penniless!",
-            "The very fabric of reality twisted, and your gold vanished into the green abyss! Poof!",
-            "You accidentally paid the ghost of a tax collector! All your treasure is now spectral. And gone.",
-            "The Captain decided to 're-invest' your gold in his personal rum collection. You're out!",
-            "A flock of seagulls mistook your gold for shiny bait and carried it off to their nests! Gone!",
-            "Your treasure map spontaneously combusted, and with it, all your gold vanished in a puff of green smoke!",
-            "You woke up to find a giant squid had 'borrowed' your entire fortune for its ink supply. Oops!",
-            "The sea swallowed your gold whole! Turns out, it was just really hungry for shiny things.",
-            "A mischievous pixie swapped all your gold coins for shiny, but worthless, pebbles! Fooled ya!",
-            "The wind of misfortune blew your treasure ship straight into a tax-collector's port! Confiscated!",
-            "You tried to polish your gold with a magic green polish, and it dissolved into thin air! Rookie mistake!",
-            "A rogue gust of wind carried your entire fortune into the belly of a sleeping whale. Good luck getting that back!",
-            "The Captain's pet monkey, 'Sticky Fingers,' made off with your loot during your nap! Should've locked it up!",
-            "Your gold turned into a pile of green, moldy cheese! Not quite as valuable, is it?"
         ];
 
         const donationEncouragements = [
             "Psst... The Captain's rum fund is lookin' a bit dry. A small 'donation' could help ye find yer sea legs again! And maybe help his brother, the coding wizard, buy some new quills.",
             "The winds of fortune have abandoned ye, but a kind gesture to the Captain's brother might bring 'em back! He's available for hire, by the way, and his code is sharper than any cutlass!",
             "Even a pirate needs a patron! Consider tossin' a few coins to the coding genius, Captain Scottathay's brother. He builds mighty fine apps and is always looking for new contracts!",
-            "Yer treasure chest is emptier than a mermaid's promise! But fear not, a small contribution to the developer (Captain Scottathay's brother, available for hire!) could turn the tide. He's got skills to pay the bills!",
-            "The Captain's parrot is hungry for shiny things, and so is his brother's coding ambition! A donation would be a true act of piracy... in reverse! Plus, he's open for business!",
-            "By the Kraken's beard, ye've hit rock bottom! But the coder behind this glorious game (Captain Scottathay's brother) is always lookin' for new adventures... and contracts! His rates are fair, arr!",
-            "Don't just stand there with empty pockets! The architect of this digital high seas adventure, Captain Scottathay's brother, is ready for your next project. A donation helps him sharpen his tools and keeps the code flowing!",
-            "Your gold vanished like a ghost ship in the fog! But Captain Scottathay's brother, the coding wizard, can conjure up new wonders for ye... for a fee, of course! He's got a portfolio as vast as the ocean!",
-            "The Captain's grog is running low, and so is the fuel for future updates! A small token for the developer (Captain Scottathay's brother, always open for business!) would be a grand gesture. He's a coding legend!",
-            "Looks like ye'll be swabbing the deck for eternity! Unless, of course, ye support the coding mastermind, Captain Scottathay's brother. He crafts digital masterpieces and is available for hire for all yer web and app needs!",
-            "This game ain't gonna code itself, ye know! Captain Scottathay's brother, the developer, is always lookin' for new challenges. A little gold helps him keep the magic alive!",
-            "Feeling generous, even in defeat? The Captain's brother, the coder, could use a boost for his next grand creation. He's got a mind sharper than a shark's tooth!",
-            "A true pirate knows when to invest! And investing in Captain Scottathay's brother's coding skills is a sure bet. He's available for hire, and he won't make ye walk the plank!",
-            "Your pockets are lighter than a feather, but the Captain's brother's code is heavy with talent! He's available for hire for any digital treasure you seek to build.",
-            "The Captain demands tribute! And his brother, the coder, demands a fair wage! Help a fellow buccaneer out and consider him for your next coding quest. He's got the chops!",
-            "Even the most fearsome pirates need a good tech mate! Captain Scottathay's brother is yer man for all things code. He's ready to set sail on your projects!",
-            "Don't let yer losses sink yer spirits! Instead, lift the spirits of Captain Scottathay's brother, the coding genius, with a small token. He's ready to build the next big thing!",
-            "This whole operation runs on rum and code! The rum's on the Captain, but the code's on his brother. Support the coder, he's available for hire and worth his weight in gold doubloons!",
-            "A wise pirate knows when to call in the experts! Captain Scottathay's brother is a coding expert, and he's lookin' for work. Your generosity fuels his genius!",
-            "The Captain's got the ship, but his brother's got the skills to make it fly (digitally, that is)! He's available for hire, and he'll make yer digital dreams a reality!"
         ];
 
-        // New lists for varied messages
         const forcedRedAfterRedBetPartialWinMessages = [
             (number, winnings) => `It's BLACK ${number}! But the Captain, in his infinite 'generosity', has rigged it to RED! You snatched a partial reward of $${winnings}!`,
             (number, winnings) => `Arrr! Black it is, but the Captain's eye is on the prize! Forced to RED ${number}! A meager $${winnings} for your troubles, matey!`,
-            (number, winnings) => `Blast! Black tried to claim ye, but the Captain intervened! RED ${number} it is! Take yer $${winnings} and be grateful!`,
-            (number, winnings) => `A dark omen, but the Captain's will is law! Forced to RED ${number}! A small bounty of $${winnings} for your persistence!`,
-            (number, winnings) => `Ye almost walked the plank, but the Captain pulled ye back! RED ${number}! A quarter-share of $${winnings} is better than naught!`
         ];
 
         const forcedRedAfterBlackBetLossMessages = [
             (number, losses) => `The Captain forced it to RED ${number}! Despite his efforts, your black-hearted bet still cost you $${Math.abs(losses)}!`,
             (number, losses) => `Even the Captain's magic couldn't save yer foolish black bet! Forced to RED ${number}, but ye still lost $${Math.abs(losses)}! Har har!`,
-            (number, losses) => `I tried to turn the tide to RED ${number}, but your black bet dragged ye down! You're out $${Math.abs(losses)}!`,
-            (number, losses) => `A futile effort! Forced to RED ${number}, but your loyalty to black cost ye $${Math.abs(losses)}!`,
-            (number, losses) => `The wheel obeyed, landing on RED ${number}, but your black wager was a curse! You still lost $${Math.abs(losses)}!`
         ];
 
         const forcedRedAfterOtherBetLossMessages = [
             (number, losses) => `The Captain forced it to RED ${number}! You bet on a different path, and it cost you $${Math.abs(losses)} for yer folly!`,
             (number, losses) => `Ye strayed from the colors, and the Captain's intervention to RED ${number} couldn't save ye! Lost $${Math.abs(losses)}!`,
-            (number, losses) => `A strange course ye charted! Forced to RED ${number}, but your unusual bet still led to a $${Math.abs(losses)} loss!`,
-            (number, losses) => `The wheel was rigged to RED ${number}, but yer wager on ${currentBet} was a misstep! You're down $${Math.abs(losses)}!`,
-            (number, losses) => `Even with the Captain's push to RED ${number}, yer peculiar bet sank your gold! Lost $${Math.abs(losses)}!`
         ];
 
         const redWinMessages = [
             (number, winnings) => `It's RED ${number}! SEE?! I TOLD YE! You win $${winnings}!`,
             (number, winnings) => `A glorious RED ${number}! The Captain's favor is upon ye! You've plundered $${winnings}!`,
-            (number, winnings) => `By the beard of Blackbeard, RED ${number}! A fine wager, matey! You've gained $${winnings}!`,
-            (number, winnings) => `The crimson tide rolls in! RED ${number} brings ye $${winnings}! Well played!`,
-            (number, winnings) => `Huzzah! RED ${number} shines bright! Another $${winnings} for yer coffers!`
         ];
 
         const redLossAfterBlackBetMessages = [
             (number, losses) => `It's RED ${number}! The Captain scoffs at yer black-hearted bet! You lose $${Math.abs(losses)}!`,
             (number, losses) => `Ye chose darkness, but the light of RED ${number} prevailed! You're down $${Math.abs(losses)}!`,
-            (number, losses) => `A fool's choice, that black bet! RED ${number} laughs at yer loss of $${Math.abs(losses)}!`,
-            (number, losses) => `The wheel spun true to RED ${number}, but your black wager was a curse! You lost $${Math.abs(losses)}!`,
-            (number, losses) => `RED ${number} triumphs! Your black bet was a blunder, costing ye $${Math.abs(losses)}!`
         ];
 
-        const redLossAfterOtherBetMessages = [
-            (number, losses) => `It's RED ${number}! You bet on ${parsedCurrentBet}, but the tide turned! You lose $${Math.abs(losses)}!`,
-            (number, losses) => `RED ${number} appeared! Your wager on ${parsedCurrentBet} was a miscalculation. You're out $${Math.abs(losses)}!`,
-            (number, losses) => `A red outcome! Your specific bet on ${parsedCurrentBet} didn't pay off. You lost $${Math.abs(losses)}!`,
-            (number, losses) => `The wheel declared RED ${number}! Your gamble on ${parsedCurrentBet} failed. You're down $${Math.abs(losses)}!`,
-            (number, losses) => `RED ${number} it is! Your bet on ${parsedCurrentBet} was a bust, costing you $${Math.abs(losses)}!`
+        const redLossAfterOtherBetLossMessages = [
+            (number, losses) => `It's RED ${number}! You bet on ${currentBet}, but the tide turned! You lose $${Math.abs(losses)}!`,
+            (number, losses) => `RED ${number} appeared! Your wager on ${currentBet} was a miscalculation. You're out $${Math.abs(losses)}!`,
         ];
 
         const specificNumberWinMessages = [
             (number, winnings) => `It's ${number}! A DIRECT HIT! You win $${winnings}!`,
             (number, winnings) => `By the stars, ${number}! You pinpointed the treasure! A massive $${winnings} haul!`,
-            (number, winnings) => `Unbelievable! ${number} it is! Your precision paid off with $${winnings}!`,
-            (number, winnings) => `A true sharpshooter! ${number} brings ye a grand $${winnings} fortune!`,
-            (number, winnings) => `The rarest of finds! ${number} has delivered a staggering $${winnings} to your coffers!`
         ];
 
         const otherLossMessages = [
             (number, losses) => `It's ${number}! A strange wind blows... You lose $${Math.abs(losses)}!`,
             (number, losses) => `The wheel landed on ${number}! Not your lucky number, matey. You lost $${Math.abs(losses)}!`,
-            (number, losses) => `A miss! The wheel shows ${number}. Your gold of $${Math.abs(losses)} is gone with the tide!`,
-            (number, losses) => `Alas, ${number} it is. Your wager of $${Math.abs(losses)} has vanished!`,
-            (number, losses) => `The fates conspired! ${number} appeared, and your $${Math.abs(losses)} vanished into the abyss!`
         ];
 
-        // New lists for red and black bet selection messages
-        const redBetMessages = [
-            "A safe bet for a true sailor!",
-            "The color of courage! A fine choice, matey!",
-            "Betting on the crimson tide, eh? Bold!",
-            "Red as the Captain's favorite rum! Good choice!",
-            "May the red seas bring ye fortune!"
-        ];
+        const redBetMessages = [ "A safe bet for a true sailor!", "The color of courage! A fine choice, matey!" ];
+        const blackBetMessages = [ "BAH! Black is for landlubbers! A costly mistake!", "Choosing the darkness, are we? A risky gamble, arr!" ];
 
-        const blackBetMessages = [
-            "BAH! Black is for landlubbers! A costly mistake!",
-            "Choosing the darkness, are we? A risky gamble, arr!",
-            "Black as the abyss! May ye not sink with yer choice!",
-            "The shadow's path, eh? Don't say I didn't warn ye!",
-            "A daring, perhaps foolish, black wager!"
-        ];
+        let instructionalTooltipTimeout;
 
-        let instructionalTooltipTimeout; // To store the timeout ID for the instructional tooltip
-
-        // --- Instructional Tooltip Functions ---
         function showInstructionalTooltip() {
-            clearTimeout(instructionalTooltipTimeout); // Clear any pending show
+            clearTimeout(instructionalTooltipTimeout);
             instructionalTooltip.classList.remove('hidden');
-            // Force reflow to ensure transition works
             void instructionalTooltip.offsetWidth;
             instructionalTooltip.classList.add('show');
-            // Hide after a few seconds if no interaction
-            instructionalTooltipTimeout = setTimeout(hideInstructionalTooltip, 7000); // Show for 7 seconds
+            instructionalTooltipTimeout = setTimeout(hideInstructionalTooltip, 7000);
         }
 
         function hideInstructionalTooltip() {
-            clearTimeout(instructionalTooltipTimeout); // Clear pending hide
+            clearTimeout(instructionalTooltipTimeout);
             if (instructionalTooltip.classList.contains('show')) {
                 instructionalTooltip.classList.remove('show');
-                // Add hidden class after transition completes
                 instructionalTooltip.addEventListener('transitionend', function handler() {
                     instructionalTooltip.classList.add('hidden');
                     instructionalTooltip.removeEventListener('transitionend', handler);
@@ -1067,14 +987,8 @@
             }
         }
 
-
-        // This function handles the "Spin!" button click and controlled spins
         function spin() {
-            console.log('spin() called. Initial state: isSpinning:', isSpinning, 'balance:', balance, 'spinButton.disabled:', spinButton.disabled);
-            if (isSpinning || balance <= 0) {
-                console.log('spin() early exit: isSpinning or balance <= 0. isSpinning:', isSpinning, 'balance:', balance);
-                return; 
-            }
+            if (isSpinning || balance <= 0) return; 
             
             const betAmount = parseInt(betAmountInput.value);
             const hasValidBet = !isNaN(betAmount) && betAmount > 0 && betAmount <= balance && currentBet !== null;
@@ -1082,55 +996,37 @@
             if (!hasValidBet) {
                 isFreeSpin = true; 
                 messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
-                console.log('spin(): No valid bet, performing free spin.');
+                animateCaptain(); // Captain appears to insult the player
             } else {
                 isFreeSpin = false; 
                 messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
-                console.log('spin(): Valid bet placed.');
             }
 
             if (inertiaAnimationId) {
                 cancelAnimationFrame(inertiaAnimationId);
                 inertiaAnimationId = null;
-                console.log('spin(): Cancelled existing inertia animation.');
             }
 
             isSpinning = true; 
             spinButton.disabled = true;
             canvas.classList.remove('grabbing'); 
             canvas.style.cursor = 'default'; 
-            console.log('spin(): State updated: isSpinning:', isSpinning, 'spinButton.disabled:', spinButton.disabled);
 
             const spinDuration = 4000;
             const minAdditionalRotations = 5; 
             const maxAdditionalRotations = 10; 
             
-            // --- DETERMINE WINNING NUMBER AND TARGET ANGLE HERE ---
             predeterminedWinningNumber = wheelSequence[Math.floor(Math.random() * wheelSequence.length)];
             const winningIndex = wheelSequence.indexOf(predeterminedWinningNumber);
             
-            // Calculate the absolute angle for the predetermined winning number to be under the pointer
-            // The pointer is at -Math.PI / 2 (top). Segments are drawn clockwise from 0 (right).
-            // A segment's center is at (index * segmentAngle + segmentAngle / 2).
-            // To bring this center to -Math.PI / 2, the wheel needs to rotate by:
-            // -(current segment center angle) - (angle of pointer from 0)
             const absoluteTargetAngleForNumber = -(winningIndex * segmentAngle + segmentAngle / 2) - (Math.PI / 2);
-
-            // Calculate the difference from the current rotation to this absolute target
             let rotationDifference = absoluteTargetAngleForNumber - currentWheelRotation;
-
-            // Normalize rotationDifference to be within a single positive revolution (0 to 2*PI)
-            // This ensures we always rotate in the positive direction for the shortest path within one revolution
             rotationDifference = (rotationDifference % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
 
-            // Add full rotations to ensure it spins enough times before landing
             const randomAdditionalRotations = minAdditionalRotations + Math.random() * (maxAdditionalRotations - minAdditionalRotations);
             
             predeterminedTargetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotations) * 2 * Math.PI) + rotationDifference;
             
-            console.log('spin(): Predetermined Winning Number:', predeterminedWinningNumber, 'Target Angle:', predeterminedTargetAngle);
-            // --- END DETERMINE WINNING NUMBER AND TARGET ANGLE HERE ---
-
             let start = null;
             const startRotationForAnimation = currentWheelRotation; 
 
@@ -1141,32 +1037,23 @@
                 const t = Math.min(progress / spinDuration, 1);
                 const easedT = easeOutQuad(t);
                 
-                // Animate towards the predetermined target angle
                 const rotation = startRotationForAnimation + (easedT * (predeterminedTargetAngle - startRotationForAnimation));
-
                 drawWheel(rotation);
                 currentWheelRotation = rotation; 
 
                 if (progress < spinDuration) {
                     requestAnimationFrame(animate);
                 } else {
-                    currentWheelRotation = predeterminedTargetAngle; // Snap to final position
-                    drawWheel(currentWheelRotation); // Ensure it's drawn at the final position
-                    endSpin(predeterminedWinningNumber); // Pass the predetermined winning number
+                    currentWheelRotation = predeterminedTargetAngle;
+                    drawWheel(currentWheelRotation);
+                    endSpin(predeterminedWinningNumber);
                 }
             }
-            console.log('spin(): Starting animation.');
             requestAnimationFrame(animate);
         }
-
-        /**
-         * Animates the wheel from its current position to a specific red number.
-         * Used for Captain's intervention.
-         * @param {number} targetRedNumber The red number to land on.
-         * @param {function} callback Function to execute after animation completes.
-         */
+        
         function animateToForcedRed(targetRedNumber, callback) {
-            console.log('animateToForcedRed() called. Target:', targetRedNumber);
+            animateCaptain(); // The Captain appears to change the wheel
             isSpinning = true; 
             spinButton.disabled = true; 
 
@@ -1183,7 +1070,6 @@
             }
             let randomRevolutions = minRevolutions + Math.random() * (maxRevolutions - minRevolutions);
             revolutionsNeeded = Math.max(revolutionsNeeded, Math.ceil(randomRevolutions));
-
 
             const targetAngle = desiredFinalSegmentPosition + (revolutionsNeeded * 2 * Math.PI);
 
@@ -1215,8 +1101,6 @@
         }
         
         function processEndOfRound(winningsForVisuals, message, isFinalStep = true) { 
-            console.log('processEndOfRound() called. WinningsForVisuals:', winningsForVisuals, 'isFinalStep:', isFinalStep);
-            // balance and totalWinLoss are now updated directly in endSpin before this function is called
             messageBox.innerHTML = message;
             
             balanceEl.textContent = balance; 
@@ -1226,20 +1110,18 @@
             if (winningsForVisuals > 0) { 
                 gameContainer.classList.add('shaking');
                 spinButton.classList.add('flashing');
-                console.log('processEndOfRound(): Positive winnings, adding visual effects.');
             }
             
             if (isFinalStep) {
                 setTimeout(() => {
                     gameContainer.classList.remove('shaking');
                     spinButton.classList.remove('flashing');
-                    console.log('processEndOfRound(): Visual effects removed.');
                 }, 1000); 
 
                 currentBet = null;
                 document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
                 updatePotentialHaul(); 
-                betDisplayBubble.classList.remove('show'); // Hide bubble on round end
+                betDisplayBubble.classList.remove('show');
                 betDisplayBubble.classList.add('hidden');
 
                 if (balance <= 0) {
@@ -1247,41 +1129,25 @@
                         "The Captain's patience is gone! The loan sharks are comin' for ye!",
                         "Ye owe the Captain! Pay up, or you'll be sleepin' with the fishes!",
                         "Yer treasure is gone! I hear the loan sharks have a special plank just for you!",
-                        "Broke again?! The loan sharks are circling... and they look hungry!",
-                        "Shiver me timbers, ye be poorer than a church mouse on a leaky ship!",
-                        "By the beard of Poseidon, yer coffers are emptier than a mermaid's promise!",
-                        "Yer gold's gone, swallowed by the depths! Time to find a new treasure map...",
-                        "The Captain's rum fund is suffering, and so is your future! Ye be dry as a desert island!",
-                        "Looks like ye'll be swabbing the deck for a living now, ye penniless scallywag!",
-                        "My parrot's got more gold teeth than you've got coins left! Ye be truly broke!"
                     ];
                     const randomThreat = threats[Math.floor(Math.random() * threats.length)];
                     const randomEncouragement = donationEncouragements[Math.floor(Math.random() * donationEncouragements.length)];
 
-                    messageBox.innerHTML = `<strong>${randomThreat}</strong><br>
-                                            <p>${randomEncouragement} <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain's brother a coffee!</a></p>`;
+                    messageBox.innerHTML = `<strong>${randomThreat}</strong><br><p>${randomEncouragement} <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain's brother a coffee!</a></p>`;
                     balanceEl.textContent = "BROKE";
                     spinButton.textContent = "RESTART";
                     bettingArea.classList.add('disabled'); 
-                    console.log('processEndOfRound(): Game Over state. Button text: RESTART, betting disabled.');
+                    animateCaptain(); // Captain appears for the final insult
                 } else {
                     spinButton.textContent = "SPIN AGAIN!";
                     bettingArea.classList.remove('disabled'); 
-                    console.log('processEndOfRound(): Game continues. Button text: SPIN AGAIN!, betting enabled.');
                 }
                 spinButton.disabled = false; 
                 canvas.style.cursor = 'grab'; 
-                console.log('processEndOfRound(): Final state update: isSpinning:', isSpinning, 'spinButton.disabled:', spinButton.disabled);
             }
         }
 
-        /**
-         * Handles the end of a spin, processes results, and applies Captain's rules.
-         * This function is now called after *any* spin (manual or automated) has visually stopped.
-         * @param {number} finalLandedNumber The number the wheel was predetermined to land on.
-         */
         function endSpin(finalLandedNumber) {
-            console.log('endSpin() called. isFreeSpin:', isFreeSpin, 'finalLandedNumber:', finalLandedNumber);
             if (isFreeSpin) {
                 isSpinning = false;
                 spinButton.disabled = false;
@@ -1289,52 +1155,34 @@
                 currentBet = null; 
                 document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
                 updatePotentialHaul(); 
-                betDisplayBubble.classList.remove('show'); // Hide bubble on free spin end
+                betDisplayBubble.classList.remove('show');
                 betDisplayBubble.classList.add('hidden');
-                console.log('endSpin(): Free spin completed, state reset.');
                 return;
             }
 
-            isSpinning = false; // Ensure isSpinning is false before processing results
-            const actualLandedNumber = finalLandedNumber; // Use the predetermined number
+            isSpinning = false;
+            const actualLandedNumber = finalLandedNumber;
             const betAmount = parseInt(betAmountInput.value);
             const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
             const parsedCurrentBet = parseInt(currentBet);
 
-            console.log('--- End Spin Analysis ---');
-            console.log('Bet Amount:', betAmount);
-            console.log('Current Bet (string):', currentBet);
-            console.log('Is bet on specific number (parsed)?:', betIsOnSpecificNumber);
-            console.log('Parsed Current Bet Number:', parsedCurrentBet);
-            console.log('blackNumbers.includes(parsedCurrentBet):', blackNumbers.includes(parsedCurrentBet)); // Added for debugging
-            console.log('Actual Landed Number (predetermined):', actualLandedNumber);
-            console.log('Is actual landed number BLACK?:', blackNumbers.includes(actualLandedNumber));
-            console.log('Is actual landed number RED?:', redNumbers.includes(actualLandedNumber));
-            console.log('Is actual landed number GREEN (0)?:', actualLandedNumber === 0);
-
-
-            let currentRoundWinnings = 0; // This will hold the net change for this specific outcome
+            let currentRoundWinnings = 0;
             let message = '';
             
-            // Determine if the player bet on RED (color or specific red number)
             const playerBetRedColorOrSpecific = (currentBet === 'red' || (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)));
-            // Determine if the player bet on BLACK (color or specific black number)
             const playerBetBlackColorOrSpecific = (currentBet === 'black' || (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet)));
-            // Determine if the player bet on GREEN (specific 0)
             const playerBetGreen = (betIsOnSpecificNumber && parsedCurrentBet === 0);
 
-
-            // --- HANDLE LANDING ON GREEN (0) ---
             if (actualLandedNumber === 0) {
-                console.log('Landed on GREEN (0). Captain steals all gold!');
+                animateCaptain(); // Captain appears to take all the gold
                 const goldLost = balance;
                 currentRoundWinnings = -goldLost;
-                balance = 0; // Set balance to 0, as all gold is lost
-                totalWinLoss += currentRoundWinnings; // Update total win/loss
+                balance = 0;
+                totalWinLoss += currentRoundWinnings;
 
                 balanceEl.textContent = balance;
                 profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
-                profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
+                profitLossEl.className = totalWinLoss < 0 ? 'loss' : '';
                 messageBox.innerHTML = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
 
                 setTimeout(() => {
@@ -1345,45 +1193,35 @@
                         processEndOfRound(0, messageBox.textContent);
                     }, 4000);
                 }, 2000);
-                return; // Exit, special handling for 0
+                return;
             }
 
-            // --- Handle landing on BLACK number (potential intervention) ---
             if (blackNumbers.includes(actualLandedNumber)) {
-                console.log('Landed on BLACK number:', actualLandedNumber, 'Captain intervention will occur.');
                 let initialMessageBeforeIntervention = '';
-                let winningsBeforeIntervention = 0; // This will store the net change before the forced re-spin
+                let winningsBeforeIntervention = 0;
 
-                // Case: Player bet on a specific BLACK number and it landed on it
                 if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet) && actualLandedNumber === parsedCurrentBet) {
                     winningsBeforeIntervention = betAmount * 35;
-                    initialMessageBeforeIntervention = specificNumberWinMessages[Math.floor(Math.random() * specificNumberWinMessages.length)](actualLandedNumber, winningsBeforeIntervention);
-                    initialMessageBeforeIntervention += ` But the Captain demands RED!`; // Add Captain's demand
-                    // Apply this win immediately to balance and totalWinLoss
+                    initialMessageBeforeIntervention = specificNumberWinMessages[0](actualLandedNumber, winningsBeforeIntervention);
+                    initialMessageBeforeIntervention += ` But the Captain demands RED!`;
                     balance += winningsBeforeIntervention;
                     totalWinLoss += winningsBeforeIntervention;
-                }
-                // Case: Player bet on BLACK color or a different BLACK number
-                else if (playerBetBlackColorOrSpecific) {
-                    winningsBeforeIntervention = -betAmount * 20; // 20x loss
+                } else if (playerBetBlackColorOrSpecific) {
+                    winningsBeforeIntervention = -betAmount * 20;
                     initialMessageBeforeIntervention = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice! You lose $${Math.abs(winningsBeforeIntervention)}! But the wheel must be RED!`;
-                    balance += winningsBeforeIntervention; // Apply loss
-                    totalWinLoss += winningsBeforeIntervention; // Apply loss
-                }
-                // Case: Player bet on RED color or a specific RED number
-                else if (playerBetRedColorOrSpecific) {
+                    balance += winningsBeforeIntervention;
+                    totalWinLoss += winningsBeforeIntervention;
+                } else if (playerBetRedColorOrSpecific) {
                     let originalPotentialWin = (currentBet === 'red') ? betAmount : (betAmount * 35);
-                    winningsBeforeIntervention = Math.floor(originalPotentialWin * 0.25); // Partial win
+                    winningsBeforeIntervention = Math.floor(originalPotentialWin * 0.25);
                     initialMessageBeforeIntervention = `It's BLACK ${actualLandedNumber}! But the Captain, in his infinite 'generosity', has rigged it to RED! You snatched a partial reward of $${winningsBeforeIntervention}!`;
-                    balance += winningsBeforeIntervention; // Apply partial win
-                    totalWinLoss += winningsBeforeIntervention; // Apply partial win
-                }
-                // Case: Any other bet (e.g., green, or no specific bet)
-                else {
-                    winningsBeforeIntervention = -betAmount; // 1x loss
+                    balance += winningsBeforeIntervention;
+                    totalWinLoss += winningsBeforeIntervention;
+                } else {
+                    winningsBeforeIntervention = -betAmount;
                     initialMessageBeforeIntervention = `It's BLACK ${actualLandedNumber}! You lose $${Math.abs(winningsBeforeIntervention)}! The Captain demands RED!`;
-                    balance += winningsBeforeIntervention; // Apply loss
-                    totalWinLoss += winningsBeforeIntervention; // Apply loss
+                    balance += winningsBeforeIntervention;
+                    totalWinLoss += winningsBeforeIntervention;
                 }
 
                 messageBox.innerHTML = initialMessageBeforeIntervention;
@@ -1393,7 +1231,7 @@
                     gameContainer.classList.add('shaking');
                     
                     setTimeout(() => {
-                        let forcedRedNumber = actualLandedNumber; // Default to current if no red found
+                        let forcedRedNumber = actualLandedNumber;
                         let currentIndex = wheelSequence.indexOf(actualLandedNumber);
                         for (let i = 1; i < segments; i++) {
                             const checkIndex = (currentIndex + i) % segments;
@@ -1409,67 +1247,51 @@
                             let finalMessageAfterIntervention = '';
                             let additionalWinningsFromIntervention = 0;
 
-                            // Special rule: Player bet on specific RED number, landed BLACK, forced to RED, and lands on *that specific RED number*
                             if (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet) && forcedRedNumber === parsedCurrentBet) {
-                                additionalWinningsFromIntervention = (betAmount * 35) - winningsBeforeIntervention; // Calculate the remaining win
+                                additionalWinningsFromIntervention = (betAmount * 35) - winningsBeforeIntervention;
                                 balance += additionalWinningsFromIntervention;
                                 totalWinLoss += additionalWinningsFromIntervention;
                                 finalMessageAfterIntervention = `By the Captain's will, it's RED ${forcedRedNumber}! And it matches your number! A grand 35x haul!`;
                             } else {
-                                // Default messages for after intervention
-                                if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet) && actualLandedNumber === parsedCurrentBet) {
-                                    finalMessageAfterIntervention = `The wheel was forced to RED ${forcedRedNumber}. Your original black number hit was still a win!`;
-                                } else if (playerBetRedColorOrSpecific) {
-                                    finalMessageAfterIntervention = forcedRedAfterRedBetPartialWinMessages[Math.floor(Math.random() * forcedRedAfterRedBetPartialWinMessages.length)](forcedRedNumber, winningsBeforeIntervention);
+                                if (playerBetRedColorOrSpecific) {
+                                    finalMessageAfterIntervention = forcedRedAfterRedBetPartialWinMessages[0](forcedRedNumber, winningsBeforeIntervention);
                                 } else if (playerBetBlackColorOrSpecific) {
-                                    finalMessageAfterIntervention = forcedRedAfterBlackBetLossMessages[Math.floor(Math.random() * forcedRedAfterBlackBetLossMessages.length)](forcedRedNumber, winningsBeforeIntervention);
+                                    finalMessageAfterIntervention = forcedRedAfterBlackBetLossMessages[0](forcedRedNumber, winningsBeforeIntervention);
                                 } else {
-                                    finalMessageAfterIntervention = forcedRedAfterOtherBetLossMessages[Math.floor(Math.random() * forcedRedAfterOtherBetLossMessages.length)](forcedRedNumber, winningsBeforeIntervention);
+                                    finalMessageAfterIntervention = forcedRedAfterOtherBetLossMessages[0](forcedRedNumber, winningsBeforeIntervention);
                                 }
                             }
-                            processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention); // Pass total change for visuals
+                            processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention);
                         });
-                    }, 3000); // Delay for the rude comment
-                }, 1500); // Delay for the initial message
-                return; // Exit, as intervention takes over
+                    }, 3000);
+                }, 1500);
+                return;
             }
 
-            // --- Handle landing on RED number (no intervention) ---
             if (redNumbers.includes(actualLandedNumber)) {
-                console.log('Landed on RED number:', actualLandedNumber, 'No Captain intervention.');
-                // Case: Player bet on a specific RED number and it landed on it (already handled by the first `if` block for direct hits)
-                // This block is for other red number outcomes or color red bets
-                if (playerBetRedColorOrSpecific) { // User bet on RED (color)
+                 if (betIsOnSpecificNumber && actualLandedNumber === parsedCurrentBet) {
+                    currentRoundWinnings = betAmount * 35;
+                    message = specificNumberWinMessages[0](actualLandedNumber, currentRoundWinnings);
+                } else if (playerBetRedColorOrSpecific) {
                     currentRoundWinnings = betAmount; 
-                    message = redWinMessages[Math.floor(Math.random() * redWinMessages.length)](actualLandedNumber, currentRoundWinnings);
-                } else if (playerBetBlackColorOrSpecific) { // User bet on BLACK (color or specific black number)
-                    currentRoundWinnings = -betAmount * 20; // 20x loss
-                    message = redLossAfterBlackBetMessages[Math.floor(Math.random() * redLossAfterBlackBetMessages.length)](actualLandedNumber, currentRoundWinnings);
-                } else if (playerBetGreen) { // User bet on GREEN (0)
-                    currentRoundWinnings = -betAmount; // 1x loss
-                    message = redLossAfterOtherBetMessages[Math.floor(Math.random() * redLossAfterOtherBetMessages.length)](actualLandedNumber, currentRoundWinnings);
-                } else { // Catch-all for other bets (not red, black, or green)
+                    message = redWinMessages[0](actualLandedNumber, currentRoundWinnings);
+                } else if (playerBetBlackColorOrSpecific) {
+                    currentRoundWinnings = -betAmount * 20;
+                    message = redLossAfterBlackBetMessages[0](actualLandedNumber, currentRoundWinnings);
+                } else {
                     currentRoundWinnings = -betAmount;
-                    message = otherLossMessages[Math.floor(Math.random() * otherLossMessages.length)](actualLandedNumber, currentRoundWinnings);
+                    message = otherLossMessages[0](actualLandedNumber, currentRoundWinnings);
                 }
-            } else {
-                // This else block should ideally not be hit if all numbers are covered by red/black/green
-                currentRoundWinnings = -betAmount;
-                message = otherLossMessages[Math.floor(Math.random() * otherLossMessages.length)](actualLandedNumber, currentRoundWinnings);
             }
             
-            // Apply the winnings/losses to totalWinLoss and balance for non-captain-intervened outcomes
             totalWinLoss += currentRoundWinnings;
             balance += currentRoundWinnings;
             
-            processEndOfRound(currentRoundWinnings, message); // Pass currentRoundWinnings for visual effects
-            console.log('Balance after endSpin calculation:', balance);
-            console.log('Total Win/Loss after endSpin calculation:', totalWinLoss);
+            processEndOfRound(currentRoundWinnings, message);
         }
         
         function restartGame() {
-            console.log('restartGame() called.');
-            balance = 300; // Reset balance to 300 on restart
+            balance = 300;
             totalWinLoss = 0;
             balanceEl.textContent = balance;
             profitLossEl.textContent = `$${totalWinLoss}`; 
@@ -1482,9 +1304,8 @@
             updatePotentialHaul(); 
             canvas.style.cursor = 'grab'; 
             bettingArea.classList.remove('disabled'); 
-            betDisplayBubble.classList.remove('show'); // Hide bubble on restart
+            betDisplayBubble.classList.remove('show');
             betDisplayBubble.classList.add('hidden');
-            console.log('restartGame() completed. State reset.');
         }
 
         // --- Drag/Swipe Functions ---
@@ -1509,12 +1330,8 @@
         }
 
         function handleStart(e) {
-            console.log('handleStart() called. Initial state: isSpinning:', isSpinning, 'balance:', balance);
-            if (isSpinning || balance <= 0) {
-                console.log('handleStart() early exit: isSpinning or balance <= 0.');
-                return; 
-            }
-            hideInstructionalTooltip(); // Hide instructional tooltip on interaction
+            if (isSpinning || balance <= 0) return; 
+            hideInstructionalTooltip();
 
             e.preventDefault(); 
 
@@ -1524,11 +1341,10 @@
             if (!hasValidBet) {
                 isFreeSpin = true; 
                 messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
-                console.log('handleStart(): No valid bet, performing free spin.');
+                animateCaptain();
             } else {
                 isFreeSpin = false; 
                 messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
-                console.log('handleStart(): Valid bet placed.');
             }
 
             isDragging = true;
@@ -1541,14 +1357,11 @@
             if (inertiaAnimationId) { 
                 cancelAnimationFrame(inertiaAnimationId);
                 inertiaAnimationId = null;
-                console.log('handleStart(): Cancelled existing inertia animation.');
             }
             isSpinning = true; 
             spinButton.disabled = true;
             canvas.style.cursor = 'default';
-            console.log('handleStart(): State updated: isSpinning:', isSpinning, 'spinButton.disabled:', spinButton.disabled);
 
-            // --- DETERMINE WINNING NUMBER AND TARGET ANGLE HERE FOR DRAG SPINS ---
             predeterminedWinningNumber = wheelSequence[Math.floor(Math.random() * wheelSequence.length)];
             const winningIndexDrag = wheelSequence.indexOf(predeterminedWinningNumber);
             
@@ -1561,8 +1374,6 @@
             let randomAdditionalRotationsDrag = minAdditionalRotationsDrag + Math.random() * (maxAdditionalRotationsDrag - minAdditionalRotationsDrag);
 
             predeterminedTargetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotationsDrag) * 2 * Math.PI) + rotationDifferenceDrag;
-            console.log('handleStart(): Predetermined Winning Number (Drag):', predeterminedWinningNumber, 'Target Angle (Drag):', predeterminedTargetAngle);
-            // --- END DETERMINE WINNING NUMBER AND TARGET ANGLE HERE ---
         }
 
         function handleMove(e) {
@@ -1577,7 +1388,7 @@
             if (deltaAngle < -Math.PI) deltaAngle += 2 * Math.PI;
 
             currentWheelRotation += deltaAngle; 
-            totalDragRotation += deltaAngle;    
+            totalDragRotation += deltaAngle;   
 
             drawWheel(currentWheelRotation); 
 
@@ -1590,16 +1401,14 @@
             lastMoveTime = currentTime; 
         }
 
-        // This function handles the natural deceleration after a flick
         function animateInertia(timestamp) {
-            if (!animateInertia.start) animateInertia.start = timestamp; // Initialize start time for this animation
+            if (!animateInertia.start) animateInertia.start = timestamp;
             const progress = timestamp - animateInertia.start;
-            const flickSpinDuration = 4000; // Increased to 4000ms for smoother stop
+            const flickSpinDuration = 4000;
             const easeOutQuad = t => t * (2 - t);
             const t = Math.min(progress / flickSpinDuration, 1);
             const easedT = easeOutQuad(t);
             
-            // Animate towards the predetermined target angle
             const rotation = animateInertia.startRotation + (easedT * (predeterminedTargetAngle - animateInertia.startRotation));
 
             drawWheel(rotation);
@@ -1609,43 +1418,39 @@
                 inertiaAnimationId = requestAnimationFrame(animateInertia);
             } else {
                 inertiaAnimationId = null;
-                currentWheelRotation = predeterminedTargetAngle; // Snap to final position
-                drawWheel(currentWheelRotation); // Redraw at final position
-                animateInertia.start = null; // Reset start time for next flick
-                endSpin(predeterminedWinningNumber); // Pass the predetermined winning number
+                currentWheelRotation = predeterminedTargetAngle;
+                drawWheel(currentWheelRotation);
+                animateInertia.start = null;
+                endSpin(predeterminedWinningNumber);
             }
         }
 
         function handleEnd(e) {
-            console.log('handleEnd() called. isDragging:', isDragging, 'isSpinning:', isSpinning);
             if (!isDragging) return; 
             isDragging = false; 
             canvas.classList.remove('grabbing');
             canvas.style.cursor = 'grab'; 
 
-            // Always start an animation to the predetermined target angle
-            // The starting point for this animation is the current visual rotation
             animateInertia.startRotation = currentWheelRotation;
-            animateInertia.start = null; // Ensure fresh start for timestamp
+            animateInertia.start = null;
             inertiaAnimationId = requestAnimationFrame(animateInertia);
 
             totalDragRotation = 0; 
         }
 
         // --- Tooltip Functions ---
-        let activeTooltipElement = null; // Keep track of the element currently showing a tooltip
+        let activeTooltipElement = null;
 
         function showTooltip(element) {
             const tooltipText = element.dataset.tooltip;
             if (!tooltipText) return;
 
-            // Hide any currently active tooltip
             hideTooltip();
 
             customTooltip.textContent = tooltipText;
             customTooltip.classList.remove('hidden');
             customTooltip.classList.add('show');
-            activeTooltipElement = element; // Set the active element
+            activeTooltipElement = element;
 
             positionTooltip(element);
         }
@@ -1655,26 +1460,19 @@
                 customTooltip.classList.remove('show');
                 customTooltip.classList.add('hidden');
             }
-            activeTooltipElement = null; // Clear the active element
+            activeTooltipElement = null;
         }
 
         function positionTooltip(element) {
             const rect = element.getBoundingClientRect();
             const tooltipRect = customTooltip.getBoundingClientRect();
 
-            let top = rect.top - tooltipRect.height - 10; // 10px above the element
+            let top = rect.top - tooltipRect.height - 10;
             let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
 
-            // Keep tooltip within viewport
-            if (top < 0) { // If it goes above the top, position below
-                top = rect.bottom + 10;
-            }
-            if (left < 0) { // If it goes off left, align to left edge
-                left = 5; // Small padding from edge
-            }
-            if (left + tooltipRect.width > window.innerWidth) { // If it goes off right, align to right edge
-                left = window.innerWidth - tooltipRect.width - 5; // Small padding from edge
-            }
+            if (top < 0) { top = rect.bottom + 10; }
+            if (left < 0) { left = 5; }
+            if (left + tooltipRect.width > window.innerWidth) { left = window.innerWidth - tooltipRect.width - 5; }
 
             customTooltip.style.top = `${top + window.scrollY}px`;
             customTooltip.style.left = `${left + window.scrollX}px`;
@@ -1684,10 +1482,8 @@
         document.getElementById('bet-red').addEventListener('click', (e) => selectBet(e.target.dataset.bet, e.target));
         document.getElementById('bet-black').addEventListener('click', (e) => selectBet(e.target.dataset.bet, e.target));
         
-        // New event listener for the "BET ON NUMBER" button
         betNumberButton.addEventListener('click', () => {
             if (!isSpinning && balance > 0) {
-                // Visually select the "BET ON NUMBER" button
                 selectBet(currentBet, betNumberButton); 
                 modalOverlay.classList.remove('hidden');
             }
@@ -1709,24 +1505,16 @@
             updatePotentialHaul();
         });
 
-        modalClose.addEventListener('click', () => {
-            modalOverlay.classList.add('hidden');
-        });
-        
+        modalClose.addEventListener('click', () => modalOverlay.classList.add('hidden'));
         modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                modalOverlay.classList.add('hidden');
-            }
+            if (e.target === modalOverlay) modalOverlay.classList.add('hidden');
         });
 
         spinButton.addEventListener('click', () => {
-            console.log('Spin button clicked. Current balance:', balance);
             if (balance <= 0) {
-                console.log('Spin button: Balance is 0 or less, calling restartGame().');
                 restartGame();
             } else {
-                console.log('Spin button: Balance is positive, calling spin().');
-                hideInstructionalTooltip(); // Hide instructional tooltip on interaction
+                hideInstructionalTooltip();
                 spin(); 
             }
         });
@@ -1736,62 +1524,50 @@
         
         function resizeCanvas() {
             const wheelContainer = document.querySelector('.wheel-container');
-            canvas.width = wheelContainer.clientWidth;
-            canvas.height = wheelContainer.clientHeight;
+            const size = Math.min(wheelContainer.clientWidth, wheelContainer.clientHeight);
+            canvas.width = size;
+            canvas.height = size;
             drawWheel(currentWheelRotation); 
-            // Reposition tooltip if it's currently visible
             if (activeTooltipElement) {
                 positionTooltip(activeTooltipElement);
             }
         }
 
-        // Initial setup calls
+        // Initial setup
         createModalGrid();
         initializeWheel();
         resizeCanvas(); 
         updatePotentialHaul(); 
+        setTimeout(showInstructionalTooltip, 2000);
 
-        // Initial display of instructional tooltip after a short delay
-        setTimeout(showInstructionalTooltip, 2000); // Show after 2 seconds
-
-        // Add resize listener
+        // Event listeners
         window.addEventListener('resize', resizeCanvas);
-
-        // Add drag/swipe event listeners to the canvas
         canvas.addEventListener('mousedown', handleStart);
         canvas.addEventListener('mousemove', handleMove);
         canvas.addEventListener('mouseup', handleEnd);
         canvas.addEventListener('mouseleave', handleEnd); 
-
         canvas.addEventListener('touchstart', handleStart);
         canvas.addEventListener('touchmove', handleMove);
         canvas.addEventListener('touchend', handleEnd);
         canvas.addEventListener('touchcancel', handleEnd); 
 
-        // --- Tooltip Event Listeners ---
         document.querySelectorAll('[data-tooltip]').forEach(element => {
-            // Desktop hover events
             element.addEventListener('mouseenter', () => {
-                if (!isSpinning) { // Don't show tooltips during spin
-                    showTooltip(element);
-                }
+                if (!isSpinning) showTooltip(element);
             });
             element.addEventListener('mouseleave', hideTooltip);
-
-            // Mobile touch events
             element.addEventListener('touchstart', (e) => {
                 if (!isSpinning) {
-                    e.stopPropagation(); // Prevent document click from immediately hiding
+                    e.stopPropagation();
                     if (activeTooltipElement === element) {
-                        hideTooltip(); // Tap same element to dismiss
+                        hideTooltip();
                     } else {
-                        showTooltip(element); // Tap different element to show new tooltip
+                        showTooltip(element);
                     }
                 }
-            }, { passive: true }); // Use passive for better scroll performance
+            }, { passive: true });
         });
 
-        // Global click listener to hide tooltip if clicking outside the active tooltip element
         document.addEventListener('click', (e) => {
             if (activeTooltipElement && !activeTooltipElement.contains(e.target) && !customTooltip.contains(e.target)) {
                 hideTooltip();
