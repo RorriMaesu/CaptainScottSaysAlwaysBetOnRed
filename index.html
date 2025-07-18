@@ -652,7 +652,7 @@
             let loseAmount = 0;
             let winPercentage = 0;
             let losePercentage = 0;
-            let orderMessage = "";
+            let orderMessage = ""; // This is what I need to randomize
 
             const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
             const parsedBetNumber = parseInt(currentBet);
@@ -682,13 +682,13 @@
                 loseAmount = 0; // Always safe for red color bet if not hit
                 winPercentage = 100;
                 losePercentage = 0; // Always safe for red color bet if not hit
-                orderMessage = "A safe bet for a true sailor!";
+                orderMessage = redBetMessages[Math.floor(Math.random() * redBetMessages.length)];
             } else if (currentBet === 'black') {
                 winAmount = 0; 
                 loseAmount = betAmount * 20; // Updated to 20x bet
                 winPercentage = 0;
                 losePercentage = 2000;
-                orderMessage = "BAH! Black is for landlubbers! A costly mistake!";
+                orderMessage = blackBetMessages[Math.floor(Math.random() * blackBetMessages.length)];
             }
 
             ordersText.textContent = orderMessage;
@@ -904,6 +904,23 @@
             (number, losses) => `A miss! The wheel shows ${number}. Your gold of $${Math.abs(losses)} is gone with the tide!`,
             (number, losses) => `Alas, ${number} it is. Your wager of $${Math.abs(losses)} has vanished!`,
             (number, losses) => `The fates conspired! ${number} appeared, and your $${Math.abs(losses)} vanished into the abyss!`
+        ];
+
+        // New lists for red and black bet selection messages
+        const redBetMessages = [
+            "A safe bet for a true sailor!",
+            "The color of courage! A fine choice, matey!",
+            "Betting on the crimson tide, eh? Bold!",
+            "Red as the Captain's favorite rum! Good choice!",
+            "May the red seas bring ye fortune!"
+        ];
+
+        const blackBetMessages = [
+            "BAH! Black is for landlubbers! A costly mistake!",
+            "Choosing the darkness, are we? A risky gamble, arr!",
+            "Black as the abyss! May ye not sink with yer choice!",
+            "The shadow's path, eh? Don't say I didn't warn ye!",
+            "A daring, perhaps foolish, black wager!"
         ];
 
 
