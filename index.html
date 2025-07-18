@@ -570,10 +570,14 @@
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.5);
             border: 3px solid var(--gold-color);
-            animation-duration: 0.8s;
-            animation-fill-mode: forwards;
-            animation-timing-function: ease-out;
         }
+        
+        /* Animation classes for JS to toggle */
+        #captain-image.animate-pop-in { animation: captain-pop-in 0.8s ease-out forwards; }
+        #captain-image.animate-slide-in { animation: captain-slide-in 0.8s ease-out forwards; }
+        #captain-image.animate-peek-up { animation: captain-peek-up 0.8s ease-out forwards; }
+        #captain-image.animate-wobble { animation: captain-wobble 0.8s ease-out forwards; }
+
 
         /* Responsive Captain */
         @media (max-width: 600px) {
@@ -638,7 +642,7 @@
 
     <!-- Captain's Animated Image -->
     <div id="captain-container">
-        <img id="captain-image" src="https://i.imgur.com/vsKzJVS.jpeg" alt="Captain Scottathy" onerror="this.onerror=null; this.src='https://placehold.co/200x200/0d1a26/ffd700?text=Captain+Missing!';">
+        <img id="captain-image" src="CaptainScattathy.png" alt="Captain Scottathy" onerror="this.onerror=null; this.src='https://placehold.co/200x200/0d1a26/ffd700?text=Captain+Missing!';">
     </div>
 
     <!-- Tooltip Elements -->
@@ -705,21 +709,27 @@
 
         // --- Captain Animation ---
         function animateCaptain() {
-            const animations = ['captain-pop-in', 'captain-slide-in', 'captain-peek-up', 'captain-wobble'];
-            const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+            const animationClasses = ['animate-pop-in', 'animate-slide-in', 'animate-peek-up', 'animate-wobble'];
+            const randomAnimationClass = animationClasses[Math.floor(Math.random() * animationClasses.length)];
             
-            // Make the container visible first
+            // Remove any existing animation classes
+            captainImage.classList.remove(...animationClasses);
+
+            // Make the container visible
             captainContainer.classList.add('show');
             
-            // Reset the animation by clearing it, then re-applying it.
-            // This ensures the animation plays every time the function is called.
-            captainImage.style.animation = 'none';
-            void captainImage.offsetWidth; // Trigger a reflow to apply the style change
-            captainImage.style.animation = `${randomAnimation} 0.8s ease-out forwards`;
+            // Add the new animation class after a brief delay to ensure it restarts
+            setTimeout(() => {
+                captainImage.classList.add(randomAnimationClass);
+            }, 10);
 
             // Hide the captain after a few seconds
             setTimeout(() => {
                 captainContainer.classList.remove('show');
+                 // Clean up the class after the hide transition is done
+                setTimeout(() => {
+                    captainImage.classList.remove(randomAnimationClass);
+                }, 500);
             }, 4000); // Captain stays for 4 seconds
         }
 
