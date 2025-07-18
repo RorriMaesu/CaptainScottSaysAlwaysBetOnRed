@@ -487,6 +487,12 @@
             pointer-events: none;
         }
 
+        #instructional-tooltip.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
         @media (max-width: 767px) {
             #instructional-tooltip {
                 bottom: calc(60px + 0.4rem + 10px);
@@ -783,7 +789,6 @@
                     }, 500); // This should match the transition duration in the CSS
                 }, duration);
             }
-            return duration; // Return the calculated duration
         }
 
         // --- UI and Wheel Drawing ---
@@ -1006,7 +1011,7 @@
             (number, winnings) => `A glorious RED ${number}! The Captain's favor is upon ye! You've plundered $${winnings}!`,
         ];
 
-        const redLossAfterBlackBetLossMessages = [
+        const redLossAfterBlackBetMessages = [
             (number, losses) => `It's RED ${number}! The Captain scoffs at yer black-hearted bet! You lose $${Math.abs(losses)}!`,
             (number, losses) => `Ye chose darkness, but the light of RED ${number} prevailed! You're down $${Math.abs(losses)}!`,
         ];
@@ -1245,32 +1250,27 @@
                 const punishmentMessage = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
                 const finalWords = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
                 
-                const initialDuration = animateCaptain('smug', punishmentMessage); 
+                animateCaptain('smug', punishmentMessage); 
 
                 setTimeout(() => {
                     gameContainer.classList.add('shaking');
                     processEndOfRound(currentRoundWinnings, finalWords, 'rage');
-                }, initialDuration + 200);
+                }, 5100);
                 return;
             }
 
             if (blackNumbers.includes(actualLandedNumber)) {
                 let winningsBeforeIntervention = 0;
-                let initialMessage = '';
 
                 if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet) && actualLandedNumber === parsedCurrentBet) {
                     winningsBeforeIntervention = betAmount * 35;
-                    initialMessage = `It's BLACK ${actualLandedNumber}! A lucky shot, but I don't like it...`;
                 } else if (playerBetBlackColorOrSpecific) {
                     winningsBeforeIntervention = -betAmount * 20;
-                    initialMessage = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice!`;
                 } else if (playerBetRedColorOrSpecific) {
                     let originalPotentialWin = (currentBet === 'red') ? betAmount : (betAmount * 35);
                     winningsBeforeIntervention = Math.floor(originalPotentialWin * 0.25);
-                    initialMessage = `It's BLACK ${actualLandedNumber}! Bah! I'll give ye a pittance for yer good taste...`;
                 } else {
                     winningsBeforeIntervention = -betAmount;
-                    initialMessage = `It's BLACK ${actualLandedNumber}! A fool's bet from the start!`;
                 }
                 balance += winningsBeforeIntervention;
                 totalWinLoss += winningsBeforeIntervention;
@@ -1278,7 +1278,6 @@
                 profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
                 profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
 
-                const initialDuration = animateCaptain('rage', initialMessage);
 
                 setTimeout(() => {
                     gameContainer.classList.add('shaking');
@@ -1314,7 +1313,7 @@
                         }
                         processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention, 'smug');
                     });
-                }, initialDuration + 500); // Wait for the first comment to finish + a small pause
+                }, 2000); // Increased delay to allow reading time
                 return;
             }
 
