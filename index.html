@@ -42,7 +42,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 0.5rem;
+            padding: 0.2rem; /* Reduced overall body padding */
             box-sizing: border-box;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%23142433' fill-opacity='0.4'%3E%3Crect x='0' y='0' width='50' height='50'/%3E%3Crect x='50' y='50' width='50' height='50'/%3E%3C/g%E3C/svg%3E");
             padding-bottom: calc(0.5rem + 70px); /* Add space for sticky footer (padding + button height) */
@@ -50,7 +50,7 @@
 
         .game-container {
             background-color: var(--container-bg);
-            padding: clamp(0.8rem, 2.5vw, 2rem);
+            padding: clamp(0.5rem, 2vw, 1.5rem); /* Adjusted padding */
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             border: 5px solid var(--gold-color);
@@ -67,8 +67,8 @@
             font-family: 'Bebas Neue', sans-serif; /* New font for title */
             color: var(--primary-color);
             text-shadow: 2px 2px 5px #000;
-            font-size: clamp(1.8rem, 6vw, 2.8rem); /* Increased min font size for impact */
-            margin-bottom: 0.5rem; /* Reduced margin */
+            font-size: clamp(1.6rem, 5vw, 2.8rem); /* Slightly smaller min font size for impact */
+            margin-bottom: 0.5rem; 
             white-space: nowrap; 
             overflow: hidden; 
             text-overflow: ellipsis; 
@@ -89,7 +89,7 @@
             display: flex; 
             flex-direction: column;
             align-items: center;
-            gap: 0.8rem; /* Reduced gap */
+            gap: 0.5rem; /* Reduced gap */
             flex: 1; 
             min-height: 0; 
         }
@@ -109,13 +109,19 @@
             max-width: 300px;
             width: 100%;
             margin: 0 auto;
+            /* New: Limit height to a percentage of viewport height */
+            max-height: 45vh; /* Adjust this value as needed to fit content */
+            display: flex; /* Make it a flex container to center canvas */
+            justify-content: center;
+            align-items: center;
         }
         
         #roulette-canvas {
             border-radius: 50%;
             border: 10px ridge var(--gold-color);
             width: 100%;
-            height: auto;
+            height: 100%; /* Make canvas fill container */
+            object-fit: contain; /* Shrink to fit while maintaining aspect ratio */
             cursor: grab; 
         }
         #roulette-canvas.grabbing {
@@ -138,20 +144,20 @@
 
         .stats p {
             margin: 0; /* Removed margin */
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem); 
+            font-size: clamp(0.8rem, 2.2vw, 1.2rem); /* Slightly smaller min font size */
         }
         
         #balance, #profit-loss {
             color: var(--gold-color);
             font-weight: bold;
-            font-size: clamp(1.1rem, 3vw, 1.5rem); 
+            font-size: clamp(1rem, 2.8vw, 1.5rem); 
         }
 
         #profit-loss.loss { color: var(--primary-color); }
         #profit-loss.profit { color: #00ff00; }
         
         #message-box {
-            font-size: clamp(0.9rem, 2.3vw, 1.3rem); 
+            font-size: clamp(0.8rem, 2.1vw, 1.3rem); /* Slightly smaller min font size */
             color: var(--primary-color);
             min-height: auto; 
             font-weight: bold;
@@ -172,11 +178,11 @@
         }
         
         #orders-text {
-            font-size: clamp(0.75rem, 1.8vw, 1.1rem); 
+            font-size: clamp(0.7rem, 1.7vw, 1.1rem); /* Slightly smaller min font size */
         }
         
         #potential-haul {
-            font-size: clamp(1rem, 2.3vw, 1.4rem); 
+            font-size: clamp(0.9rem, 2.2vw, 1.4rem); /* Slightly smaller min font size */
             font-weight: bold;
             color: var(--gold-color);
         }
@@ -193,7 +199,7 @@
         .betting-area {
             display: flex;
             flex-direction: column;
-            gap: 8px; 
+            gap: 5px; /* Reduced gap */
             background: #000;
             padding: 10px; 
             border-radius: 10px;
@@ -204,7 +210,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: stretch;
-            gap: 8px; 
+            gap: 5px; /* Reduced gap */
         }
 
         @media (min-width: 500px) {
@@ -216,7 +222,7 @@
         .bet-option {
             padding: clamp(6px, 1.8vw, 15px); 
             border-radius: 10px;
-            font-size: clamp(1rem, 3.5vw, 1.8rem); 
+            font-size: clamp(0.9rem, 3.2vw, 1.8rem); /* Slightly smaller min font size */
             font-weight: bold;
             border: 3px solid #000;
             cursor: pointer;
@@ -243,12 +249,12 @@
             background: none;
             border: none;
             color: var(--gold-color);
-            font-size: clamp(1.8rem, 5.5vw, 3rem); /* Adjusted font size for buttons */
+            font-size: clamp(1.6rem, 5vw, 3rem); /* Slightly smaller min font size */
             font-weight: bold;
             cursor: pointer;
-            padding: 0 5px; /* Add some padding */
-            min-width: 44px; /* Minimum touch target width */
-            min-height: 44px; /* Minimum touch target height */
+            padding: 0 5px; 
+            min-width: 44px; 
+            min-height: 44px; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -263,9 +269,9 @@
             border-radius: 5px;
             text-align: center;
             font-family: inherit;
-            font-size: clamp(0.9rem, 2.2vw, 1.2rem); 
+            font-size: clamp(0.8rem, 2.1vw, 1.2rem); /* Slightly smaller min font size */
             font-weight: bold;
-            min-height: 34px; /* Ensure input field is also touch-friendly */
+            min-height: 34px; 
         }
         
         .bet-option:hover, .bet-stepper-button:hover, #bet-number-button:hover {
@@ -281,11 +287,11 @@
         #bet-red { background-color: var(--primary-color); color: #fff; }
         #bet-black { background-color: var(--black-color); color: #fff; }
         #bet-number-button { 
-            background-color: var(--green-color); /* Use green for number bet button */
+            background-color: var(--green-color); 
             color: #fff;
             padding: clamp(6px, 1.8vw, 15px);
             border-radius: 10px;
-            font-size: clamp(1rem, 3.5vw, 1.8rem);
+            font-size: clamp(0.9rem, 3.2vw, 1.8rem); /* Slightly smaller min font size */
             font-weight: bold;
             border: 3px solid #000;
             cursor: pointer;
@@ -302,7 +308,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: var(--container-bg); /* Match game container background */
+            background-color: var(--container-bg); 
             padding: 0.5rem 1rem;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
             z-index: 999;
@@ -310,11 +316,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 70px; /* Height to reserve space for the button */
+            min-height: 70px; 
         }
 
         #spin-button {
-            width: 100%; /* Make it fill the sticky footer */
+            width: 100%; 
             padding: clamp(12px, 2.5vw, 20px); 
             font-size: clamp(1.3rem, 3.5vw, 2rem); 
             font-weight: bold;
@@ -339,7 +345,7 @@
         .betting-area.disabled #bet-number-button {
             opacity: 0.5;
             cursor: not-allowed;
-            pointer-events: none; /* Disable all pointer events */
+            pointer-events: none; 
         }
         
         #modal-overlay {
@@ -390,7 +396,7 @@
         
         .modal-number-box {
             padding: 10px 8px; 
-            font-size: clamp(0.9rem, 2.8vw, 1.2rem); 
+            font-size: clamp(0.8rem, 2.5vw, 1.2rem); /* Slightly smaller min font size */
             font-weight: bold;
             color: #fff;
             cursor: pointer;
@@ -565,7 +571,7 @@
                 
                 ctx.save();
                 ctx.fillStyle = '#fff';
-                ctx.font = `bold ${wheelSize * 0.045}px 'Arial', sans-serif`; /* Updated font for numbers */
+                ctx.font = `bold ${wheelSize * 0.045}px 'Arial', sans-serif`; 
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 const numberToDraw = wheelSequence[i];
@@ -864,7 +870,7 @@
             requestAnimationFrame(reSpinAnimate);
         }
         
-        function processEndOfRound(winnings, message, isFinalStep = true) { // Removed sound parameter
+        function processEndOfRound(winnings, message, isFinalStep = true) { 
             balance += winnings;
             totalWinLoss += winnings;
             messageBox.innerHTML = message;
@@ -1235,10 +1241,11 @@
         betAmountInput.addEventListener('change', updatePotentialHaul); 
         
         function resizeCanvas() {
+            // Get the actual rendered dimensions of the canvas container
             const wheelContainer = document.querySelector('.wheel-container');
-            const size = Math.max(100, Math.min(wheelContainer.offsetWidth, wheelContainer.offsetHeight || 300)); 
-            canvas.width = size;
-            canvas.height = size;
+            // Set canvas drawing buffer size to match its display size
+            canvas.width = wheelContainer.clientWidth;
+            canvas.height = wheelContainer.clientHeight;
             drawWheel(currentWheelRotation); 
         }
 
