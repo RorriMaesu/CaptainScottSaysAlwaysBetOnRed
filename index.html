@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captain's Roulette</title>
+    <title>Captain Scottathy's Roulette</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
         @keyframes shake {
@@ -462,7 +462,7 @@
     <div class="game-container" id="game-container">
         <h1>
             <svg class="skull" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9c-.83 0-1.5.67-1.5 1.5S9.17 14 10 14s1.5-.67 1.5-1.5S10.83 11 10 11zm4 0c-.83 0-1.5.67-1.5 1.5S13.17 14 14 14s1.5-.67 1.5-1.5S14.83 11 14 11zm-4 4h4v2h-4v-2z"/></svg>
-            Captain's Roulette
+            Captain Scottathy's Roulette
             <svg class="skull" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9c-.83 0-1.5.67-1.5 1.5S9.17 14 10 14s1.5-.67 1.5-1.5S10.83 11 10 11zm4 0c-.83 0-1.5.67-1.5 1.5S13.17 14 14 14s1.5-.67 1.5-1.5S14.83 11 14 11zm-4 4h4v2h-4v-2z"/></svg>
         </h1>
         <div class="game-area">
@@ -471,7 +471,7 @@
             </div>
             <div class="controls">
                 <div class="stats">
-                    <p data-tooltip="Your current pirate treasure. Don't let it hit zero, or the sharks get hungry!">Treasure: <span id="balance">100</span></p>
+                    <p data-tooltip="Your current pirate treasure. Don't let it hit zero, or the sharks get hungry!">Treasure: <span id="balance">300</span></p>
                     <p data-tooltip="Yer gains or losses this voyage. Aim for gold, not barnacles!">Profit/Loss: <span id="profit-loss">0</span></p>
                     <p id="message-box" class="message-box">The Captain is watchin' ye...</p>
                 </div>
@@ -532,7 +532,7 @@
         const customTooltip = document.getElementById('custom-tooltip'); // Tooltip element
 
         // Game State
-        let balance = 100;
+        let balance = 300; // Changed starting balance to 300
         let totalWinLoss = 0;
         let isSpinning = false; 
         let currentBet = null;
@@ -823,6 +823,29 @@
             "Your gold turned into a pile of green, moldy cheese! Not quite as valuable, is it?"
         ];
 
+        const donationEncouragements = [
+            "Psst... The Captain's rum fund is lookin' a bit dry. A small 'donation' could help ye find yer sea legs again! And maybe help his brother, the coding wizard, buy some new quills.",
+            "The winds of fortune have abandoned ye, but a kind gesture to the Captain's brother might bring 'em back! He's available for hire, by the way, and his code is sharper than any cutlass!",
+            "Even a pirate needs a patron! Consider tossin' a few coins to the coding genius, Captain Scottathay's brother. He builds mighty fine apps and is always looking for new contracts!",
+            "Yer treasure chest is emptier than a mermaid's promise! But fear not, a small contribution to the developer (Captain Scottathay's brother, available for hire!) could turn the tide. He's got skills to pay the bills!",
+            "The Captain's parrot is hungry for shiny things, and so is his brother's coding ambition! A donation would be a true act of piracy... in reverse! Plus, he's open for business!",
+            "By the Kraken's beard, ye've hit rock bottom! But the coder behind this glorious game (Captain Scottathay's brother) is always lookin' for new adventures... and contracts! His rates are fair, arr!",
+            "Don't just stand there with empty pockets! The architect of this digital high seas adventure, Captain Scottathay's brother, is ready for your next project. A donation helps him sharpen his tools and keeps the code flowing!",
+            "Your gold vanished like a ghost ship in the fog! But Captain Scottathay's brother, the coding wizard, can conjure up new wonders for ye... for a fee, of course! He's got a portfolio as vast as the ocean!",
+            "The Captain's grog is running low, and so is the fuel for future updates! A small token for the developer (Captain Scottathay's brother, always open for business!) would be a grand gesture. He's a coding legend!",
+            "Looks like ye'll be swabbing the deck for eternity! Unless, of course, ye support the coding mastermind, Captain Scottathay's brother. He crafts digital masterpieces and is available for hire for all yer web and app needs!",
+            "This game ain't gonna code itself, ye know! Captain Scottathay's brother, the developer, is always lookin' for new challenges. A little gold helps him keep the magic alive!",
+            "Feeling generous, even in defeat? The Captain's brother, the coder, could use a boost for his next grand creation. He's got a mind sharper than a shark's tooth!",
+            "A true pirate knows when to invest! And investing in Captain Scottathay's brother's coding skills is a sure bet. He's available for hire, and he won't make ye walk the plank!",
+            "Your pockets are lighter than a feather, but the Captain's brother's code is heavy with talent! He's available for hire for any digital treasure you seek to build.",
+            "The Captain demands tribute! And his brother, the coder, demands a fair wage! Help a fellow buccaneer out and consider him for your next coding quest. He's got the chops!",
+            "Even the most fearsome pirates need a good tech mate! Captain Scottathay's brother is yer man for all things code. He's ready to set sail on your projects!",
+            "Don't let yer losses sink yer spirits! Instead, lift the spirits of Captain Scottathay's brother, the coding genius, with a small token. He's ready to build the next big thing!",
+            "This whole operation runs on rum and code! The rum's on the Captain, but the code's on his brother. Support the coder, he's available for hire and worth his weight in gold doubloons!",
+            "A wise pirate knows when to call in the experts! Captain Scottathay's brother is a coding expert, and he's lookin' for work. Your generosity fuels his genius!",
+            "The Captain's got the ship, but his brother's got the skills to make it fly (digitally, that is)! He's available for hire, and he'll make yer digital dreams a reality!"
+        ];
+
 
         // This function handles the "Spin!" button click and controlled spins
         function spin() {
@@ -998,24 +1021,22 @@
 
                 if (balance <= 0) {
                     const threats = [
-                        "The Captain's patience is gone! The loan sharks are comin' for ye! (And my brother, who coded this, could use a job!)",
-                        "Ye owe the Captain! Pay up, or you'll be sleepin' with the fishes! (Or, y'know, hire my brother. He's good!)",
-                        "Yer treasure is gone! I hear the loan sharks have a special plank just for you! (My brother, the coder, is available for hire, just sayin'!)",
-                        "Broke again?! The loan sharks are circling... and they look hungry! (Perhaps a small token for the coding wizard, Captain Scottathay's brother?)",
-                        "Shiver me timbers, ye be poorer than a church mouse on a leaky ship! (My brother built this whole thing, he's looking for work!)",
-                        "By the beard of Poseidon, yer coffers are emptier than a mermaid's promise! (But Captain Scottathay's brother, the coder, can fill yours... for a fee!)",
-                        "Yer gold's gone, swallowed by the depths! Time to find a new treasure map... or hire my brother, the coding genius!",
-                        "The Captain's rum fund is suffering, and so is your future! Ye be dry as a desert island! (A small donation for the coder, Captain Scottathay's brother, would be appreciated!)",
-                        "Looks like ye'll be swabbing the deck for a living now, ye penniless scallywag! (Unless you hire Captain Scottathay's brother, he's excellent at coding!)",
-                        "My parrot's got more gold teeth than you've got coins left! Ye be truly broke! (But Captain Scottathay's brother, the developer, is always looking for new contracts!)",
-                        "The sea demands a price, and so does good code! Consider supporting Captain Scottathay's brother, the brilliant coder!",
-                        "Don't just sit there lamenting your losses! Captain Scottathay's brother, the coding maestro, is available for your next grand project!",
-                        "Your fortune's sunk faster than a leaky bucket! But fear not, Captain Scottathay's brother, the coder, can build you a new ship (or app)!",
-                        "Even a pirate needs a good coder! Captain Scottathay's brother is ready for hire, just say the word!",
-                        "Out of gold and out of luck? Perhaps a kind gesture towards Captain Scottathay's brother, the coding wizard, will turn the tide!"
+                        "The Captain's patience is gone! The loan sharks are comin' for ye!",
+                        "Ye owe the Captain! Pay up, or you'll be sleepin' with the fishes!",
+                        "Yer treasure is gone! I hear the loan sharks have a special plank just for you!",
+                        "Broke again?! The loan sharks are circling... and they look hungry!",
+                        "Shiver me timbers, ye be poorer than a church mouse on a leaky ship!",
+                        "By the beard of Poseidon, yer coffers are emptier than a mermaid's promise!",
+                        "Yer gold's gone, swallowed by the depths! Time to find a new treasure map...",
+                        "The Captain's rum fund is suffering, and so is your future! Ye be dry as a desert island!",
+                        "Looks like ye'll be swabbing the deck for a living now, ye penniless scallywag!",
+                        "My parrot's got more gold teeth than you've got coins left! Ye be truly broke!"
                     ];
-                    messageBox.innerHTML = `<strong>${threats[Math.floor(Math.random() * threats.length)]}</strong><br>
-                                            <p>Psst... The Captain's rum fund is lookin' a bit dry. A small "donation" could help ye find yer sea legs again! <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain a coffee!</a></p>`;
+                    const randomThreat = threats[Math.floor(Math.random() * threats.length)];
+                    const randomEncouragement = donationEncouragements[Math.floor(Math.random() * donationEncouragements.length)];
+
+                    messageBox.innerHTML = `<strong>${randomThreat}</strong><br>
+                                            <p>${randomEncouragement} <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain's brother a coffee!</a></p>`;
                     balanceEl.textContent = "BROKE";
                     spinButton.textContent = "RESTART";
                     bettingArea.classList.add('disabled'); 
@@ -1208,7 +1229,7 @@
         
         function restartGame() {
             console.log('restartGame() called.');
-            balance = 100;
+            balance = 300; // Reset balance to 300 on restart
             totalWinLoss = 0;
             balanceEl.textContent = balance;
             profitLossEl.textContent = `$${totalWinLoss}`; 
