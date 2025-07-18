@@ -643,9 +643,9 @@
                     orderMessage = "The Captain spits on yer black-hearted choice!";
                 } else if (parsedBetNumber === 0) { 
                     winAmount = 0; 
-                    loseAmount = betAmount * 20;
+                    loseAmount = "ALL GOLD"; // Indicates total loss
                     winPercentage = 0;
-                    losePercentage = 2000;
+                    losePercentage = 100; // Represents 100% loss of all gold
                     orderMessage = "The Kraken's Eye! A fool's bet... or a legend's jackpot?";
                 }
             } else if (currentBet === 'red') {
@@ -761,6 +761,19 @@
             `"A BLACK DAY INDEED, BUT NOT FOR LONG! RED, OR I'LL SEND YE TO DAVY JONES' LOCKER!"`,
             `"I'LL NOT SUFFER THIS BLACK INSOLENCE! RED, OR YE'LL FEEL MY BOOT!"`,
             `"THE GHOSTS OF THE DEEP CRY OUT FOR RED! NOT BLACK, YE HEAR ME?!"`
+        ];
+
+        const greenPunishmentScenarios = [
+            "The Kraken itself reached out and snatched your entire treasure! All gold lost!",
+            "The Captain's parrot, 'Squawk-and-Steal,' flew off with your entire hoard! Ye be broke!",
+            "A rogue wave of green slime washed over your treasure chest, melting all your gold! Gone!",
+            "The leprechaun at the end of the rainbow decided he liked your gold better. It's all gone!",
+            "Ye angered the sea spirits! They've claimed every last coin as tribute. All lost!",
+            "The Captain declared 'Green is for greed!' and confiscated all your treasure. Tough luck, matey!",
+            "A mischievous mermaid charmed your gold right out of your pockets! You're penniless!",
+            "The very fabric of reality twisted, and your gold vanished into the green abyss! Poof!",
+            "You accidentally paid the ghost of a tax collector! All your treasure is now spectral. And gone.",
+            "The Captain decided to 're-invest' your gold in his personal rum collection. You're out!"
         ];
 
 
@@ -902,8 +915,8 @@
         
         function processEndOfRound(winnings, message, isFinalStep = true) { 
             console.log('processEndOfRound() called. Winnings:', winnings, 'isFinalStep:', isFinalStep);
-            balance += winnings;
-            totalWinLoss += winnings;
+            // balance += winnings; // Winnings already applied in endSpin for green/black/red
+            // totalWinLoss += winnings; // Winnings already applied in endSpin for green/black/red
             messageBox.innerHTML = message;
             
             balanceEl.textContent = balance;
@@ -992,19 +1005,13 @@
             // Determine if the player bet on RED (color or specific red number)
             const playerBetRed = (currentBet === 'red' || (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)));
 
-            // --- Handle landing on GREEN (0) ---
+            // --- Handle landing on GREEN (0) - ALWAYS LOSE ALL GOLD ---
             if (actualLandedNumber === 0) {
-                console.log('Landed on GREEN (0).');
-                if (betIsOnSpecificNumber && parsedCurrentBet === 0) {
-                    winnings = -betAmount * 20; // 20x loss for betting specifically on 0
-                    message = `It's 0! The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`;
-                } else if (playerBetRed) {
-                    winnings = 0; // Safe bet on red, get money back if 0 hits
-                    message = `It's 0! A close call, but the Captain protects his red-blooded sailors! Your bet is returned.`;
-                } else {
-                    winnings = -betAmount; // Default 1x loss for other bets landing on 0
-                    message = `It's 0! The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`;
-                }
+                console.log('Landed on GREEN (0). Captain steals all gold!');
+                const goldLost = balance; // Amount of gold to be stolen
+                winnings = -goldLost; // Set winnings to negative of current balance
+                balance = 0; // Set balance to 0
+                message = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
                 captainIntervention = true; // Captain always comments on 0
             }
             // --- Handle landing on BLACK number ---
@@ -1041,9 +1048,12 @@
                 message = `It's ${actualLandedNumber}! A strange wind blows... You lose $${Math.abs(winnings)}!`;
             }
             
-            // Apply the winnings/losses to balance and totalWinLoss immediately
-            balance += winnings;
+            // Apply the winnings/losses to totalWinLoss (balance is already updated for green, otherwise it's added here)
             totalWinLoss += winnings;
+            if (actualLandedNumber !== 0) { // If not green, apply winnings to balance here
+                balance += winnings;
+            }
+            
             balanceEl.textContent = balance;
             profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
             profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
@@ -1055,12 +1065,12 @@
                 // Now, trigger the Captain's specific animation and final message.
                 setTimeout(() => {
                     if (actualLandedNumber === 0) {
-                        messageBox.innerHTML = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
+                        // Message and balance already handled above for green
                         gameContainer.classList.add('shaking');
                         setTimeout(() => {
                             gameContainer.classList.remove('shaking');
-                            const finalMessage = `The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`; // Use the already calculated winnings for the final message
-                            processEndOfRound(0, finalMessage); // Pass 0 as winnings because it's already applied
+                            // For green, the game is over, so processEndOfRound will handle the restart logic
+                            processEndOfRound(0, messageBox.textContent); // Pass 0 winnings as it's already applied, use current message
                         }, 1500);
                     } else if (blackNumbers.includes(actualLandedNumber)) {
                         messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
