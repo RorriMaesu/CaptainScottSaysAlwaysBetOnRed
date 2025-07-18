@@ -704,7 +704,17 @@
             "I'd rather face a kraken than a pirate who won't bet! Put up or shut up!",
             "Yer spin is as empty as yer pockets! Fill 'em with a bet!",
             "What's the matter, got seaweed in yer brain? BET!",
-            "Don't make me walk ye to the plank for yer insolence! BET!"
+            "Don't make me walk ye to the plank for yer insolence! BET!",
+            "Are ye planning to pay with sea-shanties? Lay down some gold!",
+            "My rum's running low, and so is my patience for yer bet-less spins!",
+            "By the beard of Blackbeard, place a wager, ye scallywag!",
+            "Even a one-legged pirate can make a bet! What's yer excuse?",
+            "This ain't a charity, it's a high-stakes game! Bet, or begone!",
+            "Yer treasure chest sounds emptier than a mermaid's promise!",
+            "Don't just stand there gawkin', put some coin on the table!",
+            "I've seen more action in a sleepy clam! BET!",
+            "Are ye waiting for a map to tell ye where to place yer gold?",
+            "The plank's lookin' mighty inviting for those who fear to wager!"
         ];
 
         const rudeCommentsToWheel = [
@@ -747,7 +757,17 @@
             `"MY FURY IS BLACK, BUT MY WHEEL SHALL BE RED! SPIN, YE DEVIL!"`,
             `"A BLACK DAY INDEED, BUT NOT FOR LONG! RED, OR I'LL SEND YE TO DAVY JONES' LOCKER!"`,
             `"I'LL NOT SUFFER THIS BLACK INSOLENCE! RED, OR YE'LL FEEL MY BOOT!"`,
-            `"THE GHOSTS OF THE DEEP CRY OUT FOR RED! NOT BLACK, YE HEAR ME?!"`
+            `"THE GHOSTS OF THE DEEP CRY OUT FOR RED! NOT BLACK, YE HEAR ME?!"`,
+            `"By the barnacles! That's a black mark on my ship's honor! RED, I say, RED!"`,
+            `"Blast and bother! This wheel has a mind of its own, and it's a dark one! Force it to RED!"`,
+            `"What in the blazes?! Black as a moonless night! Bring forth the dawn of RED!"`,
+            `"Shiver me timbers! That's a betrayal of the highest order! Make it RED, or I'll feed ye to the sharks!"`,
+            `"Are ye deaf, wheel?! I said RED! Not this abyssal darkness! RED, I command ye!"`,
+            `"Curse this black-hearted spin! It reeks of mutiny! Turn to RED, or face my wrath!"`,
+            `"This ain't no funeral, wheel! Stop with the black! Bring out the RED, for glory!"`,
+            `"I'll have ye know, black is the color of cowardice! Show me some RED, ye scallywag!"`,
+            `"By the Kraken's beard, this blackness offends me! Only RED shall prevail!"`,
+            `"My patience is thinner than a pirate's conscience! Make it RED, or ye'll walk the plank backwards!"`
         ];
 
         const greenPunishmentScenarios = [
@@ -760,7 +780,17 @@
             "A mischievous mermaid charmed your gold right out of your pockets! You're penniless!",
             "The very fabric of reality twisted, and your gold vanished into the green abyss! Poof!",
             "You accidentally paid the ghost of a tax collector! All your treasure is now spectral. And gone.",
-            "The Captain decided to 're-invest' your gold in his personal rum collection. You're out!"
+            "The Captain decided to 're-invest' your gold in his personal rum collection. You're out!",
+            "A flock of seagulls mistook your gold for shiny bait and carried it off to their nests! Gone!",
+            "Your treasure map spontaneously combusted, and with it, all your gold vanished in a puff of green smoke!",
+            "You woke up to find a giant squid had 'borrowed' your entire fortune for its ink supply. Oops!",
+            "The sea swallowed your gold whole! Turns out, it was just really hungry for shiny things.",
+            "A mischievous pixie swapped all your gold coins for shiny, but worthless, pebbles! Fooled ya!",
+            "The wind of misfortune blew your treasure ship straight into a tax-collector's port! Confiscated!",
+            "You tried to polish your gold with a magic green polish, and it dissolved into thin air! Rookie mistake!",
+            "A rogue gust of wind carried your entire fortune into the belly of a sleeping whale. Good luck getting that back!",
+            "The Captain's pet monkey, 'Sticky Fingers,' made off with your loot during your nap! Should've locked it up!",
+            "Your gold turned into a pile of green, moldy cheese! Not quite as valuable, is it?"
         ];
 
 
@@ -941,9 +971,16 @@
                         "The Captain's patience is gone! The loan sharks are comin' for ye!",
                         "Ye owe the Captain! Pay up, or you'll be sleepin' with the fishes!",
                         "Yer treasure is gone! I hear the loan sharks have a special plank just for you!",
-                        "Broke again?! The loan sharks are circling... and they look hungry!"
+                        "Broke again?! The loan sharks are circling... and they look hungry!",
+                        "Shiver me timbers, ye be poorer than a church mouse on a leaky ship!",
+                        "By the beard of Poseidon, yer coffers are emptier than a mermaid's promise!",
+                        "Yer gold's gone, swallowed by the depths! Time to find a new treasure map... or a job!",
+                        "The Captain's rum fund is suffering, and so is your future! Ye be dry as a desert island!",
+                        "Looks like ye'll be swabbing the deck for a living now, ye penniless scallywag!",
+                        "My parrot's got more gold teeth than you've got coins left! Ye be truly broke!"
                     ];
-                    messageBox.textContent = threats[Math.floor(Math.random() * threats.length)];
+                    messageBox.innerHTML = `<strong>${threats[Math.floor(Math.random() * threats.length)]}</strong><br>
+                                            <p>Psst... The Captain's rum fund is lookin' a bit dry. A small "donation" could help ye find yer sea legs again! <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain a coffee!</a></p>`;
                     balanceEl.textContent = "BROKE";
                     spinButton.textContent = "RESTART";
                     bettingArea.classList.add('disabled'); 
@@ -1039,9 +1076,13 @@
             else if (blackNumbers.includes(actualLandedNumber)) {
                 console.log('Landed on BLACK number:', actualLandedNumber);
                 
+                // Store the calculated winnings/message temporarily before the animation chain
+                let tempCurrentRoundWinnings = 0;
+                let tempMessage = '';
+
                 if (playerBetBlack) { // User bet on BLACK (color or specific black number)
-                    currentRoundWinnings = -betAmount * 20; // 20x loss
-                    message = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice! You lose $${Math.abs(currentRoundWinnings)}!`;
+                    tempCurrentRoundWinnings = -betAmount * 20; // 20x loss
+                    tempMessage = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice! You lose $${Math.abs(tempCurrentRoundWinnings)}!`;
                 } else if (playerBetRed) { // User bet on RED (color or specific red number)
                     let originalPotentialWin = 0;
                     if (currentBet === 'red') {
@@ -1049,16 +1090,55 @@
                     } else if (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)) {
                         originalPotentialWin = betAmount * 35;
                     }
-                    currentRoundWinnings = Math.floor(originalPotentialWin * 0.25); // Partial win due to Captain's intervention
-                    message = `It's BLACK ${actualLandedNumber}! But the Captain, in his infinite 'generosity', has rigged it to RED!`;
+                    tempCurrentRoundWinnings = Math.floor(originalPotentialWin * 0.25); // Partial win due to Captain's intervention
+                    tempMessage = `It's BLACK ${actualLandedNumber}! But the Captain, in his infinite 'generosity', has rigged it to RED!`;
                 } else if (playerBetGreen) { // User bet on GREEN (0)
-                    currentRoundWinnings = -betAmount; // 1x loss
-                    message = `It's BLACK ${actualLandedNumber}! You bet on ${parsedCurrentBet}, but the tide turned! You lose $${Math.abs(currentRoundWinnings)}!`;
+                    tempCurrentRoundWinnings = -betAmount; // 1x loss
+                    tempMessage = `It's BLACK ${actualLandedNumber}! You bet on ${parsedCurrentBet}, but the tide turned! You lose $${Math.abs(tempCurrentRoundWinnings)}!`;
                 } else { // Catch-all for other bets (e.g., if a specific number that's not black, red, or green was chosen, which shouldn't happen with current UI)
-                    currentRoundWinnings = -betAmount;
-                    message = `It's BLACK ${actualLandedNumber}! You lose $${Math.abs(currentRoundWinnings)}!`;
+                    tempCurrentRoundWinnings = -betAmount;
+                    tempMessage = `It's BLACK ${actualLandedNumber}! You lose $${Math.abs(tempCurrentRoundWinnings)}!`;
                 }
-                captainIntervention = true; // Captain always intervenes on black
+
+                // Display the initial message immediately
+                messageBox.innerHTML = tempMessage;
+
+                // Start the animation sequence for Captain's intervention
+                setTimeout(() => {
+                    messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
+                    gameContainer.classList.add('shaking');
+                    
+                    setTimeout(() => {
+                        let forcedRedNumber = actualLandedNumber;
+                        let currentIndex = wheelSequence.indexOf(actualLandedNumber);
+                        for (let i = 1; i < segments; i++) {
+                            const checkIndex = (currentIndex + i) % segments;
+                            const potentialRed = wheelSequence[checkIndex];
+                            if (redNumbers.includes(potentialRed)) {
+                                forcedRedNumber = potentialRed;
+                                break;
+                            }
+                        }
+
+                        animateToForcedRed(forcedRedNumber, () => {
+                            gameContainer.classList.remove('shaking');
+                            // ONLY NOW, after the animation, apply the actual winnings/losses
+                            balance += tempCurrentRoundWinnings;
+                            totalWinLoss += tempCurrentRoundWinnings;
+
+                            let finalMessage = '';
+                            if (playerBetRed) {
+                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! For his 'generosity', you received a partial reward of $${tempCurrentRoundWinnings}!`;
+                            } else if (playerBetBlack) {
+                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! Despite his efforts, your black-hearted bet still cost you $${Math.abs(tempCurrentRoundWinnings)}!`;
+                            } else {
+                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(tempCurrentRoundWinnings)} for yer folly!`;
+                            }
+                            processEndOfRound(tempCurrentRoundWinnings, finalMessage);
+                        });
+                    }, 3000); // Delay for the rude comment
+                }, 1500); // Delay for the initial message
+                return; // Important: Exit the function here so the final processEndOfRound is not called immediately
             }
             // --- Handle landing on RED number ---
             else if (redNumbers.includes(actualLandedNumber)) {
