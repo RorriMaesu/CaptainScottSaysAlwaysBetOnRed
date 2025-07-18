@@ -187,18 +187,6 @@
         #profit-loss.loss { color: var(--primary-color); }
         #profit-loss.profit { color: #00ff00; }
         
-        #message-box {
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-            color: var(--primary-color);
-            min-height: 2.5em; 
-            font-weight: bold;
-            margin-top: 0.5rem;
-            padding: 0 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
         #orders-panel {
             background: #111;
             border: 2px dashed var(--gold-color);
@@ -545,23 +533,26 @@
         #bet-display-bubble .number-display.black { background-color: var(--black-color); }
         #bet-display-bubble .number-display.green { background-color: var(--green-color); }
 
-        /* Captain Animation Container */
+        /* --- CAPTAIN AND THOUGHT BUBBLE STYLES --- */
         #captain-container {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 200px;
-            height: auto;
+            /* Mobile-first: Centered over the wheel area */
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 180px;
             z-index: 2000;
-            transform: scale(0); /* Start hidden */
+            display: flex;
+            flex-direction: column; /* Bubble is always on top */
+            align-items: center;
             opacity: 0;
             transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-            pointer-events: none; /* Make container non-interactive */
+            pointer-events: none;
         }
 
         #captain-container.show {
             opacity: 1;
-            transform: scale(1);
+            transform: translate(-50%, -50%) scale(1);
         }
 
         #captain-image {
@@ -572,6 +563,35 @@
             border: 3px solid var(--gold-color);
         }
         
+        #message-box {
+            position: relative;
+            background: #fff;
+            color: #000;
+            border-radius: 20px;
+            padding: 0.8rem;
+            width: 160px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+            box-sizing: border-box;
+        }
+
+        /* The tail of the thought bubble - pointing down */
+        #message-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-top-color: #fff;
+            border-bottom: 0;
+            margin-left: -20px;
+            margin-bottom: -20px;
+        }
+        
         /* Animation classes for JS to toggle */
         #captain-image.animate-insult { animation: captain-insult 0.6s ease-out forwards; }
         #captain-image.animate-rage { animation: captain-rage-shake 0.8s ease-in-out forwards; }
@@ -579,12 +599,23 @@
         #captain-image.animate-cheat { animation: captain-cheat-glow 1.5s ease-in-out infinite; }
 
 
-        /* Responsive Captain */
-        @media (max-width: 600px) {
+        /* Responsive Captain for Desktop */
+        @media (min-width: 768px) {
             #captain-container {
-                width: 150px;
-                bottom: 10px;
-                right: 10px;
+                /* Desktop: Top right of the viewport */
+                top: 20px;
+                right: 20px;
+                left: auto;
+                bottom: auto;
+                transform: scale(0); /* Reset transform for hiding */
+                width: 200px;
+            }
+            #captain-container.show {
+                transform: scale(1); /* Reset transform for showing */
+            }
+            #message-box {
+                font-size: 1rem;
+                width: 180px;
             }
         }
 
@@ -607,7 +638,6 @@
                     <p data-tooltip="Your current pirate treasure. Don't let it hit zero, or the sharks get hungry!">Treasure: <span id="balance">300</span></p>
                     <p data-tooltip="Yer gains or losses this voyage. Aim for gold, not barnacles!">Profit/Loss: <span id="profit-loss">0</span></p>
                 </div>
-                 <div id="message-box" class="message-box">The Captain is watchin' ye...</div>
                 <div id="orders-panel">
                     <span id="orders-text">Make a bet, ye coward!</span>
                     <span id="potential-haul"></span>
@@ -642,6 +672,7 @@
 
     <!-- Captain's Animated Image -->
     <div id="captain-container">
+        <div id="message-box" class="message-box"></div>
         <img id="captain-image" src="CaptainScottathy.png" alt="Captain Scottathy" onerror="this.onerror=null; this.src='https://placehold.co/200x200/0d1a26/ffd700?text=Captain+Missing!';">
     </div>
 
@@ -708,10 +739,13 @@
         const flickDeceleration = 0.98; 
 
         // --- Captain Animation ---
-        function animateCaptain(animationType = 'insult', duration = 4000) {
+        function animateCaptain(animationType = 'insult', duration = 4000, message = '') {
             const animationClasses = ['animate-insult', 'animate-rage', 'animate-smug', 'animate-cheat'];
             const animationClass = `animate-${animationType}`;
             
+            // Set the message in the bubble
+            messageBox.innerHTML = message;
+
             // Remove any existing animation classes
             captainImage.classList.remove(...animationClasses);
 
@@ -958,7 +992,7 @@
             (number, losses) => `Ye chose darkness, but the light of RED ${number} prevailed! You're down $${Math.abs(losses)}!`,
         ];
 
-        const redLossAfterOtherBetMessages = [
+        const redLossAfterOtherBetLossMessages = [
             (number, losses) => `It's RED ${number}! You bet on ${currentBet}, but the tide turned! You lose $${Math.abs(losses)}!`,
             (number, losses) => `RED ${number} appeared! Your wager on ${currentBet} was a miscalculation. You're out $${Math.abs(losses)}!`,
         ];
@@ -1005,11 +1039,10 @@
 
             if (!hasValidBet) {
                 isFreeSpin = true; 
-                messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
-                animateCaptain('insult', 2500); // Quick insult
+                const insult = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
+                animateCaptain('insult', 2500, insult);
             } else {
                 isFreeSpin = false; 
-                messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
             }
 
             if (inertiaAnimationId) {
@@ -1063,7 +1096,8 @@
         }
         
         function animateToForcedRed(targetRedNumber, callback) {
-            animateCaptain('cheat', 1500); // Captain appears to change the wheel
+            const message = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
+            animateCaptain('cheat', 1500, message); // Captain appears to change the wheel
             isSpinning = true; 
             spinButton.disabled = true; 
 
@@ -1111,8 +1145,6 @@
         }
         
         function processEndOfRound(winningsForVisuals, message, isFinalStep = true) { 
-            messageBox.innerHTML = message;
-            
             balanceEl.textContent = balance; 
             profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`; 
             profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
@@ -1120,9 +1152,9 @@
             if (winningsForVisuals > 0) { 
                 gameContainer.classList.add('shaking');
                 spinButton.classList.add('flashing');
-                animateCaptain('rage'); // Captain is angry you won
+                animateCaptain('rage', 4000, message); 
             } else if (winningsForVisuals < 0) {
-                animateCaptain('smug'); // Captain is smug you lost
+                animateCaptain('smug', 4000, message); 
             }
             
             if (isFinalStep) {
@@ -1145,12 +1177,12 @@
                     ];
                     const randomThreat = threats[Math.floor(Math.random() * threats.length)];
                     const randomEncouragement = donationEncouragements[Math.floor(Math.random() * donationEncouragements.length)];
-
-                    messageBox.innerHTML = `<strong>${randomThreat}</strong><br><p>${randomEncouragement} <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain's brother a coffee!</a></p>`;
+                    const finalMessage = `<strong>${randomThreat}</strong><br><p>${randomEncouragement} <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain's brother a coffee!</a></p>`;
+                    
+                    animateCaptain('smug', 6000, finalMessage); 
                     balanceEl.textContent = "BROKE";
                     spinButton.textContent = "RESTART";
                     bettingArea.classList.add('disabled'); 
-                    animateCaptain('smug', 5000); // Final, long smug animation
                 } else {
                     spinButton.textContent = "SPIN AGAIN!";
                     bettingArea.classList.remove('disabled'); 
@@ -1187,23 +1219,21 @@
             const playerBetGreen = (betIsOnSpecificNumber && parsedCurrentBet === 0);
 
             if (actualLandedNumber === 0) {
-                animateCaptain('smug', 5000); // Captain is very smug he took all your gold
                 const goldLost = balance;
                 currentRoundWinnings = -goldLost;
                 balance = 0;
                 totalWinLoss += currentRoundWinnings;
-
-                balanceEl.textContent = balance;
-                profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
-                profitLossEl.className = totalWinLoss < 0 ? 'loss' : '';
-                messageBox.innerHTML = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
+                
+                const punishmentMessage = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
+                animateCaptain('smug', 5000, punishmentMessage); 
 
                 setTimeout(() => {
-                    messageBox.innerHTML = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
+                    const finalWords = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
+                    animateCaptain('rage', 4000, finalWords);
                     gameContainer.classList.add('shaking');
                     setTimeout(() => {
                         gameContainer.classList.remove('shaking');
-                        processEndOfRound(0, messageBox.textContent);
+                        processEndOfRound(0, ''); // Message is handled by captain now
                     }, 4000);
                 }, 2000);
                 return;
@@ -1237,10 +1267,9 @@
                     totalWinLoss += winningsBeforeIntervention;
                 }
 
-                messageBox.innerHTML = initialMessageBeforeIntervention;
+                animateCaptain('rage', 4500, initialMessageBeforeIntervention);
 
                 setTimeout(() => {
-                    messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
                     gameContainer.classList.add('shaking');
                     
                     setTimeout(() => {
@@ -1276,15 +1305,15 @@
                             }
                             processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention);
                         });
-                    }, 3000);
-                }, 1500);
+                    }, 1500);
+                }, 3000);
                 return;
             }
 
             if (redNumbers.includes(actualLandedNumber)) {
                  if (betIsOnSpecificNumber && actualLandedNumber === parsedCurrentBet) {
                     currentRoundWinnings = betAmount * 35;
-                    message = specificNumberWinMessages[0](actualLandedNumber, currentRoundWinnings);
+                    message = specificNumberWinMessages[0](actualLandedNumber, winningsBeforeIntervention);
                 } else if (playerBetRedColorOrSpecific) {
                     currentRoundWinnings = betAmount; 
                     message = redWinMessages[0](actualLandedNumber, currentRoundWinnings);
@@ -1309,7 +1338,7 @@
             balanceEl.textContent = balance;
             profitLossEl.textContent = `$${totalWinLoss}`; 
             profitLossEl.className = '';
-            messageBox.textContent = "The Captain gives ye another chance... Don't waste it.";
+            animateCaptain('insult', 4000, "The Captain gives ye another chance... Don't waste it.");
             spinButton.textContent = "SPIN THE WHEEL!";
             spinButton.disabled = false;
             currentBet = null;
@@ -1353,11 +1382,10 @@
 
             if (!hasValidBet) {
                 isFreeSpin = true; 
-                messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
-                animateCaptain('insult', 2500);
+                const insult = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
+                animateCaptain('insult', 2500, insult);
             } else {
                 isFreeSpin = false; 
-                messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
             }
 
             isDragging = true;
