@@ -1320,7 +1320,7 @@
                     message = redWinMessages[0](actualLandedNumber, currentRoundWinnings);
                 } else if (playerBetBlackColorOrSpecific) {
                     currentRoundWinnings = -betAmount * 20;
-                    message = redLossAfterBlackBetMessages[0](actualLandedNumber, currentRoundWinnings);
+                    message = redLossAfterBlackBetLossMessages[0](actualLandedNumber, currentRoundWinnings);
                 } else {
                     currentRoundWinnings = -betAmount;
                     message = otherLossMessages[0](actualLandedNumber, currentRoundWinnings);
@@ -1453,7 +1453,7 @@
             const t = Math.min(progress / flickSpinDuration, 1);
             const easedT = easeOutQuad(t);
             
-            const rotation = animateInertia.startRotation + (easedT * (predeterminedTargetAngle - animateInertia.startRotation));
+            const rotation = animateInertia.startRotation + (easedT * (predeterminedTargetAngle - startRotationForAnimation));
 
             drawWheel(rotation);
             currentWheelRotation = rotation; 
