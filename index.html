@@ -451,7 +451,7 @@
 
         /* Tooltip Styles */
         #custom-tooltip {
-            position: absolute;
+            position: fixed; /* Changed to fixed for viewport relativity */
             background-color: rgba(0, 0, 0, 0.9);
             color: var(--gold-color);
             padding: 8px 12px;
@@ -466,17 +466,13 @@
             border: 1px solid var(--gold-color);
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             white-space: normal;
-            width: 90%;
-            max-width: 300px;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 100%; /* Position above the betting area */
-            margin-bottom: 10px;
+            width: auto;
+            max-width: 250px;
         }
 
         #custom-tooltip.show {
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
+            transform: translateY(0);
             pointer-events: auto;
         }
 
@@ -1110,6 +1106,7 @@
             predeterminedTargetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotations) * 2 * Math.PI) + rotationDifference;
             
             startRotationForAnimation = currentWheelRotation; 
+            let start = null;
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
@@ -1465,14 +1462,18 @@
         }
 
         function animateInertia(timestamp) {
-            if (!animateInertia.start) animateInertia.start = timestamp;
+            let start = null;
+            if (!animateInertia.start) {
+                animateInertia.start = timestamp;
+                animateInertia.startRotation = currentWheelRotation;
+            }
             const progress = timestamp - animateInertia.start;
             const flickSpinDuration = 4000;
             const easeOutQuad = t => t * (2 - t);
             const t = Math.min(progress / flickSpinDuration, 1);
             const easedT = easeOutQuad(t);
             
-            const rotation = startRotationForAnimation + (easedT * (predeterminedTargetAngle - startRotationForAnimation));
+            const rotation = animateInertia.startRotation + (easedT * (predeterminedTargetAngle - animateInertia.startRotation));
 
             drawWheel(rotation);
             currentWheelRotation = rotation; 
@@ -1533,12 +1534,18 @@
             let top = rect.top - tooltipRect.height - 10;
             let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
 
-            if (top < 0) { top = rect.bottom + 10; }
-            if (left < 0) { left = 5; }
-            if (left + tooltipRect.width > window.innerWidth) { left = window.innerWidth - tooltipRect.width - 5; }
+            if (top < 0) { 
+                top = rect.bottom + 10; 
+            }
+            if (left < 0) { 
+                left = 5; 
+            }
+            if (left + tooltipRect.width > window.innerWidth) { 
+                left = window.innerWidth - tooltipRect.width - 5; 
+            }
 
-            customTooltip.style.top = `${top + window.scrollY}px`;
-            customTooltip.style.left = `${left + window.scrollX}px`;
+            customTooltip.style.top = `${top}px`;
+            customTooltip.style.left = `${left}px`;
         }
 
         // --- Event Listeners ---
