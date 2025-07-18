@@ -25,30 +25,30 @@
             50% { filter: drop-shadow(0 0 15px var(--primary-color)); }
         }
 
-        /* Captain Animations */
-        @keyframes captain-pop-in {
-            0% { transform: scale(0) rotate(-360deg); opacity: 0; }
-            70% { transform: scale(1.1) rotate(15deg); }
+        /* --- NEW CAPTAIN ANIMATIONS --- */
+        @keyframes captain-insult { /* Quick pop for insults */
+            0% { transform: scale(0) rotate(180deg); opacity: 0; }
+            60% { transform: scale(1.1) rotate(-10deg); }
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
-        @keyframes captain-slide-in {
-            0% { transform: translateX(-150%) skewX(-30deg); opacity: 0; }
-            60% { transform: translateX(20%) skewX(10deg); }
-            80% { transform: translateX(-10%) skewX(-5deg); }
-            100% { transform: translateX(0) skewX(0); opacity: 1; }
+        @keyframes captain-rage-shake { /* For when the player wins or he has to pay out */
+            0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px red) brightness(1.2); }
+            10%, 90% { transform: scale(1.05) translate(-2px, 2px) rotate(-2deg); }
+            20%, 80% { transform: scale(1.05) translate(2px, -2px) rotate(2deg); }
+            30%, 50%, 70% { transform: scale(1.05) translate(-2px, 2px) rotate(-2deg); }
+            40%, 60% { transform: scale(1.05) translate(2px, -2px) rotate(2deg); }
+            100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px red) brightness(1.2); }
         }
         
-        @keyframes captain-peek-up {
-            0% { transform: translateY(100%); }
-            50% { transform: translateY(-10%); }
-            100% { transform: translateY(0); }
+        @keyframes captain-smug-zoom { /* For when the player loses */
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 15px var(--gold-color)) saturate(1.5); }
         }
 
-        @keyframes captain-wobble {
-            0%, 100% { transform: rotate(0deg) translateX(0); }
-            25% { transform: rotate(5deg) translateX(5px); }
-            75% { transform: rotate(-5deg) translateX(-5px); }
+        @keyframes captain-cheat-glow { /* When he forces the wheel to change */
+            0%, 100% { transform: scale(1.1); filter: drop-shadow(0 0 20px var(--primary-color)) brightness(1.5); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 30px var(--primary-color)) brightness(2); }
         }
 
 
@@ -573,10 +573,10 @@
         }
         
         /* Animation classes for JS to toggle */
-        #captain-image.animate-pop-in { animation: captain-pop-in 0.8s ease-out forwards; }
-        #captain-image.animate-slide-in { animation: captain-slide-in 0.8s ease-out forwards; }
-        #captain-image.animate-peek-up { animation: captain-peek-up 0.8s ease-out forwards; }
-        #captain-image.animate-wobble { animation: captain-wobble 0.8s ease-out forwards; }
+        #captain-image.animate-insult { animation: captain-insult 0.6s ease-out forwards; }
+        #captain-image.animate-rage { animation: captain-rage-shake 0.8s ease-in-out forwards; }
+        #captain-image.animate-smug { animation: captain-smug-zoom 1.2s ease-out forwards; }
+        #captain-image.animate-cheat { animation: captain-cheat-glow 1.5s ease-in-out infinite; }
 
 
         /* Responsive Captain */
@@ -708,9 +708,9 @@
         const flickDeceleration = 0.98; 
 
         // --- Captain Animation ---
-        function animateCaptain() {
-            const animationClasses = ['animate-pop-in', 'animate-slide-in', 'animate-peek-up', 'animate-wobble'];
-            const randomAnimationClass = animationClasses[Math.floor(Math.random() * animationClasses.length)];
+        function animateCaptain(animationType = 'insult', duration = 4000) {
+            const animationClasses = ['animate-insult', 'animate-rage', 'animate-smug', 'animate-cheat'];
+            const animationClass = `animate-${animationType}`;
             
             // Remove any existing animation classes
             captainImage.classList.remove(...animationClasses);
@@ -720,17 +720,17 @@
             
             // Add the new animation class after a brief delay to ensure it restarts
             setTimeout(() => {
-                captainImage.classList.add(randomAnimationClass);
+                captainImage.classList.add(animationClass);
             }, 10);
 
-            // Hide the captain after a few seconds
+            // Hide the captain after the specified duration
             setTimeout(() => {
                 captainContainer.classList.remove('show');
                  // Clean up the class after the hide transition is done
                 setTimeout(() => {
-                    captainImage.classList.remove(randomAnimationClass);
-                }, 500);
-            }, 4000); // Captain stays for 4 seconds
+                    captainImage.classList.remove(animationClass);
+                }, 500); // This should match the transition duration in the CSS
+            }, duration);
         }
 
         // --- UI and Wheel Drawing ---
@@ -958,7 +958,7 @@
             (number, losses) => `Ye chose darkness, but the light of RED ${number} prevailed! You're down $${Math.abs(losses)}!`,
         ];
 
-        const redLossAfterOtherBetLossMessages = [
+        const redLossAfterOtherBetMessages = [
             (number, losses) => `It's RED ${number}! You bet on ${currentBet}, but the tide turned! You lose $${Math.abs(losses)}!`,
             (number, losses) => `RED ${number} appeared! Your wager on ${currentBet} was a miscalculation. You're out $${Math.abs(losses)}!`,
         ];
@@ -1006,7 +1006,7 @@
             if (!hasValidBet) {
                 isFreeSpin = true; 
                 messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
-                animateCaptain(); // Captain appears to insult the player
+                animateCaptain('insult', 2500); // Quick insult
             } else {
                 isFreeSpin = false; 
                 messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
@@ -1063,7 +1063,7 @@
         }
         
         function animateToForcedRed(targetRedNumber, callback) {
-            animateCaptain(); // The Captain appears to change the wheel
+            animateCaptain('cheat', 1500); // Captain appears to change the wheel
             isSpinning = true; 
             spinButton.disabled = true; 
 
@@ -1120,6 +1120,9 @@
             if (winningsForVisuals > 0) { 
                 gameContainer.classList.add('shaking');
                 spinButton.classList.add('flashing');
+                animateCaptain('rage'); // Captain is angry you won
+            } else if (winningsForVisuals < 0) {
+                animateCaptain('smug'); // Captain is smug you lost
             }
             
             if (isFinalStep) {
@@ -1147,7 +1150,7 @@
                     balanceEl.textContent = "BROKE";
                     spinButton.textContent = "RESTART";
                     bettingArea.classList.add('disabled'); 
-                    animateCaptain(); // Captain appears for the final insult
+                    animateCaptain('smug', 5000); // Final, long smug animation
                 } else {
                     spinButton.textContent = "SPIN AGAIN!";
                     bettingArea.classList.remove('disabled'); 
@@ -1184,7 +1187,7 @@
             const playerBetGreen = (betIsOnSpecificNumber && parsedCurrentBet === 0);
 
             if (actualLandedNumber === 0) {
-                animateCaptain(); // Captain appears to take all the gold
+                animateCaptain('smug', 5000); // Captain is very smug he took all your gold
                 const goldLost = balance;
                 currentRoundWinnings = -goldLost;
                 balance = 0;
@@ -1351,7 +1354,7 @@
             if (!hasValidBet) {
                 isFreeSpin = true; 
                 messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
-                animateCaptain();
+                animateCaptain('insult', 2500);
             } else {
                 isFreeSpin = false; 
                 messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
