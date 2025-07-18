@@ -748,7 +748,7 @@
         const flickDeceleration = 0.98; 
 
         // --- Captain Animation ---
-        function animateCaptain(animationType = 'insult', duration = 4000, message = '', persist = false) {
+        function animateCaptain(animationType = 'insult', message = '', persist = false) {
             const animationClasses = ['animate-insult', 'animate-rage', 'animate-smug', 'animate-cheat', 'animate-win'];
             const animationClass = `animate-${animationType}`;
             
@@ -761,6 +761,12 @@
 
             // Set the message in the bubble
             messageBox.innerHTML = message;
+            
+            // --- DYNAMIC DURATION CALCULATION ---
+            const textOnly = message.replace(/<[^>]*>?/gm, ''); // Strip HTML tags
+            const wordCount = textOnly.split(/\s+/).filter(Boolean).length; // Count words
+            // Base time of 2 seconds, plus 300ms per word (200 wpm)
+            const duration = 2000 + (wordCount * 300);
 
             // Remove any existing animation classes
             captainImage.classList.remove(...animationClasses);
@@ -1058,7 +1064,7 @@
             if (!hasValidBet) {
                 isFreeSpin = true; 
                 const insult = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
-                animateCaptain('insult', 2500, insult);
+                animateCaptain('insult', insult);
             } else {
                 isFreeSpin = false; 
             }
@@ -1115,7 +1121,7 @@
         
         function animateToForcedRed(targetRedNumber, callback) {
             const message = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
-            animateCaptain('cheat', 3000, message); // Increased duration
+            animateCaptain('cheat', message); 
             isSpinning = true; 
             spinButton.disabled = true; 
 
@@ -1194,12 +1200,12 @@
                     const randomEncouragement = donationEncouragements[Math.floor(Math.random() * donationEncouragements.length)];
                     const finalMessage = `<strong>${randomThreat}</strong><br><p>${randomEncouragement} <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain's brother a coffee!</a></p>`;
                     
-                    animateCaptain('smug', 6000, finalMessage, true); // Persist this message
+                    animateCaptain('smug', finalMessage, true); // Persist this message
                     balanceEl.textContent = "BROKE";
                     spinButton.textContent = "RESTART";
                     bettingArea.classList.add('disabled'); 
                 } else {
-                    animateCaptain(animationType, 4000, message);
+                    animateCaptain(animationType, message);
                     spinButton.textContent = "SPIN AGAIN!";
                     bettingArea.classList.remove('disabled'); 
                 }
@@ -1244,7 +1250,7 @@
                 const punishmentMessage = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
                 const finalWords = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
                 
-                animateCaptain('smug', 5000, punishmentMessage); 
+                animateCaptain('smug', punishmentMessage); 
 
                 setTimeout(() => {
                     gameContainer.classList.add('shaking');
@@ -1307,7 +1313,7 @@
                         }
                         processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention, 'smug');
                     });
-                }, 3000); // Increased delay to allow reading time
+                }, 2000); // Increased delay to allow reading time
                 return;
             }
 
@@ -1341,7 +1347,7 @@
             balanceEl.textContent = balance;
             profitLossEl.textContent = `$${totalWinLoss}`; 
             profitLossEl.className = '';
-            animateCaptain('insult', 4000, "The Captain gives ye another chance... Don't waste it.");
+            animateCaptain('insult', "The Captain gives ye another chance... Don't waste it.");
             spinButton.textContent = "SPIN THE WHEEL!";
             spinButton.disabled = false;
             currentBet = null;
@@ -1386,7 +1392,7 @@
             if (!hasValidBet) {
                 isFreeSpin = true; 
                 const insult = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
-                animateCaptain('insult', 2500, insult);
+                animateCaptain('insult', insult);
             } else {
                 isFreeSpin = false; 
             }
