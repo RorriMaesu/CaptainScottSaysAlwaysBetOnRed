@@ -186,6 +186,7 @@
             justify-content: center;
             align-items: center;
             margin-top: 0.4rem; /* Reduced margin */
+            margin-bottom: 0.4rem; /* Added margin-bottom */
             box-sizing: border-box; /* Include padding in the width calculation */
         }
         
@@ -206,7 +207,7 @@
             width: 100%;
             flex: 1; 
             min-height: 0; 
-            position: relative; /* Added for absolute positioning of bet-display-bubble */
+            /* Removed position: relative here as bet-display-bubble is no longer absolute within it */
         }
         
         .betting-area {
@@ -492,10 +493,9 @@
 
         /* Bet Display Bubble Styles */
         #bet-display-bubble {
-            position: absolute; /* Changed to absolute */
-            top: 150px; /* Adjust as needed to position it over other elements */
-            left: 50%;
-            transform: translateX(-50%) translateY(10px); /* Centered horizontally, slight initial offset */
+            /* Removed absolute positioning to allow it to flow naturally */
+            margin-top: 0.4rem; /* Adjusted margin-top for spacing below orders-panel */
+            margin-bottom: 0.4rem; /* Adjusted margin-bottom for spacing above betting-area */
             background-color: var(--container-bg);
             border: 2px solid var(--gold-color);
             border-radius: 10px;
@@ -509,13 +509,14 @@
             gap: 8px;
             transition: opacity 0.3s ease, transform 0.3s ease;
             opacity: 0;
-            z-index: 990; /* Ensure it's above other betting controls but below modals/tooltips */
+            transform: translateY(10px); /* Keep for initial animation */
+            /* Removed z-index as it's no longer absolutely positioned */
             white-space: nowrap; /* Prevent text wrapping */
         }
 
         #bet-display-bubble.show {
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
+            transform: translateY(0);
         }
 
         #bet-display-bubble .number-display {
@@ -560,7 +561,7 @@
                     <span id="orders-text">Make a bet, ye coward!</span>
                     <span id="potential-haul"></span>
                 </div>
-                <!-- New element for displaying chosen number bet -->
+                <!-- New element for displaying chosen number bet - moved here -->
                 <div id="bet-display-bubble" class="hidden"></div>
 
                 <div class="betting-area">
