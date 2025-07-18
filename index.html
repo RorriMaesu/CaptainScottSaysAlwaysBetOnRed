@@ -1010,8 +1010,26 @@
                 const goldLost = balance; // Amount of gold to be stolen
                 currentRoundWinnings = -goldLost; // Set winnings to negative of current balance
                 balance = 0; // Set balance to 0
-                message = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
-                captainIntervention = true; // Captain always comments on 0
+                
+                // Apply winnings/losses to totalWinLoss immediately
+                totalWinLoss += currentRoundWinnings;
+                
+                // Update UI elements immediately with the first message
+                balanceEl.textContent = balance;
+                profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
+                profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
+                messageBox.innerHTML = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)]; // First message
+
+                setTimeout(() => { // Delay for the first message
+                    messageBox.innerHTML = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`; // Second message
+                    gameContainer.classList.add('shaking');
+                    setTimeout(() => { // Delay for the second message and shaking
+                        gameContainer.classList.remove('shaking');
+                        // For green, the game is over, so processEndOfRound will handle the restart logic
+                        processEndOfRound(0, messageBox.textContent); // Pass 0 winnings as it's already applied, use current message
+                    }, 2000); // Increased to 2 seconds
+                }, 2000); // Increased to 2 seconds
+                return;
             }
             // --- Handle landing on BLACK number ---
             else if (blackNumbers.includes(actualLandedNumber)) {
@@ -1045,9 +1063,8 @@
                 profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
                 messageBox.innerHTML = message; // Update message box with initial outcome
 
-                // Now, handle Captain's intervention animations and final processing
-                setTimeout(() => {
-                    messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
+                setTimeout(() => { // Delay for the first message
+                    messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`; // Second message
                     gameContainer.classList.add('shaking');
                     
                     let forcedRedNumber = actualLandedNumber;
@@ -1072,7 +1089,7 @@
                         }
                         processEndOfRound(currentRoundWinnings, finalMessage); // Pass currentRoundWinnings for visual effects, and final message
                     });
-                }, 1500);
+                }, 2000); // Increased to 2 seconds
                 return; // Exit endSpin as the rest is handled by the setTimeout/callback
             }
             // --- Handle landing on RED number ---
