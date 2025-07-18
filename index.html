@@ -32,7 +32,7 @@
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
-        @keyframes captain-rage-shake { /* For when the player wins or he has to pay out */
+        @keyframes captain-rage-shake { /* For when he has to cheat */
             0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px red) brightness(1.2); }
             10%, 90% { transform: scale(1.05) translate(-2px, 2px) rotate(-2deg); }
             20%, 80% { transform: scale(1.05) translate(2px, -2px) rotate(2deg); }
@@ -49,6 +49,11 @@
         @keyframes captain-cheat-glow { /* When he forces the wheel to change */
             0%, 100% { transform: scale(1.1); filter: drop-shadow(0 0 20px var(--primary-color)) brightness(1.5); }
             50% { transform: scale(1.15); filter: drop-shadow(0 0 30px var(--primary-color)) brightness(2); }
+        }
+
+        @keyframes captain-win-glow { /* For when the player wins */
+             0%, 100% { filter: drop-shadow(0 0 15px var(--gold-color)) saturate(1.2); }
+             50% { filter: drop-shadow(0 0 30px var(--gold-color)) saturate(1.8) brightness(1.2); }
         }
 
 
@@ -597,6 +602,7 @@
         #captain-image.animate-rage { animation: captain-rage-shake 0.8s ease-in-out forwards; }
         #captain-image.animate-smug { animation: captain-smug-zoom 1.2s ease-out forwards; }
         #captain-image.animate-cheat { animation: captain-cheat-glow 1.5s ease-in-out infinite; }
+        #captain-image.animate-win { animation: captain-win-glow 2s ease-in-out infinite; }
 
 
         /* Responsive Captain for Desktop */
@@ -740,9 +746,16 @@
 
         // --- Captain Animation ---
         function animateCaptain(animationType = 'insult', duration = 4000, message = '') {
-            const animationClasses = ['animate-insult', 'animate-rage', 'animate-smug', 'animate-cheat'];
+            const animationClasses = ['animate-insult', 'animate-rage', 'animate-smug', 'animate-cheat', 'animate-win'];
             const animationClass = `animate-${animationType}`;
             
+            // Set the image source based on animation type
+            if (animationType === 'win') {
+                captainImage.src = 'CaptainScottathyRichAnimation2.gif';
+            } else {
+                captainImage.src = 'CaptainScottathy.png';
+            }
+
             // Set the message in the bubble
             messageBox.innerHTML = message;
 
@@ -983,7 +996,7 @@
         ];
 
         const redWinMessages = [
-            (number, winnings) => `It's RED ${number}! SEE?! I TOLD YE! You win $${winnings}!`,
+            (number, winnings) => `It's RED ${number}! A fine choice! You win $${winnings}!`,
             (number, winnings) => `A glorious RED ${number}! The Captain's favor is upon ye! You've plundered $${winnings}!`,
         ];
 
@@ -1152,7 +1165,7 @@
             if (winningsForVisuals > 0) { 
                 gameContainer.classList.add('shaking');
                 spinButton.classList.add('flashing');
-                animateCaptain('rage', 4000, message); 
+                animateCaptain('win', 4000, message); 
             } else if (winningsForVisuals < 0) {
                 animateCaptain('smug', 4000, message); 
             }
