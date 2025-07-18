@@ -631,15 +631,15 @@
             if (betIsOnSpecificNumber) {
                 if (redNumbers.includes(parsedBetNumber)) {
                     winAmount = betAmount * 35;
-                    loseAmount = betAmount;
+                    loseAmount = 0; // Always safe for specific red bet if not hit
                     winPercentage = 3500;
-                    losePercentage = 100;
+                    losePercentage = 0; // Always safe for specific red bet if not hit
                     orderMessage = "A true gamble! Risk it for a king's ransom!";
                 } else if (blackNumbers.includes(parsedBetNumber)) {
                     winAmount = 0; 
                     loseAmount = betAmount * 20; 
                     winPercentage = 0;
-                    losePercentage = 2000; // Updated to 2000%
+                    losePercentage = 2000;
                     orderMessage = "The Captain spits on yer black-hearted choice!";
                 } else if (parsedBetNumber === 0) { 
                     winAmount = 0; 
@@ -650,15 +650,15 @@
                 }
             } else if (currentBet === 'red') {
                 winAmount = betAmount;
-                loseAmount = betAmount;
+                loseAmount = 0; // Always safe for red color bet if not hit
                 winPercentage = 100;
-                losePercentage = 100;
+                losePercentage = 0; // Always safe for red color bet if not hit
                 orderMessage = "A safe bet for a true sailor!";
             } else if (currentBet === 'black') {
                 winAmount = 0; 
                 loseAmount = betAmount * 20; // Updated to 20x bet
                 winPercentage = 0;
-                losePercentage = 2000; // Updated to 2000%
+                losePercentage = 2000;
                 orderMessage = "BAH! Black is for landlubbers! A costly mistake!";
             }
 
@@ -987,116 +987,109 @@
 
             let winnings = 0;
             let message = '';
+            let captainIntervention = false; // Flag to indicate if captain intervenes
 
-            // First, handle the special case of landing on 0 (Green)
+            // Determine if the player bet on RED (color or specific red number)
+            const playerBetRed = (currentBet === 'red' || (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)));
+
+            // --- Handle landing on GREEN (0) ---
             if (actualLandedNumber === 0) {
                 console.log('Landed on GREEN (0).');
-                // If betting on a specific number, check if it was 0
                 if (betIsOnSpecificNumber && parsedCurrentBet === 0) {
-                    winnings = -betAmount * 20; 
-                    console.log('Bet on specific 0. Winnings:', winnings);
+                    winnings = -betAmount * 20; // 20x loss for betting specifically on 0
+                    message = `It's 0! The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`;
+                } else if (playerBetRed) {
+                    winnings = 0; // Safe bet on red, get money back if 0 hits
+                    message = `It's 0! A close call, but the Captain protects his red-blooded sailors! Your bet is returned.`;
                 } else {
-                    // Default loss for landing on 0 if not specifically bet on 0
-                    winnings = -betAmount; 
-                    console.log('Not bet on specific 0. Default loss. Winnings:', winnings);
+                    winnings = -betAmount; // Default 1x loss for other bets landing on 0
+                    message = `It's 0! The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`;
                 }
-                
-                // Apply loss immediately for 0
-                balance += winnings;
-                totalWinLoss += winnings;
-                balanceEl.textContent = balance;
-                profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
-                profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
-
-                messageBox.innerHTML = `<strong>A voice from the deep bellows...</strong>`;
-                setTimeout(() => {
-                    messageBox.innerHTML = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
-                    gameContainer.classList.add('shaking');
-                    setTimeout(() => {
-                        gameContainer.classList.remove('shaking');
-                        const finalMessage = `The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`;
-                        processEndOfRound(0, finalMessage); 
-                    }, 1500);
-                }, 1500);
-                return;
+                captainIntervention = true; // Captain always comments on 0
             }
-
-            // Now, handle the Captain's intervention for landing on BLACK
-            if (blackNumbers.includes(actualLandedNumber)) {
+            // --- Handle landing on BLACK number ---
+            else if (blackNumbers.includes(actualLandedNumber)) {
                 console.log('Landed on BLACK number:', actualLandedNumber);
-                // Calculate loss based on the player's bet type
-                if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet)) {
-                    // Player bet on a specific black number (regardless of whether it matched the landed number)
-                    winnings = -betAmount * 20; 
-                    console.log('Bet on specific BLACK number. Winnings:', winnings);
-                } else if (currentBet === 'black') {
-                    winnings = -betAmount * 20; // Updated to 20x bet for black color bet
-                    console.log('Bet on BLACK color. Winnings:', winnings);
+                if (currentBet === 'black' || (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet))) {
+                    winnings = -betAmount * 20; // 20x loss for betting on black (color or specific number)
+                    message = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice! You lose $${Math.abs(winnings)}!`;
+                } else if (playerBetRed) {
+                    winnings = 0; // Safe bet on red, get money back if black hits
+                    message = `It's BLACK ${actualLandedNumber}! The Captain's fury turns the tide! Your red bet is returned!`;
                 } else {
-                    // Player bet on red or a specific red/green number, but it landed black
-                    winnings = -betAmount; 
-                    console.log('Landed BLACK, but bet on RED or different specific number. Default loss. Winnings:', winnings);
+                    winnings = -betAmount; // Default 1x loss for other bets landing on black
+                    message = `It's BLACK ${actualLandedNumber}! You bet on the wrong tide! You lose $${Math.abs(winnings)}!`;
                 }
-
-                // Apply loss immediately for black outcome
-                balance += winnings;
-                totalWinLoss += winnings;
-                balanceEl.textContent = balance;
-                profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
-                profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
-
-                messageBox.innerHTML = `It's BLACK ${actualLandedNumber}! Awaiting Captain's orders...`;
-
-                setTimeout(() => {
-                    messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
-                    gameContainer.classList.add('shaking');
-                    
-                    let forcedRedNumber = actualLandedNumber;
-                    let currentIndex = wheelSequence.indexOf(actualLandedNumber);
-                    for (let i = 1; i < segments; i++) {
-                        const checkIndex = (currentIndex + i) % segments;
-                        const potentialRed = wheelSequence[checkIndex];
-                        if (redNumbers.includes(potentialRed)) {
-                            forcedRedNumber = potentialRed;
-                            break;
-                        }
-                    }
-
-                    animateToForcedRed(forcedRedNumber, () => {
-                        gameContainer.classList.remove('shaking');
-                        const finalMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(winnings)} for yer folly!`;
-                        processEndOfRound(0, finalMessage); 
-                    });
-
-                }, 1500);
-                return;
+                captainIntervention = true; // Captain always intervenes on black
             }
-
-            // Finally, handle cases where it lands on RED (no intervention)
-            if (redNumbers.includes(actualLandedNumber)) {
+            // --- Handle landing on RED number ---
+            else if (redNumbers.includes(actualLandedNumber)) {
                 console.log('Landed on RED number:', actualLandedNumber);
                 if (betIsOnSpecificNumber && parsedCurrentBet === actualLandedNumber) {
                     winnings = betAmount * 35;
                     message = `It's ${actualLandedNumber}! THE CAPTAIN'S GENIUS IS UNMATCHED! You win $${winnings}!`;
-                    console.log('Bet on specific RED number and hit! Winnings:', winnings);
                 } else if (currentBet === 'red') {
                     winnings = betAmount; 
                     message = `It's RED ${actualLandedNumber}! SEE?! I TOLD YE! You win $${winnings}!`;
-                    console.log('Bet on RED color and hit! Winnings:', winnings);
                 } else {
-                    winnings = -betAmount; 
+                    winnings = -betAmount; // Player bet on black or specific black/green, but it landed red
                     message = `It's RED ${actualLandedNumber}! You bet on the wrong tide! You lose $${Math.abs(winnings)}!`;
-                    console.log('Landed RED, but bet on BLACK or different specific number. Default loss. Winnings:', winnings);
                 }
             } else {
+                // This case should ideally not be hit if all numbers are covered by red/black/green
                 winnings = -betAmount;
                 message = `It's ${actualLandedNumber}! A strange wind blows... You lose $${Math.abs(winnings)}!`;
-                console.log('Landed on unexpected number. Default loss. Winnings:', winnings);
             }
             
-            processEndOfRound(winnings, message);
-            console.log('Balance after non-black/non-green calculation:', balance);
-            console.log('Total Win/Loss after non-black/non-green calculation:', totalWinLoss);
+            // Apply the winnings/losses to balance and totalWinLoss immediately
+            balance += winnings;
+            totalWinLoss += winnings;
+            balanceEl.textContent = balance;
+            profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
+            profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
+            messageBox.innerHTML = message; // Update message box with initial outcome
+
+            // Handle Captain's intervention animations and final processing
+            if (captainIntervention) {
+                // For 0, the message is already set. For black, it's set to the initial loss message.
+                // Now, trigger the Captain's specific animation and final message.
+                setTimeout(() => {
+                    if (actualLandedNumber === 0) {
+                        messageBox.innerHTML = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
+                        gameContainer.classList.add('shaking');
+                        setTimeout(() => {
+                            gameContainer.classList.remove('shaking');
+                            const finalMessage = `The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`; // Use the already calculated winnings for the final message
+                            processEndOfRound(0, finalMessage); // Pass 0 as winnings because it's already applied
+                        }, 1500);
+                    } else if (blackNumbers.includes(actualLandedNumber)) {
+                        messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
+                        gameContainer.classList.add('shaking');
+                        
+                        let forcedRedNumber = actualLandedNumber;
+                        let currentIndex = wheelSequence.indexOf(actualLandedNumber);
+                        for (let i = 1; i < segments; i++) {
+                            const checkIndex = (currentIndex + i) % segments;
+                            const potentialRed = wheelSequence[checkIndex];
+                            if (redNumbers.includes(potentialRed)) {
+                                forcedRedNumber = potentialRed;
+                                break;
+                            }
+                        }
+
+                        animateToForcedRed(forcedRedNumber, () => {
+                            gameContainer.classList.remove('shaking');
+                            const finalMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(winnings)} for yer folly!`; // Use the already calculated winnings for the final message
+                            processEndOfRound(0, finalMessage); // Pass 0 as winnings because it's already applied
+                        });
+                    }
+                }, 1500);
+            } else {
+                // No captain intervention, proceed to end of round directly
+                processEndOfRound(0, message); // Pass 0 as winnings because it's already applied
+            }
+            console.log('Balance after endSpin calculation:', balance);
+            console.log('Total Win/Loss after endSpin calculation:', totalWinLoss);
         }
         
         function restartGame() {
