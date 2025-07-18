@@ -18,7 +18,7 @@
         
         @keyframes skull-glow {
             0%, 100% { filter: drop-shadow(0 0 5px var(--primary-color)); }
-            50% { filter: drop-shadow(0 0 15px var(--primary-color)); }
+            50% { filter: drop_shadow(0 0 15px var(--primary-color)); }
         }
 
         :root {
@@ -61,6 +61,9 @@
             text-shadow: 2px 2px 5px #000;
             font-size: clamp(1.5rem, 4vw, 2.2rem);
             margin-bottom: 1rem;
+            white-space: nowrap; /* Ensures text stays on a single line */
+            overflow: hidden; /* Hides content that overflows the element's box */
+            text-overflow: ellipsis; /* Displays an ellipsis (...) for clipped text */
         }
         
         .skull {
@@ -447,6 +450,8 @@
         let isSpinning = false; // True if any spin animation is active (manual inertia or controlled spin)
         let currentBet = null;
         let currentNumber = 0;
+        let isFreeSpin = false; // Flag to indicate if the current spin is a "free" spin (no bet)
+
         const segments = 37;
         const segmentAngle = (2 * Math.PI) / segments;
         const segmentColors = [];
@@ -690,23 +695,88 @@
             return wheelSequence[landedIndex];
         }
 
+        // List of insults for spinning without a bet
+        const noBetInsults = [
+            "Ye spin without a wager? Are ye a landlubber or a scurvy dog?!",
+            "No bet, no glory! What kind of pirate are ye, a cheapskate?",
+            "Har har! A spin for naught! Get some treasure on the line, ye bilge rat!",
+            "Think ye can trick the Captain? Place yer bet, or walk the plank!",
+            "A spin without a stake is like a ship without a sail! Useless!",
+            "Are ye afraid to lose, ye lily-livered jellyfish? BET!",
+            "My patience is thinner than a pirate's conscience! BET NOW!",
+            "Don't waste my time with yer empty spins, ye barnacle-brained fool!",
+            "I've seen more courage in a drowned rat! Where's yer gold, matey?",
+            "Spinning for pleasure? This ain't a carnival, it's a gamble! BET!",
+            "Ye call that a gamble? I call it an insult! Lay down yer coin!",
+            "By the Kraken's teeth, ye'll not spin for free on my ship!",
+            "A spin without a bet is a wasted breath! Get to it!",
+            "Are ye a ghost, spinnin' without a presence? Show me yer treasure!",
+            "Only fools spin for free! Are ye a fool, or just broke?",
+            "The sea demands a price, and so does this wheel! BET!",
+            "I'd rather face a kraken than a pirate who won't bet! Put up or shut up!",
+            "Yer spin is as empty as yer pockets! Fill 'em with a bet!",
+            "What's the matter, got seaweed in yer brain? BET!",
+            "Don't make me walk ye to the plank for yer insolence! BET!"
+        ];
 
-        // This function handles the "Spin!" button click and forced re-spins
+        // List of insults for black outcomes (Captain's intervention)
+        const rudeCommentsToWheel = [
+            `"BLACK?! I'LL HAVE NONE OF THAT ON MY WATCH, WHEEL!"`,
+            `"HEAVE HO, YE BLACKGUARD! RED IT IS, BY MY COMMAND!"`,
+            `"THIS IS MY SHIP, NOT YER DARK ALLEY! LAND ON RED!"`,
+            `"A BLACK OUTCOME? NOT IN THIS LIFETIME! RED, I SAID!"`,
+            `"BLAST YE, WHEEL! THAT'S A BLACK MARK ON MY LOGBOOK! TO RED, YE SCURVY DOG!"`,
+            `"ARGH! BLACK AS A PIRATE'S HEART! NOT ON MY WATCH! RED IT IS!"`,
+            `"WHAT IN THE SEVEN SEAS IS THIS BLACK MAGIC?! RED, I COMMAND YE!"`,
+            `"YE CALL THAT A SPIN?! IT'S BLACKER THAN THE ABYSS! TO RED, OR YE'LL WALK THE PLANK!"`,
+            `"A FOUL PLAY! BLACK IS THE COLOR OF COWARDICE! RESPIN TO RED, NOW!"`,
+            `"BY THE KRAKEN'S BEARD, NOT BLACK! I'LL HAVE YE KNOW RED IS THE ONLY WAY!"`,
+            `"CURSE THIS BLACK SPOT! I'LL NOT HAVE IT! RED, RED, RED!"`,
+            `"IS THIS A MUTINY?! BLACK IT IS, BUT NOT FOR LONG! RED, OR I'LL SWAB THE DECK WITH YE!"`,
+            `"A DARK OMEN! BUT THE CAPTAIN'S WILL IS LAW! TO RED, YE HEAR ME?!"`,
+            `"BLACK AS THE NIGHT! BUT DAWN IS RED! RESPIN, YE FOOLISH WHEEL!"`,
+            `"I'VE SEEN MORE HONOR IN A BARNACLE THAN THIS BLACK OUTCOME! RED, I SAY!"`,
+            `"THIS WHEEL HAS A BLACK SOUL! I'LL PURIFY IT WITH RED!"`,
+            `"SHIVER ME TIMBERS! THAT'S A BLACK BETRAYAL! TO RED, OR FACE MY WRATH!"`,
+            `"I DIDN'T SAIL THE SEVEN SEAS TO SEE BLACK! RED, AND BE QUICK ABOUT IT!"`,
+            `"YE THINK YE CAN DEFY THE CAPTAIN WITH BLACK?! THINK AGAIN! RED IS YOUR DESTINY!"`,
+            `"OUTRAGEOUS! BLACK IS FOR LANDLUBBERS! TO RED, OR I'LL FEED YE TO THE SHARKS!"`,
+            `"A THOUSAND CURSES! BLACK?! I'LL TURN THIS WHEEL RED MYSELF!"`,
+            `"INFURIATING! BLACK IS THE MARK OF A COWARD! RED, I DEMAND!"`,
+            `"THIS IS AN INSULT TO MY EYES! BLACK BE GONE! RED MUST PREVAIL!"`,
+            `"BY THE POWERS OF THE DEEP, THAT'S A BLACK LIE! RED, AND ONLY RED!"`,
+            `"I'LL NOT STAND FOR THIS BLACK TREACHERY! RED IT IS, OR YE'LL SLEEP WITH THE FISHES!"`,
+            `"A BLACK MARK ON MY SHIP'S HONOR! I'LL CLEANSE IT WITH RED!"`,
+            `"UNACCEPTABLE! BLACK IS FOR SCOUNDRELS! RED, OR YE'LL BE SWABBING THE DECK FOR A MONTH!"`,
+            `"MY EYE IS ON YE, WHEEL! THAT BLACKNESS WILL BE REDDENED BY MY WILL!"`,
+            `"A FOUL PLAY! BLACK IS THE SHADE OF DEFEAT! RED, OR I'LL HAVE YOUR HIDE!"`,
+            `"BY THE SEVEN SEAS, I'D RATHER BE LOST AT SEA THAN SEE THAT BLACK! RED, NOW!"`,
+            `"BLACK AS THE DEVIL'S OWN INK! NOT ON MY WATCH! RED, YE SCALLYWAG!"`,
+            `"CURSE YE, BLACK WHEEL! I'LL SMITE THEE WITH THE POWER OF RED!"`,
+            `"A BLACK HEARTED OUTCOME! I'LL TEACH YE TO DEFY THE CAPTAIN! TO RED!"`,
+            `"YE'LL NOT GET AWAY WITH THAT BLACKNESS! RED IS THE ONLY TRUTH!"`,
+            `"I'VE HAD ENOUGH OF YER BLACK TRICKS! RED, OR I'LL HAVE YE KEELHAULED!"`,
+            `"THIS IS AN AFFRONT! BLACK IS A STAIN! RED IT SHALL BE!"`,
+            `"MY FURY IS BLACK, BUT MY WHEEL SHALL BE RED! SPIN, YE DEVIL!"`,
+            `"A BLACK DAY INDEED, BUT NOT FOR LONG! RED, OR I'LL SEND YE TO DAVY JONES' LOCKER!"`,
+            `"I'LL NOT SUFFER THIS BLACK INSOLENCE! RED, OR YE'LL FEEL MY BOOT!"`,
+            `"THE GHOSTS OF THE DEEP CRY OUT FOR RED! NOT BLACK, YE HEAR ME?!"`
+        ];
+
+
+        // This function handles the "Spin!" button click and controlled spins
         function spin() {
-            if (isSpinning) return;
+            if (isSpinning) return; // Prevent new spin if one is already active
             
             const betAmount = parseInt(betAmountInput.value);
-            if (isNaN(betAmount) || betAmount <= 0) {
-                messageBox.textContent = "Ye must bet somethin', ye cheapskate!";
-                return;
-            }
-            if (betAmount > balance) {
-                messageBox.textContent = "Ye can't bet more treasure than ye have!";
-                return;
-            }
-            if (!currentBet) {
-                messageBox.textContent = "PICK A BET, YE BILGE RAT!";
-                return;
+            const hasValidBet = !isNaN(betAmount) && betAmount > 0 && betAmount <= balance && currentBet !== null;
+
+            if (!hasValidBet) {
+                isFreeSpin = true; // Mark as a free spin
+                messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
+            } else {
+                isFreeSpin = false; // Mark as a real spin
+                messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
             }
 
             // Cancel any ongoing inertia animation before starting a new spin
@@ -715,12 +785,11 @@
                 inertiaAnimationId = null;
             }
 
-            isSpinning = true;
+            isSpinning = true; // Always allow visual spin to start
             spinButton.disabled = true;
             canvas.classList.remove('grabbing'); // Remove grabbing cursor
             canvas.style.cursor = 'default'; // Reset cursor
             playSound('spin');
-            messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
 
             const spinDuration = 4000;
             const minAdditionalRotations = 5; // Minimum full rotations for the main spin
@@ -885,6 +954,19 @@
          * This function is now called after *any* spin (manual or automated) has visually stopped.
          */
         function endSpin() {
+            // If it was a free spin, just reset the UI and exit.
+            if (isFreeSpin) {
+                isSpinning = false;
+                spinButton.disabled = false;
+                canvas.style.cursor = 'grab';
+                // The insult message is already set in spin() or handleStart()
+                currentBet = null; // Clear bet selection for the next round
+                document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                updatePotentialHaul(); // Update potential haul display
+                return;
+            }
+
+            // Proceed with normal game logic for paid spins
             isSpinning = false; // Ensure spinning state is false
             
             // Determine the *actual* number the wheel landed on visually.
@@ -938,12 +1020,6 @@
 
                 // Now, set a timeout for the Captain's intervention
                 setTimeout(() => {
-                    const rudeCommentsToWheel = [
-                        `"BLACK?! I'LL HAVE NONE OF THAT ON MY WATCH, WHEEL!"`,
-                        `"HEAVE HO, YE BLACKGUARD! RED IT IS, BY MY COMMAND!"`,
-                        `"THIS IS MY SHIP, NOT YER DARK ALLEY! LAND ON RED!"`,
-                        `"A BLACK OUTCOME? NOT IN THIS LIFETIME! RED, I SAID!"`
-                    ];
                     messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
                     gameContainer.classList.add('shaking'); // Make the whole game shake for intervention
                     
@@ -1037,6 +1113,19 @@
         function handleStart(e) {
             if (isSpinning) return; // Prevent drag if already spinning
             e.preventDefault(); // Prevent scrolling on touch devices
+
+            const betAmount = parseInt(betAmountInput.value);
+            const hasValidBet = !isNaN(betAmount) && betAmount > 0 && betAmount <= balance && currentBet !== null;
+
+            if (!hasValidBet) {
+                isFreeSpin = true; // Mark as a free spin
+                messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
+            } else {
+                isFreeSpin = false; // Mark as a real spin
+                messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
+            }
+
+            // Always proceed with visual spin
             isDragging = true;
             canvas.classList.add('grabbing');
             const pos = getPointerPos(e);
@@ -1048,10 +1137,14 @@
                 cancelAnimationFrame(inertiaAnimationId);
                 inertiaAnimationId = null;
             }
+            isSpinning = true; // Set spinning state to true for visual animation
+            spinButton.disabled = true;
+            canvas.style.cursor = 'default';
+            playSound('spin');
         }
 
         function handleMove(e) {
-            if (!isDragging || isSpinning) return;
+            if (!isDragging || !isSpinning) return; // Ensure a spin is active and dragging
             e.preventDefault(); // Prevent scrolling on touch devices
             const pos = getPointerPos(e);
             const currentAngle = getAngle(pos.x, pos.y);
@@ -1078,9 +1171,10 @@
 
         // This function handles the natural deceleration after a flick
         function animateInertia() {
-            if (isSpinning) { // If a new spin (e.g., from button) starts, stop inertia
-                inertiaAnimationId = null; 
-                return; 
+            // If isSpinning is false, it means the spin has already concluded or was explicitly stopped.
+            if (!isSpinning) {
+                inertiaAnimationId = null;
+                return;
             }
 
             // Apply deceleration
@@ -1090,30 +1184,30 @@
             drawWheel(currentWheelRotation);
 
             // If velocity is still significant, continue animation
-            if (Math.abs(flickVelocity) > flickThreshold / 5) { // Smaller threshold to stop inertia
+            if (Math.abs(flickVelocity) > flickThreshold / 5) {
                 inertiaAnimationId = requestAnimationFrame(animateInertia);
             } else {
                 // Inertia has almost stopped, now determine the outcome
                 inertiaAnimationId = null;
-                // Call endSpin directly, as the manual spin has completed its visual animation.
                 endSpin(); 
             }
         }
 
         function handleEnd(e) {
-            if (!isDragging) return;
-            isDragging = false;
+            if (!isDragging) return; // If not dragging, nothing to do.
+            isDragging = false; // Dragging has ended.
             canvas.classList.remove('grabbing');
             canvas.style.cursor = 'grab'; // Restore grab cursor
 
             // If there's enough flick velocity, start inertia.
-            // Removed the direct call to spin() for slow drags, as all manual spins should go through inertia.
             if (Math.abs(flickVelocity) > flickThreshold) {
                 animateInertia();
             } else {
                 // If it was a very slight drag or no flick, just end the spin immediately.
-                // This prevents the wheel from just sitting there if not enough force was applied.
-                endSpin();
+                // Only call endSpin if a spin was actually initiated (i.e., isSpinning is true)
+                if (isSpinning) {
+                    endSpin();
+                }
             }
             totalDragRotation = 0; // Reset for next interaction
             // flickVelocity is handled by animateInertia or reset at start of new drag
