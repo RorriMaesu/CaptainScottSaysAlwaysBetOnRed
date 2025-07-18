@@ -417,11 +417,6 @@
             transition: all 0.2s;
         }
         
-        .modal-number-box:hover {
-            transform: scale(1.1);
-            border-color: var(--gold-color);
-        }
-        
         .modal-number-box.red { background-color: var(--primary-color); }
         .modal-number-box.black { background-color: var(--black-color); }
         .modal-number-box.green { background-color: var(--green-color); grid-column: 1 / -1; }
@@ -846,6 +841,71 @@
             "The Captain's got the ship, but his brother's got the skills to make it fly (digitally, that is)! He's available for hire, and he'll make yer digital dreams a reality!"
         ];
 
+        // New lists for varied messages
+        const forcedRedAfterRedBetPartialWinMessages = [
+            (number, winnings) => `It's BLACK ${number}! But the Captain, in his infinite 'generosity', has rigged it to RED! You snatched a partial reward of $${winnings}!`,
+            (number, winnings) => `Arrr! Black it is, but the Captain's eye is on the prize! Forced to RED ${number}! A meager $${winnings} for your troubles, matey!`,
+            (number, winnings) => `Blast! Black tried to claim ye, but the Captain intervened! RED ${number} it is! Take yer $${winnings} and be grateful!`,
+            (number, winnings) => `A dark omen, but the Captain's will is law! Forced to RED ${number}! A small bounty of $${winnings} for your persistence!`,
+            (number, winnings) => `Ye almost walked the plank, but the Captain pulled ye back! RED ${number}! A quarter-share of $${winnings} is better than naught!`
+        ];
+
+        const forcedRedAfterBlackBetLossMessages = [
+            (number, losses) => `The Captain forced it to RED ${number}! Despite his efforts, your black-hearted bet still cost you $${Math.abs(losses)}!`,
+            (number, losses) => `Even the Captain's magic couldn't save yer foolish black bet! Forced to RED ${number}, but ye still lost $${Math.abs(losses)}! Har har!`,
+            (number, losses) => `I tried to turn the tide to RED ${number}, but your black bet dragged ye down! You're out $${Math.abs(losses)}!`,
+            (number, losses) => `A futile effort! Forced to RED ${number}, but your loyalty to black cost ye $${Math.abs(losses)}!`,
+            (number, losses) => `The wheel obeyed, landing on RED ${number}, but your black wager was a curse! You still lost $${Math.abs(losses)}!`
+        ];
+
+        const forcedRedAfterOtherBetLossMessages = [
+            (number, losses) => `The Captain forced it to RED ${number}! You bet on a different path, and it cost you $${Math.abs(losses)} for yer folly!`,
+            (number, losses) => `Ye strayed from the colors, and the Captain's intervention to RED ${number} couldn't save ye! Lost $${Math.abs(losses)}!`,
+            (number, losses) => `A strange course ye charted! Forced to RED ${number}, but your unusual bet still led to a $${Math.abs(losses)} loss!`,
+            (number, losses) => `The wheel was rigged to RED ${number}, but yer wager on ${currentBet} was a misstep! You're down $${Math.abs(losses)}!`,
+            (number, losses) => `Even with the Captain's push to RED ${number}, yer peculiar bet sank your gold! Lost $${Math.abs(losses)}!`
+        ];
+
+        const redWinMessages = [
+            (number, winnings) => `It's RED ${number}! SEE?! I TOLD YE! You win $${winnings}!`,
+            (number, winnings) => `A glorious RED ${number}! The Captain's favor is upon ye! You've plundered $${winnings}!`,
+            (number, winnings) => `By the beard of Blackbeard, RED ${number}! A fine wager, matey! You've gained $${winnings}!`,
+            (number, winnings) => `The crimson tide rolls in! RED ${number} brings ye $${winnings}! Well played!`,
+            (number, winnings) => `Huzzah! RED ${number} shines bright! Another $${winnings} for yer coffers!`
+        ];
+
+        const redLossAfterBlackBetMessages = [
+            (number, losses) => `It's RED ${number}! The Captain scoffs at yer black-hearted bet! You lose $${Math.abs(losses)}!`,
+            (number, losses) => `Ye chose darkness, but the light of RED ${number} prevailed! You're down $${Math.abs(losses)}!`,
+            (number, losses) => `A fool's choice, that black bet! RED ${number} laughs at yer loss of $${Math.abs(losses)}!`,
+            (number, losses) => `The wheel spun true to RED ${number}, but your black wager was a curse! You lost $${Math.abs(losses)}!`,
+            (number, losses) => `RED ${number} triumphs! Your black bet was a blunder, costing ye $${Math.abs(losses)}!`
+        ];
+
+        const redLossAfterOtherBetMessages = [
+            (number, losses) => `It's RED ${number}! You bet on ${parsedCurrentBet}, but the tide turned! You lose $${Math.abs(losses)}!`,
+            (number, losses) => `RED ${number} appeared! Your wager on ${parsedCurrentBet} was a miscalculation. You're out $${Math.abs(losses)}!`,
+            (number, losses) => `A red outcome! Your specific bet on ${parsedCurrentBet} didn't pay off. You lost $${Math.abs(losses)}!`,
+            (number, losses) => `The wheel declared RED ${number}! Your gamble on ${parsedCurrentBet} failed. You're down $${Math.abs(losses)}!`,
+            (number, losses) => `RED ${number} it is! Your bet on ${parsedCurrentBet} was a bust, costing you $${Math.abs(losses)}!`
+        ];
+
+        const specificNumberWinMessages = [
+            (number, winnings) => `It's ${number}! A DIRECT HIT! You win $${winnings}!`,
+            (number, winnings) => `By the stars, ${number}! You pinpointed the treasure! A massive $${winnings} haul!`,
+            (number, winnings) => `Unbelievable! ${number} it is! Your precision paid off with $${winnings}!`,
+            (number, winnings) => `A true sharpshooter! ${number} brings ye a grand $${winnings} fortune!`,
+            (number, winnings) => `The rarest of finds! ${number} has delivered a staggering $${winnings} to your coffers!`
+        ];
+
+        const otherLossMessages = [
+            (number, losses) => `It's ${number}! A strange wind blows... You lose $${Math.abs(losses)}!`,
+            (number, losses) => `The wheel landed on ${number}! Not your lucky number, matey. You lost $${Math.abs(losses)}!`,
+            (number, losses) => `A miss! The wheel shows ${number}. Your gold of $${Math.abs(losses)} is gone with the tide!`,
+            (number, losses) => `Alas, ${number} it is. Your wager of $${Math.abs(losses)} has vanished!`,
+            (number, losses) => `The fates conspired! ${number} appeared, and your $${Math.abs(losses)} vanished into the abyss!`
+        ];
+
 
         // This function handles the "Spin!" button click and controlled spins
         function spin() {
@@ -1103,7 +1163,7 @@
             // --- WINNING ON SPECIFIC NUMBER (Highest Priority) ---
             if (betIsOnSpecificNumber && actualLandedNumber === parsedCurrentBet) {
                 currentRoundWinnings = betAmount * 35;
-                message = `It's ${actualLandedNumber}! A DIRECT HIT! You win $${currentRoundWinnings}!`;
+                message = specificNumberWinMessages[Math.floor(Math.random() * specificNumberWinMessages.length)](actualLandedNumber, currentRoundWinnings);
             }
             // --- HANDLE LANDING ON GREEN (0) ---
             else if (actualLandedNumber === 0) {
@@ -1184,11 +1244,11 @@
 
                             let finalMessage = '';
                             if (playerBetRed) {
-                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! For his 'generosity', you received a partial reward of $${tempCurrentRoundWinnings}!`;
+                                finalMessage = forcedRedAfterRedBetPartialWinMessages[Math.floor(Math.random() * forcedRedAfterRedBetPartialWinMessages.length)](forcedRedNumber, tempCurrentRoundWinnings);
                             } else if (playerBetBlack) {
-                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! Despite his efforts, your black-hearted bet still cost you $${Math.abs(tempCurrentRoundWinnings)}!`;
+                                finalMessage = forcedRedAfterBlackBetLossMessages[Math.floor(Math.random() * forcedRedAfterBlackBetLossMessages.length)](forcedRedNumber, tempCurrentRoundWinnings);
                             } else {
-                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(tempCurrentRoundWinnings)} for yer folly!`;
+                                finalMessage = forcedRedAfterOtherBetLossMessages[Math.floor(Math.random() * forcedRedAfterOtherBetLossMessages.length)](forcedRedNumber, tempCurrentRoundWinnings);
                             }
                             processEndOfRound(tempCurrentRoundWinnings, finalMessage);
                         });
@@ -1201,21 +1261,21 @@
                 console.log('Landed on RED number:', actualLandedNumber);
                 if (playerBetRed) { // User bet on RED (color or specific red number)
                     currentRoundWinnings = betAmount; 
-                    message = `It's RED ${actualLandedNumber}! SEE?! I TOLD YE! You win $${currentRoundWinnings}!`;
+                    message = redWinMessages[Math.floor(Math.random() * redWinMessages.length)](actualLandedNumber, currentRoundWinnings);
                 } else if (playerBetBlack) { // User bet on BLACK (color or specific black number)
                     currentRoundWinnings = -betAmount * 20; // 20x loss - THIS IS THE KEY FIX
-                    message = `It's RED ${actualLandedNumber}! The Captain scoffs at yer black-hearted bet! You lose $${Math.abs(currentRoundWinnings)}!`;
+                    message = redLossAfterBlackBetMessages[Math.floor(Math.random() * redLossAfterBlackBetMessages.length)](actualLandedNumber, currentRoundWinnings);
                 } else if (playerBetGreen) { // User bet on GREEN (0)
                     currentRoundWinnings = -betAmount; // 1x loss
-                    message = `It's RED ${actualLandedNumber}! You bet on ${parsedCurrentBet}, but the tide turned! You lose $${Math.abs(currentRoundWinnings)}!`;
+                    message = redLossAfterOtherBetMessages[Math.floor(Math.random() * redLossAfterOtherBetMessages.length)](actualLandedNumber, currentRoundWinnings);
                 } else { // Catch-all for other bets
                     currentRoundWinnings = -betAmount;
-                    message = `It's RED ${actualLandedNumber}! You lose $${Math.abs(currentRoundWinnings)}!`;
+                    message = otherLossMessages[Math.floor(Math.random() * otherLossMessages.length)](actualLandedNumber, currentRoundWinnings);
                 }
             } else {
                 // This case should ideally not be hit if all numbers are covered by red/black/green
                 currentRoundWinnings = -betAmount;
-                message = `It's ${actualLandedNumber}! A strange wind blows... You lose $${Math.abs(currentRoundWinnings)}!`;
+                message = otherLossMessages[Math.floor(Math.random() * otherLossMessages.length)](actualLandedNumber, currentRoundWinnings);
             }
             
             // Apply the winnings/losses to totalWinLoss and balance for non-captain-intervened outcomes
