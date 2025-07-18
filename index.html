@@ -1242,17 +1242,14 @@
                 totalWinLoss += currentRoundWinnings;
                 
                 const punishmentMessage = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
+                const finalWords = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
+                
                 animateCaptain('smug', 5000, punishmentMessage); 
 
                 setTimeout(() => {
-                    const finalWords = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
-                    animateCaptain('rage', 4000, finalWords);
                     gameContainer.classList.add('shaking');
-                    setTimeout(() => {
-                        gameContainer.classList.remove('shaking');
-                        processEndOfRound(0, '', 'smug'); // Final update without message
-                    }, 4000);
-                }, 2000);
+                    processEndOfRound(currentRoundWinnings, finalWords, 'rage');
+                }, 5100);
                 return;
             }
 
