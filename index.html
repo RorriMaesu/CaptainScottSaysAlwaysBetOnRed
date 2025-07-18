@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captain Scottathy Says Always Bet On Red!</title>
+    <title>Captain's Roulette</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -32,51 +33,53 @@
         }
 
         body {
-            font-family: 'Comic Sans MS', 'Chalkduster', 'cursive';
+            font-family: 'Arial', sans-serif; /* Changed to a more legible sans-serif */
             background-color: var(--background-color);
             color: var(--text-color);
             display: flex;
-            flex-direction: column; /* Allow body to manage its children vertically */
-            justify-content: center;
+            flex-direction: column;
+            justify-content: flex-start; /* Align to start to prevent extra space at top */
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 0.5rem; /* Reduced overall body padding */
+            padding: 0.5rem;
             box-sizing: border-box;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%23142433' fill-opacity='0.4'%3E%3Crect x='0' y='0' width='50' height='50'/%3E%3Crect x='50' y='50' width='50' height='50'/%3E%3C/g%E3C/svg%3E");
+            padding-bottom: calc(0.5rem + 70px); /* Add space for sticky footer (padding + button height) */
         }
 
         .game-container {
             background-color: var(--container-bg);
-            padding: clamp(0.8rem, 2.5vw, 2rem); /* Adjusted padding */
+            padding: clamp(0.8rem, 2.5vw, 2rem);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             border: 5px solid var(--gold-color);
             text-align: center;
             width: 100%;
             max-width: 900px;
-            max-height: 98vh; /* Limit overall height to prevent scrolling */
-            overflow-y: auto; /* Add scroll if content still overflows (fallback) */
-            display: flex; /* Make it a flex container to manage its children's height */
-            flex-direction: column; /* Stack children vertically */
+            max-height: 98vh; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
         }
 
         h1 {
+            font-family: 'Bebas Neue', sans-serif; /* New font for title */
             color: var(--primary-color);
             text-shadow: 2px 2px 5px #000;
-            font-size: clamp(1.4rem, 4vw, 2.2rem); /* Adjusted min font size */
-            margin-bottom: 0.8rem; /* Reduced margin */
-            white-space: nowrap; /* Ensures text stays on a single line */
-            overflow: hidden; /* Hides content that overflows the element's box */
-            text-overflow: ellipsis; /* Displays an ellipsis (...) for clipped text */
+            font-size: clamp(1.8rem, 6vw, 2.8rem); /* Increased min font size for impact */
+            margin-bottom: 0.5rem; /* Reduced margin */
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
         }
         
         .skull {
-            width: clamp(25px, 5vw, 40px); /* Adjusted min size */
-            height: clamp(25px, 5vw, 40px); /* Adjusted min size */
+            width: clamp(25px, 5vw, 40px); 
+            height: clamp(25px, 5vw, 40px); 
             display: inline-block;
             vertical-align: middle;
-            margin: 0 8px; /* Reduced margin */
+            margin: 0 8px; 
             animation: skull-glow 2s infinite;
             fill: currentColor;
         }
@@ -86,7 +89,7 @@
             display: flex; 
             flex-direction: column;
             align-items: center;
-            gap: 1rem; /* Reduced gap */
+            gap: 0.8rem; /* Reduced gap */
             flex: 1; 
             min-height: 0; 
         }
@@ -121,42 +124,44 @@
 
 
         .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px; /* Reduced gap */
+            display: flex; /* Changed to flex for single line */
+            justify-content: center;
+            align-items: center;
+            gap: 15px; /* Space between treasure and profit/loss */
             background: #000;
-            padding: 8px; /* Reduced padding */
+            padding: 8px; 
             border-radius: 10px;
             border: 2px solid var(--text-color);
             width: 100%;
+            flex-wrap: wrap; /* Allow wrapping on very small screens */
         }
 
         .stats p {
-            margin: 3px 0; /* Reduced margin */
-            font-size: clamp(0.8rem, 2.2vw, 1.2rem); /* Adjusted min font size */
+            margin: 0; /* Removed margin */
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem); 
         }
         
         #balance, #profit-loss {
             color: var(--gold-color);
             font-weight: bold;
-            font-size: clamp(1rem, 2.8vw, 1.5rem); /* Adjusted min font size */
+            font-size: clamp(1.1rem, 3vw, 1.5rem); 
         }
 
         #profit-loss.loss { color: var(--primary-color); }
         #profit-loss.profit { color: #00ff00; }
         
         #message-box {
-            font-size: clamp(0.9rem, 2.3vw, 1.3rem); /* Adjusted min font size */
+            font-size: clamp(0.9rem, 2.3vw, 1.3rem); 
             color: var(--primary-color);
             min-height: auto; 
             font-weight: bold;
-            grid-column: span 2;
+            /* Removed grid-column span as stats is now flex */
         }
         
         #orders-panel {
             background: #111;
             border: 2px dashed var(--gold-color);
-            padding: 8px; /* Reduced padding */
+            padding: 8px; 
             border-radius: 10px;
             width: 100%;
             min-height: auto; 
@@ -167,11 +172,11 @@
         }
         
         #orders-text {
-            font-size: clamp(0.75rem, 1.8vw, 1.1rem); /* Adjusted min font size */
+            font-size: clamp(0.75rem, 1.8vw, 1.1rem); 
         }
         
         #potential-haul {
-            font-size: clamp(1rem, 2.3vw, 1.4rem); /* Adjusted min font size */
+            font-size: clamp(1rem, 2.3vw, 1.4rem); 
             font-weight: bold;
             color: var(--gold-color);
         }
@@ -179,7 +184,7 @@
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 10px; /* Reduced gap */
+            gap: 10px; 
             width: 100%;
             flex: 1; 
             min-height: 0; 
@@ -188,9 +193,9 @@
         .betting-area {
             display: flex;
             flex-direction: column;
-            gap: 8px; /* Reduced gap */
+            gap: 8px; 
             background: #000;
-            padding: 10px; /* Reduced padding */
+            padding: 10px; 
             border-radius: 10px;
         }
         
@@ -199,7 +204,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: stretch;
-            gap: 8px; /* Reduced gap */
+            gap: 8px; 
         }
 
         @media (min-width: 500px) {
@@ -209,9 +214,9 @@
         }
 
         .bet-option {
-            padding: clamp(6px, 1.8vw, 15px); /* Adjusted padding */
+            padding: clamp(6px, 1.8vw, 15px); 
             border-radius: 10px;
-            font-size: clamp(1rem, 3.5vw, 1.8rem); /* Adjusted min font size */
+            font-size: clamp(1rem, 3.5vw, 1.8rem); 
             font-weight: bold;
             border: 3px solid #000;
             cursor: pointer;
@@ -220,70 +225,50 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 44px; /* Ensure minimum touch target size */
         }
         
-        .number-picker {
+        .bet-amount-controls {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            gap: 8px;
             border-radius: 10px;
             border: 3px solid #000;
-            padding: clamp(6px, 1.8vw, 10px); /* Adjusted padding */
-            gap: 8px; /* Reduced gap */
+            padding: clamp(6px, 1.8vw, 10px);
             flex: 1.5;
         }
-        
-        .number-display-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px; /* Reduced gap */
-        }
-        
-        .arrow {
+
+        .bet-stepper-button {
             background: none;
             border: none;
             color: var(--gold-color);
-            font-size: clamp(1.6rem, 5.5vw, 3rem); /* Adjusted min font size */
+            font-size: clamp(1.8rem, 5.5vw, 3rem); /* Adjusted font size for buttons */
             font-weight: bold;
             cursor: pointer;
-        }
-        
-        .number-display {
-            padding: 8px 15px; /* Adjusted padding */
-            font-size: clamp(1.4rem, 4.5vw, 2.5rem); /* Adjusted min font size */
-            font-weight: bold;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-            border: 3px solid transparent;
-            min-width: 60px; /* Reduced min-width */
-            transition: all 0.2s;
-        }
-        
-        .number-display.red { background-color: var(--primary-color); }
-        .number-display.black { background-color: var(--black-color); }
-        .number-display.green { background-color: var(--green-color); }
-        
-        .bet-input-wrapper {
-            font-size: clamp(0.8rem, 2.2vw, 1.2rem); /* Adjusted min font size */
-            color: var(--text-color);
+            padding: 0 5px; /* Add some padding */
+            min-width: 44px; /* Minimum touch target width */
+            min-height: 44px; /* Minimum touch target height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         #bet-amount {
-            width: 70px; /* Reduced width */
-            padding: 4px; /* Reduced padding */
+            width: 70px; 
+            padding: 4px; 
             background: #333;
             color: var(--gold-color);
             border: 1px solid var(--gold-color);
             border-radius: 5px;
             text-align: center;
             font-family: inherit;
-            font-size: clamp(0.8rem, 2.2vw, 1.2rem); /* Adjusted min font size */
+            font-size: clamp(0.9rem, 2.2vw, 1.2rem); 
             font-weight: bold;
+            min-height: 34px; /* Ensure input field is also touch-friendly */
         }
         
-        .bet-option:hover, .number-display:hover {
+        .bet-option:hover, .bet-stepper-button:hover, #bet-number-button:hover {
             transform: scale(1.05);
         }
         
@@ -295,11 +280,43 @@
 
         #bet-red { background-color: var(--primary-color); color: #fff; }
         #bet-black { background-color: var(--black-color); color: #fff; }
+        #bet-number-button { 
+            background-color: var(--green-color); /* Use green for number bet button */
+            color: #fff;
+            padding: clamp(6px, 1.8vw, 15px);
+            border-radius: 10px;
+            font-size: clamp(1rem, 3.5vw, 1.8rem);
+            font-weight: bold;
+            border: 3px solid #000;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 44px;
+        }
+
+        .sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--container-bg); /* Match game container background */
+            padding: 0.5rem 1rem;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+            z-index: 999;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70px; /* Height to reserve space for the button */
+        }
 
         #spin-button {
-            margin-top: 8px; /* Reduced margin */
-            padding: clamp(12px, 2.5vw, 20px); /* Adjusted padding */
-            font-size: clamp(1.3rem, 3.5vw, 2rem); /* Adjusted min font size */
+            width: 100%; /* Make it fill the sticky footer */
+            padding: clamp(12px, 2.5vw, 20px); 
+            font-size: clamp(1.3rem, 3.5vw, 2rem); 
             font-weight: bold;
             color: #000;
             background: linear-gradient(145deg, var(--gold-color), #b89b00);
@@ -307,7 +324,7 @@
             border-radius: 10px;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 2px; /* Reduced letter spacing */
+            letter-spacing: 2px; 
         }
         
         #spin-button:disabled {
@@ -317,8 +334,9 @@
 
         /* New style for disabled betting options */
         .betting-area.disabled .bet-option,
-        .betting-area.disabled .number-picker,
-        .betting-area.disabled #bet-amount {
+        .betting-area.disabled .bet-amount-controls,
+        .betting-area.disabled #bet-amount,
+        .betting-area.disabled #bet-number-button {
             opacity: 0.5;
             cursor: not-allowed;
             pointer-events: none; /* Disable all pointer events */
@@ -335,13 +353,13 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            padding: 0.5rem; /* Adjusted padding */
+            padding: 0.5rem; 
             box-sizing: border-box;
         }
         
         .modal-content {
             background: var(--container-bg);
-            padding: 15px; /* Reduced padding */
+            padding: 15px; 
             border-radius: 10px;
             border: 3px solid var(--gold-color);
             position: relative;
@@ -351,28 +369,28 @@
         
         #modal-close {
             position: absolute;
-            top: -12px; /* Adjusted position */
-            right: -12px; /* Adjusted position */
+            top: -12px; 
+            right: -12px; 
             background: var(--primary-color);
             color: #fff;
             border: 2px solid #000;
             border-radius: 50%;
-            width: 35px; /* Reduced size */
-            height: 35px; /* Reduced size */
-            font-size: 1.3rem; /* Adjusted font size */
+            width: 35px; 
+            height: 35px; 
+            font-size: 1.3rem; 
             font-weight: bold;
             cursor: pointer;
         }
         
         #modal-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); /* Adjusted min column width */
-            gap: 6px; /* Reduced gap */
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
+            gap: 6px; 
         }
         
         .modal-number-box {
-            padding: 10px 8px; /* Adjusted padding */
-            font-size: clamp(0.9rem, 2.8vw, 1.2rem); /* Adjusted min font size */
+            padding: 10px 8px; 
+            font-size: clamp(0.9rem, 2.8vw, 1.2rem); 
             font-weight: bold;
             color: #fff;
             cursor: pointer;
@@ -401,7 +419,7 @@
     <div class="game-container" id="game-container">
         <h1>
             <svg class="skull" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9c-.83 0-1.5.67-1.5 1.5S9.17 14 10 14s1.5-.67 1.5-1.5S10.83 11 10 11zm4 0c-.83 0-1.5.67-1.5 1.5S13.17 14 14 14s1.5-.67 1.5-1.5S14.83 11 14 11zm-4 4h4v2h-4v-2z"/></svg>
-            Captain Scottathy Says Always Bet On Red!
+            Captain's Roulette
             <svg class="skull" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9c-.83 0-1.5.67-1.5 1.5S9.17 14 10 14s1.5-.67 1.5-1.5S10.83 11 10 11zm4 0c-.83 0-1.5.67-1.5 1.5S13.17 14 14 14s1.5-.67 1.5-1.5S14.83 11 14 11zm-4 4h4v2h-4v-2z"/></svg>
         </h1>
         <div class="game-area">
@@ -410,8 +428,7 @@
             </div>
             <div class="controls">
                 <div class="stats">
-                    <p>Treasure:<br><span id="balance">100</span></p>
-                    <p>Profit/Loss:<br><span id="profit-loss">0</span></p>
+                    <p>Treasure: <span id="balance">100</span> | Profit/Loss: <span id="profit-loss">0</span></p>
                     <p id="message-box" class="message-box">The Captain is watchin' ye...</p>
                 </div>
                 <div id="orders-panel">
@@ -419,22 +436,17 @@
                     <span id="potential-haul"></span>
                 </div>
                 <div class="betting-area">
+                    <div class="bet-amount-controls">
+                        <button class="bet-stepper-button" id="minus-bet-button">-</button>
+                        Bet: <input type="number" id="bet-amount" value="10" min="1">
+                        <button class="bet-stepper-button" id="plus-bet-button">+</button>
+                    </div>
                     <div class="bet-row">
                         <div class="bet-option" id="bet-red" data-bet="red">RED</div>
-                        <div class="number-picker">
-                            <div class="number-display-wrapper">
-                                <button class="arrow" id="arrow-left">«</button>
-                                <div class="number-display" id="number-display" data-bet="">#</div>
-                                <button class="arrow" id="arrow-right">»</button>
-                            </div>
-                            <div class="bet-input-wrapper">
-                                Bet: <input type="number" id="bet-amount" value="10" min="1">
-                            </div>
-                        </div>
                         <div class="bet-option" id="bet-black" data-bet="black">BLACK</div>
                     </div>
+                    <button class="bet-option" id="bet-number-button">BET ON NUMBER</button>
                 </div>
-                <button id="spin-button">SPIN THE WHEEL!</button>
             </div>
         </div>
     </div>
@@ -444,6 +456,10 @@
             <button id="modal-close">X</button>
             <div id="modal-grid"></div>
         </div>
+    </div>
+
+    <div class="sticky-footer">
+        <button id="spin-button">SPIN THE WHEEL!</button>
     </div>
 
     <script>
@@ -456,24 +472,24 @@
         const messageBox = document.getElementById('message-box');
         const spinButton = document.getElementById('spin-button');
         const gameContainer = document.getElementById('game-container');
-        const numberDisplay = document.getElementById('number-display');
-        const leftArrow = document.getElementById('arrow-left');
-        const rightArrow = document.getElementById('arrow-right');
-        const modalOverlay = document.getElementById('modal-overlay');
-        const modalGrid = document.getElementById('modal-grid');
-        const modalClose = document.getElementById('modal-close');
         const betAmountInput = document.getElementById('bet-amount');
         const ordersText = document.getElementById('orders-text');
         const potentialHaul = document.getElementById('potential-haul');
-        const bettingArea = document.querySelector('.betting-area'); // Get the betting area element
+        const bettingArea = document.querySelector('.betting-area'); 
+        const minusBetButton = document.getElementById('minus-bet-button');
+        const plusBetButton = document.getElementById('plus-bet-button');
+        const betNumberButton = document.getElementById('bet-number-button'); // New button for number betting
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalGrid = document.getElementById('modal-grid');
+        const modalClose = document.getElementById('modal-close');
 
         // Game State
         let balance = 100;
         let totalWinLoss = 0;
-        let isSpinning = false; // True if any spin animation is active (manual inertia or controlled spin)
+        let isSpinning = false; 
         let currentBet = null;
-        let currentNumber = 0;
-        let isFreeSpin = false; // Flag to indicate if the current spin is a "free" spin (no bet)
+        let currentNumber = 0; // This will now represent the selected number for 'BET ON NUMBER'
+        let isFreeSpin = false; 
 
         const segments = 37;
         const segmentAngle = (2 * Math.PI) / segments;
@@ -484,17 +500,18 @@
 
         // --- Drag/Swipe Spin Variables ---
         let isDragging = false;
-        let lastPointerAngle = 0; // Stores the angle of the pointer in the previous frame
-        let currentWheelRotation = 0; // Tracks the current visual rotation of the wheel
-        let totalDragRotation = 0; // Accumulates rotation during a single drag session
-        let lastMoveTime = 0; // To calculate velocity for flick
-        let flickVelocity = 0; // Stores the angular velocity at the moment of flick
-        let inertiaAnimationId = null; // To cancel inertia animation if a new spin starts
-        const flickThreshold = 0.005; // Minimum velocity (radians/ms) to trigger inertia
-        const flickDeceleration = 0.98; // Multiplier per frame for inertia decay (0.98 = 2% decay per frame)
+        let lastPointerAngle = 0; 
+        let currentWheelRotation = 0; 
+        let totalDragRotation = 0; 
+        let lastMoveTime = 0; 
+        let flickVelocity = 0; 
+        let inertiaAnimationId = null; 
+        const flickThreshold = 0.005; 
+        const flickDeceleration = 0.98; 
 
         // --- UI and Wheel Drawing ---
         function createModalGrid() {
+            modalGrid.innerHTML = ''; // Clear existing grid
             for (let i = 0; i <= 36; i++) {
                 const numberBox = document.createElement('div');
                 numberBox.classList.add('modal-number-box');
@@ -505,22 +522,14 @@
                 else numberBox.classList.add('green');
                 
                 numberBox.addEventListener('click', () => {
-                    currentNumber = i;
-                    updateNumberPicker();
-                    selectBet(String(i), numberDisplay);
+                    // When a number is selected from the modal, set it as the current bet
+                    currentBet = String(i); 
+                    // Visually select the "BET ON NUMBER" button
+                    selectBet(currentBet, betNumberButton); 
                     modalOverlay.classList.add('hidden');
                 });
                 modalGrid.appendChild(numberBox);
             }
-        }
-
-        function updateNumberPicker() {
-            numberDisplay.textContent = currentNumber;
-            numberDisplay.dataset.bet = currentNumber;
-            numberDisplay.classList.remove('red', 'black', 'green', 'selected');
-            if (redNumbers.includes(currentNumber)) numberDisplay.classList.add('red');
-            else if (blackNumbers.includes(currentNumber)) numberDisplay.classList.add('black');
-            else numberDisplay.classList.add('green');
         }
 
         function initializeWheel() {
@@ -543,13 +552,12 @@
             ctx.clearRect(0, 0, wheelSize, wheelSize);
             ctx.save();
             ctx.translate(wheelSize / 2, wheelSize / 2);
-            ctx.rotate(rotation); // Use the provided rotation parameter
+            ctx.rotate(rotation); 
 
             for (let i = 0; i < segments; i++) {
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 const startAngle = i * segmentAngle;
-                // Ensure radius is not negative
                 ctx.arc(0, 0, Math.max(0, wheelSize / 2 - 5), startAngle, startAngle + segmentAngle);
                 ctx.closePath();
                 ctx.fillStyle = segmentColors[i];
@@ -557,7 +565,7 @@
                 
                 ctx.save();
                 ctx.fillStyle = '#fff';
-                ctx.font = `bold ${wheelSize * 0.045}px "Comic Sans MS"`;
+                ctx.font = `bold ${wheelSize * 0.045}px 'Arial', sans-serif`; /* Updated font for numbers */
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 const numberToDraw = wheelSequence[i];
@@ -604,21 +612,18 @@
 
             if (betIsOnSpecificNumber) {
                 if (redNumbers.includes(parsedBetNumber)) {
-                    // Betting on a specific RED number
                     winAmount = betAmount * 35;
                     loseAmount = betAmount;
                     winPercentage = 3500;
                     losePercentage = 100;
                     orderMessage = "A true gamble! Risk it for a king's ransom!";
                 } else if (blackNumbers.includes(parsedBetNumber)) {
-                    // Betting on a specific BLACK number
                     winAmount = 0; 
                     loseAmount = betAmount * 20; 
                     winPercentage = 0;
                     losePercentage = 2000;
                     orderMessage = "The Captain spits on yer black-hearted choice!";
-                } else if (parsedBetNumber === 0) { // Green number (The Kraken's Eye)
-                    // Betting on GREEN (0)
+                } else if (parsedBetNumber === 0) { 
                     winAmount = 0; 
                     loseAmount = betAmount * 20;
                     winPercentage = 0;
@@ -626,14 +631,12 @@
                     orderMessage = "The Kraken's Eye! A fool's bet... or a legend's jackpot?";
                 }
             } else if (currentBet === 'red') {
-                // Betting on RED color
                 winAmount = betAmount;
                 loseAmount = betAmount;
                 winPercentage = 100;
                 losePercentage = 100;
                 orderMessage = "A safe bet for a true sailor!";
             } else if (currentBet === 'black') {
-                // Betting on BLACK color
                 winAmount = 0; 
                 loseAmount = betAmount * 5; 
                 winPercentage = 0;
@@ -650,8 +653,11 @@
             currentBet = bet;
             console.log('Bet selected:', currentBet, 'Element:', element.id); 
             
-            document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
-            element.classList.add('selected');
+            document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
+            // Only add 'selected' class if the element is one of the main bet options
+            if (element.classList.contains('bet-option')) {
+                element.classList.add('selected');
+            }
             
             updatePotentialHaul();
         }
@@ -665,30 +671,14 @@
          * @returns {number} The number on the wheel that the pointer is currently indicating.
          */
         function getLandedNumberFromRotation(rotation) {
-            // The pointer is at the top, which is -Math.PI / 2 radians (or 3*Math.PI/2) from the right horizontal.
             const pointerFixedAngle = -Math.PI / 2;
-
-            // Calculate the angle of the pointer relative to the wheel's *internal* coordinate system.
-            // This is effectively "un-rotating" the wheel to see what segment is at the pointer's position.
             let angleInWheelCoords = (pointerFixedAngle - rotation);
-            
-            // Normalize this angle to be positive and within 0 to 2*PI.
-            // Adding 2*Math.PI multiple times ensures it's positive before modulo.
             angleInWheelCoords = (angleInWheelCoords % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-
-            // Determine which segment index this angle falls into.
-            // Segments are indexed 0 to 36, covering 0 to 2*PI.
-            // The segment index is simply the floor of (angle / segmentAngle).
             let landedIndex = Math.floor(angleInWheelCoords / segmentAngle);
-
-            // Ensure the index is within bounds (0 to segments-1)
             landedIndex = Math.min(landedIndex, segments - 1);
-            
-            // Return the number corresponding to this segment index in the wheel sequence.
             return wheelSequence[landedIndex];
         }
 
-        // List of insults for spinning without a bet
         const noBetInsults = [
             "Ye spin without a wager? Are ye a landlubber or a scurvy dog?!",
             "No bet, no glory! What kind of pirate are ye, a cheapskate?",
@@ -712,7 +702,6 @@
             "Don't make me walk ye to the plank for yer insolence! BET!"
         ];
 
-        // List of insults for black outcomes (Captain's intervention)
         const rudeCommentsToWheel = [
             `"BLACK?! I'LL HAVE NONE OF THAT ON MY WATCH, WHEEL!"`,
             `"HEAVE HO, YE BLACKGUARD! RED IT IS, BY MY COMMAND!"`,
@@ -772,7 +761,6 @@
                 messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
             }
 
-            // Cancel any ongoing inertia animation before starting a new spin
             if (inertiaAnimationId) {
                 cancelAnimationFrame(inertiaAnimationId);
                 inertiaAnimationId = null;
@@ -787,30 +775,15 @@
             const minAdditionalRotations = 5; 
             const maxAdditionalRotations = 10; 
             
-            // Randomly select ANY number from the wheel sequence
             const winningNumber = wheelSequence[Math.floor(Math.random() * wheelSequence.length)]; 
-            
             const winningIndex = wheelSequence.indexOf(winningNumber);
-
-            // Calculate the absolute angle where the winning number should stop, if the wheel started at 0.
-            // This is the angle of the winning segment's center relative to the wheel's 0-radian mark,
-            // adjusted so that it aligns with the pointer (which is at -PI/2 radians from the right horizontal).
             const desiredFinalSegmentPosition = -(winningIndex * segmentAngle) - (segmentAngle / 2) - (Math.PI / 2);
 
-            // Determine how many additional full rotations the wheel needs to make
-            const randomAdditionalRotations = minAdditionalRotations + Math.random() * (maxAdditionalRotations - minAdditionalRotations);
-            
-            // The final target angle for the animation
-            // It should be `currentWheelRotation` plus a certain number of full rotations, plus the offset
-            // needed to land on the `desiredFinalSegmentPosition`.
-            
-            // Calculate the difference between the desired final position and the current rotation's effective position (modulo 2PI)
             let rotationDifference = desiredFinalSegmentPosition - (currentWheelRotation % (2 * Math.PI));
             if (rotationDifference < 0) { 
                 rotationDifference += 2 * Math.PI;
             }
 
-            // The target angle is the current rotation + the number of full spins + the exact difference needed
             const targetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotations) * 2 * Math.PI) + rotationDifference;
 
             let start = null;
@@ -822,8 +795,6 @@
                 const easeOutQuad = t => t * (2 - t);
                 const t = Math.min(progress / spinDuration, 1);
                 const easedT = easeOutQuad(t);
-                // Calculate rotation from the start of the animation (startRotationForAnimation)
-                // to the calculated targetAngle.
                 const rotation = startRotationForAnimation + (easedT * (targetAngle - startRotationForAnimation));
 
                 drawWheel(rotation);
@@ -832,7 +803,6 @@
                 if (progress < spinDuration) {
                     requestAnimationFrame(animate);
                 } else {
-                    // Animation finished, set the final rotation state to the exact target
                     currentWheelRotation = targetAngle; 
                     endSpin(); 
                 }
@@ -894,7 +864,7 @@
             requestAnimationFrame(reSpinAnimate);
         }
         
-        function processEndOfRound(winnings, message, sound, isFinalStep = true) {
+        function processEndOfRound(winnings, message, isFinalStep = true) { // Removed sound parameter
             balance += winnings;
             totalWinLoss += winnings;
             messageBox.innerHTML = message;
@@ -915,7 +885,7 @@
                 }, 1000); 
 
                 currentBet = null;
-                document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
                 updatePotentialHaul(); 
 
                 if (balance <= 0) {
@@ -934,7 +904,6 @@
                     bettingArea.classList.remove('disabled'); 
                 }
                 spinButton.disabled = false;
-                isSpinning = false; 
                 canvas.style.cursor = 'grab'; 
             }
         }
@@ -949,7 +918,7 @@
                 spinButton.disabled = false;
                 canvas.style.cursor = 'grab';
                 currentBet = null; 
-                document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
                 updatePotentialHaul(); 
                 return;
             }
@@ -973,15 +942,16 @@
 
             let winnings = 0;
             let message = '';
-            let sound = 'lose';
 
             // First, handle the special case of landing on 0 (Green)
             if (actualLandedNumber === 0) {
                 console.log('Landed on GREEN (0).');
+                // If betting on a specific number, check if it was 0
                 if (betIsOnSpecificNumber && parsedCurrentBet === 0) {
                     winnings = -betAmount * 20; 
                     console.log('Bet on specific 0. Winnings:', winnings);
                 } else {
+                    // Default loss for landing on 0 if not specifically bet on 0
                     winnings = -betAmount; 
                     console.log('Not bet on specific 0. Default loss. Winnings:', winnings);
                 }
@@ -1000,7 +970,7 @@
                     setTimeout(() => {
                         gameContainer.classList.remove('shaking');
                         const finalMessage = `The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`;
-                        processEndOfRound(0, finalMessage, 'lose'); 
+                        processEndOfRound(0, finalMessage); 
                     }, 1500);
                 }, 1500);
                 return;
@@ -1051,7 +1021,7 @@
                     animateToForcedRed(forcedRedNumber, () => {
                         gameContainer.classList.remove('shaking');
                         const finalMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(winnings)} for yer folly!`;
-                        processEndOfRound(0, finalMessage, 'lose'); 
+                        processEndOfRound(0, finalMessage); 
                     });
 
                 }, 1500);
@@ -1062,32 +1032,25 @@
             if (redNumbers.includes(actualLandedNumber)) {
                 console.log('Landed on RED number:', actualLandedNumber);
                 if (betIsOnSpecificNumber && parsedCurrentBet === actualLandedNumber) {
-                    // Player bet on THIS specific red number and it hit
                     winnings = betAmount * 35;
                     message = `It's ${actualLandedNumber}! THE CAPTAIN'S GENIUS IS UNMATCHED! You win $${winnings}!`;
-                    sound = 'win';
                     console.log('Bet on specific RED number and hit! Winnings:', winnings);
                 } else if (currentBet === 'red') {
-                    // Player bet on red color, and a red number hit
                     winnings = betAmount; 
                     message = `It's RED ${actualLandedNumber}! SEE?! I TOLD YE! You win $${winnings}!`;
-                    sound = 'win';
                     console.log('Bet on RED color and hit! Winnings:', winnings);
                 } else {
-                    // Player bet on black or a specific black/green number, but it landed red
                     winnings = -betAmount; 
                     message = `It's RED ${actualLandedNumber}! You bet on the wrong tide! You lose $${Math.abs(winnings)}!`;
                     console.log('Landed RED, but bet on BLACK or different specific number. Default loss. Winnings:', winnings);
                 }
             } else {
-                // This else block should theoretically not be hit if all numbers are red, black, or 0.
-                // It's a fallback for unforeseen scenarios.
                 winnings = -betAmount;
                 message = `It's ${actualLandedNumber}! A strange wind blows... You lose $${Math.abs(winnings)}!`;
                 console.log('Landed on unexpected number. Default loss. Winnings:', winnings);
             }
             
-            processEndOfRound(winnings, message, sound);
+            processEndOfRound(winnings, message);
             console.log('Balance after non-black/non-green calculation:', balance);
             console.log('Total Win/Loss after non-black/non-green calculation:', totalWinLoss);
         }
@@ -1102,7 +1065,7 @@
             spinButton.textContent = "SPIN THE WHEEL!";
             spinButton.disabled = false;
             currentBet = null;
-            document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
             updatePotentialHaul(); 
             canvas.style.cursor = 'grab'; 
             bettingArea.classList.remove('disabled'); 
@@ -1222,26 +1185,34 @@
         }
 
         // --- Event Listeners ---
-        leftArrow.addEventListener('click', () => {
-            if (isSpinning || balance <= 0) return; 
-            currentNumber = (currentNumber - 1 + segments) % segments;
-            updateNumberPicker();
+        document.getElementById('bet-red').addEventListener('click', (e) => selectBet(e.target.dataset.bet, e.target));
+        document.getElementById('bet-black').addEventListener('click', (e) => selectBet(e.target.dataset.bet, e.target));
+        
+        // New event listener for the "BET ON NUMBER" button
+        betNumberButton.addEventListener('click', () => {
+            if (!isSpinning && balance > 0) {
+                // Visually select the "BET ON NUMBER" button
+                selectBet(currentBet, betNumberButton); 
+                modalOverlay.classList.remove('hidden');
+            }
         });
 
-        rightArrow.addEventListener('click', () => {
-            if (isSpinning || balance <= 0) return; 
-            currentNumber = (currentNumber + 1) % segments;
-            updateNumberPicker();
+        minusBetButton.addEventListener('click', () => {
+            if (isSpinning || balance <= 0) return;
+            let currentBetAmount = parseInt(betAmountInput.value);
+            if (currentBetAmount > 1) {
+                betAmountInput.value = currentBetAmount - 1;
+                updatePotentialHaul();
+            }
         });
 
-        document.querySelectorAll('.bet-option').forEach(button => {
-            button.addEventListener('click', (e) => selectBet(e.target.dataset.bet, e.target));
+        plusBetButton.addEventListener('click', () => {
+            if (isSpinning || balance <= 0) return;
+            let currentBetAmount = parseInt(betAmountInput.value);
+            betAmountInput.value = currentBetAmount + 1;
+            updatePotentialHaul();
         });
-        
-        numberDisplay.addEventListener('click', (e) => {
-             if (!isSpinning && balance > 0) modalOverlay.classList.remove('hidden'); 
-        });
-        
+
         modalClose.addEventListener('click', () => {
             modalOverlay.classList.add('hidden');
         });
