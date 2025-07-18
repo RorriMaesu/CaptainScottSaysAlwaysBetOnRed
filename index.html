@@ -314,6 +314,15 @@
             background: #555;
             cursor: not-allowed;
         }
+
+        /* New style for disabled betting options */
+        .betting-area.disabled .bet-option,
+        .betting-area.disabled .number-picker,
+        .betting-area.disabled #bet-amount {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none; /* Disable all pointer events */
+        }
         
         #modal-overlay {
             position: fixed;
@@ -456,6 +465,7 @@
         const betAmountInput = document.getElementById('bet-amount');
         const ordersText = document.getElementById('orders-text');
         const potentialHaul = document.getElementById('potential-haul');
+        const bettingArea = document.querySelector('.betting-area'); // Get the betting area element
 
         // Game State
         let balance = 100;
@@ -472,9 +482,6 @@
         const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
         const wheelSequence = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 
-        // Removed the AudioContext initialization as sounds are no longer needed.
-        // const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
         // --- Drag/Swipe Spin Variables ---
         let isDragging = false;
         let lastPointerAngle = 0; // Stores the angle of the pointer in the previous frame
@@ -485,35 +492,6 @@
         let inertiaAnimationId = null; // To cancel inertia animation if a new spin starts
         const flickThreshold = 0.005; // Minimum velocity (radians/ms) to trigger inertia
         const flickDeceleration = 0.98; // Multiplier per frame for inertia decay (0.98 = 2% decay per frame)
-
-        // --- Sound Generation (Removed) ---
-        // function playSound(type) {
-        //     if (!audioCtx) return;
-        //     const oscillator = audioCtx.createOscillator();
-        //     const gainNode = audioCtx.createGain();
-        //     oscillator.connect(gainNode);
-        //     gainNode.connect(audioCtx.destination);
-
-        //     if (type === 'spin') {
-        //         oscillator.type = 'sawtooth';
-        //         oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-        //         gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        //         oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 1.5);
-        //         gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
-        //     } else if (type === 'win') {
-        //         oscillator.type = 'square';
-        //         gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        //         oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-        //         oscillator.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2);
-        //     } else if (type === 'lose') {
-        //         oscillator.type = 'triangle';
-        //         gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
-        //         oscillator.frequency.setValueAtTime(155.56, audioCtx.currentTime);
-        //         oscillator.frequency.exponentialRampToValueAtTime(130.81, audioCtx.currentTime + 0.5);
-        //     }
-        //     oscillator.start();
-        //     oscillator.stop(audioCtx.currentTime + 1.5);
-        // }
 
         // --- UI and Wheel Drawing ---
         function createModalGrid() {
@@ -633,15 +611,15 @@
                     losePercentage = 100;
                     orderMessage = "A true gamble! Risk it for a king's ransom!";
                 } else if (blackNumbers.includes(parsedBetNumber)) {
-                    // Betting on a specific BLACK number (rigged to always lose according to game logic)
-                    winAmount = 0; // As per existing game logic, betting on specific black loses big
-                    loseAmount = betAmount * 10;
+                    // Betting on a specific BLACK number
+                    winAmount = 0; 
+                    loseAmount = betAmount * 20; // Increased loss multiplier for specific black number
                     winPercentage = 0;
-                    losePercentage = 1000;
+                    losePercentage = 2000;
                     orderMessage = "The Captain spits on yer black-hearted choice!";
                 } else if (parsedBetNumber === 0) { // Green number (The Kraken's Eye)
-                    // Betting on GREEN (0) (rigged to always lose according to game logic)
-                    winAmount = 0; // As per existing game logic, betting on 0 loses big
+                    // Betting on GREEN (0)
+                    winAmount = 0; 
                     loseAmount = betAmount * 20;
                     winPercentage = 0;
                     losePercentage = 2000;
@@ -655,11 +633,11 @@
                 losePercentage = 100;
                 orderMessage = "A safe bet for a true sailor!";
             } else if (currentBet === 'black') {
-                // Betting on BLACK color (rigged to always lose according to game logic)
-                winAmount = 0; // As per existing game logic, betting on black color loses big
-                loseAmount = betAmount * 3;
+                // Betting on BLACK color
+                winAmount = 0; 
+                loseAmount = betAmount * 5; // Increased loss multiplier for black color
                 winPercentage = 0;
-                losePercentage = 300;
+                losePercentage = 500;
                 orderMessage = "BAH! Black is for landlubbers! A costly mistake!";
             }
 
@@ -668,8 +646,9 @@
         }
 
         function selectBet(bet, element) {
-            if (isSpinning) return;
+            if (isSpinning || balance <= 0) return; // Prevent betting if spinning or broke
             currentBet = bet;
+            console.log('Bet selected:', currentBet, 'Element:', element.id); // Added logging
             
             document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
@@ -780,7 +759,7 @@
 
         // This function handles the "Spin!" button click and controlled spins
         function spin() {
-            if (isSpinning) return; // Prevent new spin if one is already active
+            if (isSpinning || balance <= 0) return; // Prevent new spin if one is already active or if broke
             
             const betAmount = parseInt(betAmountInput.value);
             const hasValidBet = !isNaN(betAmount) && betAmount > 0 && betAmount <= balance && currentBet !== null;
@@ -803,7 +782,6 @@
             spinButton.disabled = true;
             canvas.classList.remove('grabbing'); // Remove grabbing cursor
             canvas.style.cursor = 'default'; // Reset cursor
-            // playSound('spin'); // Removed sound effect
 
             const spinDuration = 4000;
             const minAdditionalRotations = 5; // Minimum full rotations for the main spin
@@ -920,7 +898,6 @@
             balance += winnings;
             totalWinLoss += winnings;
             messageBox.innerHTML = message;
-            // playSound(sound); // Removed sound effect
             
             balanceEl.textContent = balance;
             profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`; // Format with dollar sign
@@ -954,8 +931,10 @@
                     messageBox.textContent = threats[Math.floor(Math.random() * threats.length)];
                     balanceEl.textContent = "BROKE";
                     spinButton.textContent = "RESTART";
+                    bettingArea.classList.add('disabled'); // Disable betting options
                 } else {
                     spinButton.textContent = "SPIN AGAIN!";
+                    bettingArea.classList.remove('disabled'); // Ensure betting is enabled if not broke
                 }
                 spinButton.disabled = false;
                 isSpinning = false; // Crucial: set false here
@@ -968,7 +947,6 @@
          * This function is now called after *any* spin (manual or automated) has visually stopped.
          */
         function endSpin() {
-            // If it was a free spin, just reset the UI and exit.
             if (isFreeSpin) {
                 isSpinning = false;
                 spinButton.disabled = false;
@@ -980,49 +958,77 @@
                 return;
             }
 
-            // Proceed with normal game logic for paid spins
-            isSpinning = false; // Ensure spinning state is false
-            
-            // Determine the *actual* number the wheel landed on visually.
+            isSpinning = false;
             const actualLandedNumber = getLandedNumberFromRotation(currentWheelRotation);
+            const betAmount = parseInt(betAmountInput.value);
+            const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
+            const parsedCurrentBet = parseInt(currentBet);
 
-            // Captain Scottathy's special rule for landing on 0 (Green)
+            console.log('--- End Spin Analysis ---');
+            console.log('Bet Amount:', betAmount);
+            console.log('Current Bet (string):', currentBet);
+            console.log('Is bet on specific number (parsed)?:', betIsOnSpecificNumber);
+            console.log('Parsed Current Bet Number:', parsedCurrentBet);
+            console.log('Actual Landed Number:', actualLandedNumber);
+            console.log('Is actual landed number BLACK?:', blackNumbers.includes(actualLandedNumber));
+            console.log('Is actual landed number RED?:', redNumbers.includes(actualLandedNumber));
+            console.log('Is actual landed number GREEN (0)?:', actualLandedNumber === 0);
+
+
+            let winnings = 0;
+            let message = '';
+            let sound = 'lose';
+
+            // First, handle the special case of landing on 0 (Green)
             if (actualLandedNumber === 0) {
-                // playSound('lose'); // Removed sound effect
+                console.log('Landed on GREEN (0).');
+                if (betIsOnSpecificNumber && parsedCurrentBet === 0) {
+                    winnings = -betAmount * 20; // Specific bet on 0
+                    console.log('Bet on specific 0. Winnings:', winnings);
+                } else {
+                    winnings = -betAmount; // Default loss for landing on 0 if not specifically bet
+                    console.log('Not bet on specific 0. Default loss. Winnings:', winnings);
+                }
+                
+                // Apply loss immediately for 0
+                balance += winnings;
+                totalWinLoss += winnings;
+                balanceEl.textContent = balance;
+                profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
+                profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
+
                 messageBox.innerHTML = `<strong>A voice from the deep bellows...</strong>`;
                 setTimeout(() => {
                     messageBox.innerHTML = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
                     gameContainer.classList.add('shaking');
                     setTimeout(() => {
                         gameContainer.classList.remove('shaking');
-                        const winnings = -parseInt(betAmountInput.value) * 20; // Loss for betting on 0
-                        const message = `The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`;
-                        processEndOfRound(winnings, message, 'lose');
+                        const finalMessage = `The Kraken swallowed your gold! You lose $${Math.abs(winnings)}!`;
+                        processEndOfRound(0, finalMessage, 'lose'); // Pass 0 as winnings, as already applied
                     }, 1500);
                 }, 1500);
-                return; // Exit here, no further processing for 0
+                return;
             }
 
-            let winnings = 0;
-            let message = '';
-            let sound = 'lose';
-
-            const betAmount = parseInt(betAmountInput.value);
-            const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
-            const parsedCurrentBet = parseInt(currentBet);
-            
-            // CAPTAIN SCOTTATHY'S RULE: INTERVENE IF IT LANDS ON BLACK!
+            // Now, handle the Captain's intervention for landing on BLACK
             if (blackNumbers.includes(actualLandedNumber)) {
-                // Calculate loss based on the player's bet
-                if (currentBet === 'black') {
-                    winnings = -betAmount * 3; // Loss for betting on black color
-                } else if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet)) {
-                    winnings = -betAmount * 10; // Loss for betting on specific black number
+                console.log('Landed on BLACK number:', actualLandedNumber);
+                // Calculate loss based on the player's bet type
+                if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet)) {
+                    // Player bet on a specific black number (regardless of whether it matched the landed number)
+                    winnings = -betAmount * 20; // Direct hit on specific black number
+                    console.log('Bet on specific BLACK number. Winnings:', winnings);
+                } else if (currentBet === 'black') {
+                    // Player bet on black color, and a black number hit
+                    winnings = -betAmount * 5; // Bet on black color
+                    console.log('Bet on BLACK color. Winnings:', winnings);
                 } else {
-                    winnings = -betAmount; // Default loss if not betting on black but it landed black
+                    // Player bet on red or a specific red/green number, but it landed black
+                    winnings = -betAmount; // Default loss
+                    console.log('Landed BLACK, but bet on RED or different specific number. Default loss. Winnings:', winnings);
                 }
 
-                // Update balance and profit/loss immediately for the loss incurred
+                // Apply loss immediately for black outcome
                 balance += winnings;
                 totalWinLoss += winnings;
                 balanceEl.textContent = balance;
@@ -1030,14 +1036,11 @@
                 profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
 
                 messageBox.innerHTML = `It's BLACK ${actualLandedNumber}! Awaiting Captain's orders...`;
-                // playSound('lose'); // Removed sound effect
 
-                // Now, set a timeout for the Captain's intervention
                 setTimeout(() => {
                     messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
-                    gameContainer.classList.add('shaking'); // Make the whole game shake for intervention
+                    gameContainer.classList.add('shaking');
                     
-                    // Find the next red number to force the outcome to
                     let forcedRedNumber = actualLandedNumber;
                     let currentIndex = wheelSequence.indexOf(actualLandedNumber);
                     for (let i = 1; i < segments; i++) {
@@ -1049,43 +1052,48 @@
                         }
                     }
 
-                    // --- NEW: Animate to the forced red number ---
                     animateToForcedRed(forcedRedNumber, () => {
-                        // This callback runs AFTER the re-spin animation completes
-                        gameContainer.classList.remove('shaking'); // Remove shake after re-spin
-                        const finalInterventionMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(winnings)} for yer folly!`;
-                        // Call processEndOfRound with 0 winnings as the loss was handled above.
-                        // This will handle removing shaking/flashing and resetting UI for next spin.
-                        processEndOfRound(0, finalInterventionMessage, 'lose'); // Pass 0 winnings as loss already applied
+                        gameContainer.classList.remove('shaking');
+                        const finalMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(winnings)} for yer folly!`;
+                        processEndOfRound(0, finalMessage, 'lose'); // Pass 0 as winnings, as already applied
                     });
 
-                }, 1500); // Initial delay for Captain's comment/intervention to start
-                return; // Exit, as the Captain's intervention is handled asynchronously
+                }, 1500);
+                return;
             }
 
-            // Normal win/loss logic for non-intervened spins (red or green 0)
-            if (betIsOnSpecificNumber && parsedCurrentBet === actualLandedNumber) {
-                // Player bet on a specific number and it hit
-                winnings = betAmount * 35;
-                message = `It's ${actualLandedNumber}! THE CAPTAIN'S GENIUS IS UNMATCHED! You win $${winnings}!`;
-                sound = 'win';
-            } else if (currentBet === 'red' && redNumbers.includes(actualLandedNumber)) {
-                // Player bet on RED color and a red number hit
-                winnings = betAmount; 
-                message = `It's RED ${actualLandedNumber}! SEE?! I TOLD YE! You win $${winnings}!`;
-                sound = 'win';
-            }
-            // All other loss scenarios
-            else { 
-                winnings = -betAmount; // Default loss
-                if (redNumbers.includes(actualLandedNumber)) {
-                     message = `It's RED ${actualLandedNumber}! You bet on the wrong tide! You lose $${Math.abs(winnings)}!`;
-                } else { // This else block should now only catch if it's green 0 (already handled) or an unforeseen scenario.
-                    message = `It's ${actualLandedNumber}! A strange wind blows... You lose $${Math.abs(winnings)}!`;
+            // Finally, handle cases where it lands on RED (no intervention)
+            if (redNumbers.includes(actualLandedNumber)) {
+                console.log('Landed on RED number:', actualLandedNumber);
+                if (betIsOnSpecificNumber && parsedCurrentBet === actualLandedNumber) {
+                    // Player bet on THIS specific red number and it hit
+                    winnings = betAmount * 35;
+                    message = `It's ${actualLandedNumber}! THE CAPTAIN'S GENIUS IS UNMATCHED! You win $${winnings}!`;
+                    sound = 'win';
+                    console.log('Bet on specific RED number and hit! Winnings:', winnings);
+                } else if (currentBet === 'red') {
+                    // Player bet on red color, and a red number hit
+                    winnings = betAmount; 
+                    message = `It's RED ${actualLandedNumber}! SEE?! I TOLD YE! You win $${winnings}!`;
+                    sound = 'win';
+                    console.log('Bet on RED color and hit! Winnings:', winnings);
+                } else {
+                    // Player bet on black or a specific black/green number, but it landed red
+                    winnings = -betAmount; // Default loss
+                    message = `It's RED ${actualLandedNumber}! You bet on the wrong tide! You lose $${Math.abs(winnings)}!`;
+                    console.log('Landed RED, but bet on BLACK or different specific number. Default loss. Winnings:', winnings);
                 }
+            } else {
+                // This else block should theoretically not be hit if all numbers are red, black, or 0.
+                // It's a fallback for unforeseen scenarios.
+                winnings = -betAmount;
+                message = `It's ${actualLandedNumber}! A strange wind blows... You lose $${Math.abs(winnings)}!`;
+                console.log('Landed on unexpected number. Default loss. Winnings:', winnings);
             }
             
             processEndOfRound(winnings, message, sound);
+            console.log('Balance after non-black/non-green calculation:', balance);
+            console.log('Total Win/Loss after non-black/non-green calculation:', totalWinLoss);
         }
         
         function restartGame() {
@@ -1101,6 +1109,7 @@
             document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
             updatePotentialHaul(); // Reset potential haul display
             canvas.style.cursor = 'grab'; // Restore grab cursor
+            bettingArea.classList.remove('disabled'); // Re-enable betting options on restart
         }
 
         // --- Drag/Swipe Functions ---
@@ -1125,7 +1134,7 @@
         }
 
         function handleStart(e) {
-            if (isSpinning) return; // Prevent drag if already spinning
+            if (isSpinning || balance <= 0) return; // Prevent drag if already spinning or broke
             e.preventDefault(); // Prevent scrolling on touch devices
 
             const betAmount = parseInt(betAmountInput.value);
@@ -1154,7 +1163,6 @@
             isSpinning = true; // Set spinning state to true for visual animation
             spinButton.disabled = true;
             canvas.style.cursor = 'default';
-            // playSound('spin'); // Removed sound effect
         }
 
         function handleMove(e) {
@@ -1229,13 +1237,13 @@
 
         // --- Event Listeners ---
         leftArrow.addEventListener('click', () => {
-            if (isSpinning) return;
+            if (isSpinning || balance <= 0) return; // Prevent interaction if spinning or broke
             currentNumber = (currentNumber - 1 + segments) % segments;
             updateNumberPicker();
         });
 
         rightArrow.addEventListener('click', () => {
-            if (isSpinning) return;
+            if (isSpinning || balance <= 0) return; // Prevent interaction if spinning or broke
             currentNumber = (currentNumber + 1) % segments;
             updateNumberPicker();
         });
@@ -1245,7 +1253,7 @@
         });
         
         numberDisplay.addEventListener('click', (e) => {
-             if (!isSpinning) modalOverlay.classList.remove('hidden');
+             if (!isSpinning && balance > 0) modalOverlay.classList.remove('hidden'); // Only open modal if not spinning and not broke
         });
         
         modalClose.addEventListener('click', () => {
@@ -1267,6 +1275,7 @@
         });
 
         betAmountInput.addEventListener('input', updatePotentialHaul);
+        betAmountInput.addEventListener('change', updatePotentialHaul); // Also update on change
         
         function resizeCanvas() {
             // Ensure canvas scales with the container
