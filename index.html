@@ -546,7 +546,8 @@
             top: 30%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            width: 180px;
+            width: 90vw;
+            max-width: 280px;
             z-index: 2000;
             display: flex;
             flex-direction: column; /* Bubble is always on top */
@@ -562,7 +563,8 @@
         }
 
         #captain-image {
-            width: 100%;
+            width: 180px; /* Give image a consistent base size */
+            max-width: 100%;
             height: auto;
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.5);
@@ -575,12 +577,13 @@
             color: #000;
             border-radius: 20px;
             padding: 0.8rem;
-            width: 160px;
+            width: 100%;
             font-size: 0.9rem;
             font-weight: bold;
             margin-bottom: 15px;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
             box-sizing: border-box;
+            overflow-wrap: break-word; /* Prevents overflow */
         }
 
         /* The tail of the thought bubble - pointing down */
@@ -611,7 +614,7 @@
             #captain-container {
                 position: absolute; /* Position relative to body */
                 top: 2rem;
-                left: calc(50% - 450px - 220px); /* 50% - half_container - captain_width - gap */
+                left: calc(50% - 450px - 220px); /* 50% - half_container_width - captain_width - gap */
                 transform: scale(0);
                 transform-origin: top right;
                 width: 200px;
