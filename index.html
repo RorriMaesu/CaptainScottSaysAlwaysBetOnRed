@@ -232,6 +232,7 @@
             flex: 1; 
             min-height: 0;
             justify-content: center;
+            position: relative; /* Anchor for the tooltip */
         }
         
         .betting-area {
@@ -457,7 +458,6 @@
             border-radius: 8px;
             font-size: 0.85rem;
             text-align: center;
-            white-space: nowrap;
             z-index: 1001;
             opacity: 0;
             pointer-events: none;
@@ -465,11 +465,18 @@
             transform: translateY(5px);
             border: 1px solid var(--gold-color);
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            white-space: normal;
+            width: 90%;
+            max-width: 300px;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 100%; /* Position above the betting area */
+            margin-bottom: 10px;
         }
 
         #custom-tooltip.show {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
             pointer-events: auto;
         }
 
@@ -491,6 +498,12 @@
             border: 1px solid var(--gold-color);
             box-shadow: 0 5px 15px rgba(0,0,0,0.6);
             pointer-events: none;
+        }
+
+        #instructional-tooltip.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
         }
 
         @media (max-width: 767px) {
