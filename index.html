@@ -957,7 +957,6 @@
                     console.log('processEndOfRound(): Game continues. Button text: SPIN AGAIN!, betting enabled.');
                 }
                 spinButton.disabled = false; 
-                isSpinning = false; 
                 canvas.style.cursor = 'grab'; 
                 console.log('processEndOfRound(): Final state update: isSpinning:', isSpinning, 'spinButton.disabled:', spinButton.disabled);
             }
@@ -1027,8 +1026,8 @@
                         gameContainer.classList.remove('shaking');
                         // For green, the game is over, so processEndOfRound will handle the restart logic
                         processEndOfRound(0, messageBox.textContent); // Pass 0 winnings as it's already applied, use current message
-                    }, 2000); // Increased to 2 seconds
-                }, 2000); // Increased to 2 seconds
+                    }, 4000); // Increased to 4 seconds
+                }, 2000); // Reduced to 2 seconds for the first message
                 return;
             }
             // --- Handle landing on BLACK number ---
@@ -1063,33 +1062,35 @@
                 profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
                 messageBox.innerHTML = message; // Update message box with initial outcome
 
-                setTimeout(() => { // Delay for the first message
+                setTimeout(() => { // Delay for the first message (2000ms)
                     messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`; // Second message
                     gameContainer.classList.add('shaking');
                     
-                    let forcedRedNumber = actualLandedNumber;
-                    let currentIndex = wheelSequence.indexOf(actualLandedNumber);
-                    for (let i = 1; i < segments; i++) {
-                        const checkIndex = (currentIndex + i) % segments;
-                        const potentialRed = wheelSequence[checkIndex];
-                        if (redNumbers.includes(potentialRed)) {
-                            forcedRedNumber = potentialRed;
-                            break;
+                    setTimeout(() => { // **New Delay for the rude comment (3000ms)**
+                        let forcedRedNumber = actualLandedNumber;
+                        let currentIndex = wheelSequence.indexOf(actualLandedNumber);
+                        for (let i = 1; i < segments; i++) {
+                            const checkIndex = (currentIndex + i) % segments;
+                            const potentialRed = wheelSequence[checkIndex];
+                            if (redNumbers.includes(potentialRed)) {
+                                forcedRedNumber = potentialRed;
+                                break;
+                            }
                         }
-                    }
 
-                    animateToForcedRed(forcedRedNumber, () => {
-                        gameContainer.classList.remove('shaking');
-                        let finalMessage = '';
-                        if (playerBetRed) {
-                            // This is the final message after intervention for red bets
-                            finalMessage = `The Captain forced it to RED ${forcedRedNumber}! For his 'generosity', you received a partial reward of $${currentRoundWinnings}!`;
-                        } else {
-                            finalMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(currentRoundWinnings)} for yer folly!`;
-                        }
-                        processEndOfRound(currentRoundWinnings, finalMessage); // Pass currentRoundWinnings for visual effects, and final message
-                    });
-                }, 2000); // Increased to 2 seconds
+                        animateToForcedRed(forcedRedNumber, () => {
+                            gameContainer.classList.remove('shaking');
+                            let finalMessage = '';
+                            if (playerBetRed) {
+                                // This is the final message after intervention for red bets
+                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! For his 'generosity', you received a partial reward of $${currentRoundWinnings}!`;
+                            } else {
+                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(currentRoundWinnings)} for yer folly!`;
+                            }
+                            processEndOfRound(currentRoundWinnings, finalMessage); // Pass currentRoundWinnings for visual effects, and final message
+                        });
+                    }, 3000); // Increased to 3 seconds for the rude comment to be visible before re-spin animation starts
+                }, 1500); // Reduced to 1.5 seconds for the first message
                 return; // Exit endSpin as the rest is handled by the setTimeout/callback
             }
             // --- Handle landing on RED number ---
