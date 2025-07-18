@@ -1115,7 +1115,7 @@
         
         function animateToForcedRed(targetRedNumber, callback) {
             const message = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
-            animateCaptain('cheat', 1500, message); // Captain appears to change the wheel
+            animateCaptain('cheat', 3000, message); // Increased duration
             isSpinning = true; 
             spinButton.disabled = true; 
 
