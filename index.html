@@ -450,6 +450,45 @@
             pointer-events: auto; /* Enable interaction when visible */
         }
 
+        /* Instructional Tooltip Styles */
+        #instructional-tooltip {
+            position: absolute;
+            bottom: 80px; /* Adjust based on sticky footer height */
+            left: 50%;
+            transform: translateX(-50%) translateY(10px); /* Initial slight offset */
+            background-color: rgba(0, 0, 0, 0.9);
+            color: var(--gold-color);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+            text-align: center;
+            white-space: nowrap;
+            z-index: 1002; /* Higher than other tooltips */
+            opacity: 0;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            border: 1px solid var(--gold-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            pointer-events: none; /* Allow clicks to pass through initially */
+        }
+
+        #instructional-tooltip.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto; /* Enable interaction when visible */
+        }
+
+        /* Responsive adjustment for instructional tooltip */
+        @media (max-width: 767px) {
+            #instructional-tooltip {
+                bottom: calc(60px + 0.4rem + 10px); /* Footer height + footer padding + margin */
+                white-space: normal; /* Allow text to wrap */
+                width: 80%; /* Constrain width */
+                max-width: 300px; /* Max width on mobile */
+                left: 50%;
+                transform: translateX(-50%) translateY(10px);
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -504,6 +543,11 @@
     <!-- Custom Tooltip Element -->
     <div id="custom-tooltip" class="hidden"></div>
 
+    <!-- Instructional Tooltip Element -->
+    <div id="instructional-tooltip" class="hidden">
+        <p>Drag the wheel or press 'SPIN THE WHEEL!' to begin!</p>
+    </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // Game Elements
@@ -525,6 +569,7 @@
         const modalGrid = document.getElementById('modal-grid');
         const modalClose = document.getElementById('modal-close');
         const customTooltip = document.getElementById('custom-tooltip'); // Tooltip element
+        const instructionalTooltip = document.getElementById('instructional-tooltip'); // Instructional tooltip element
 
         // Game State
         let balance = 300; // Changed starting balance to 300
@@ -922,6 +967,31 @@
             "The shadow's path, eh? Don't say I didn't warn ye!",
             "A daring, perhaps foolish, black wager!"
         ];
+
+        let instructionalTooltipTimeout; // To store the timeout ID for the instructional tooltip
+
+        // --- Instructional Tooltip Functions ---
+        function showInstructionalTooltip() {
+            clearTimeout(instructionalTooltipTimeout); // Clear any pending show
+            instructionalTooltip.classList.remove('hidden');
+            // Force reflow to ensure transition works
+            void instructionalTooltip.offsetWidth;
+            instructionalTooltip.classList.add('show');
+            // Hide after a few seconds if no interaction
+            instructionalTooltipTimeout = setTimeout(hideInstructionalTooltip, 7000); // Show for 7 seconds
+        }
+
+        function hideInstructionalTooltip() {
+            clearTimeout(instructionalTooltipTimeout); // Clear pending hide
+            if (instructionalTooltip.classList.contains('show')) {
+                instructionalTooltip.classList.remove('show');
+                // Add hidden class after transition completes
+                instructionalTooltip.addEventListener('transitionend', function handler() {
+                    instructionalTooltip.classList.add('hidden');
+                    instructionalTooltip.removeEventListener('transitionend', handler);
+                }, { once: true });
+            }
+        }
 
 
         // This function handles the "Spin!" button click and controlled spins
@@ -1349,6 +1419,8 @@
                 console.log('handleStart() early exit: isSpinning or balance <= 0.');
                 return; 
             }
+            hideInstructionalTooltip(); // Hide instructional tooltip on interaction
+
             e.preventDefault(); 
 
             const betAmount = parseInt(betAmountInput.value);
@@ -1559,6 +1631,7 @@
                 restartGame();
             } else {
                 console.log('Spin button: Balance is positive, calling spin().');
+                hideInstructionalTooltip(); // Hide instructional tooltip on interaction
                 spin(); 
             }
         });
@@ -1582,6 +1655,9 @@
         initializeWheel();
         resizeCanvas(); 
         updatePotentialHaul(); 
+
+        // Initial display of instructional tooltip after a short delay
+        setTimeout(showInstructionalTooltip, 2000); // Show after 2 seconds
 
         // Add resize listener
         window.addEventListener('resize', resizeCanvas);
