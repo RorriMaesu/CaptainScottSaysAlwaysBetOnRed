@@ -611,9 +611,9 @@
             #captain-container {
                 position: absolute; /* Position relative to body */
                 top: 2rem;
-                left: calc(50% + 470px); /* 50% + half of game container + gap */
+                left: calc(50% - 450px - 220px); /* 50% - half_container - captain_width - gap */
                 transform: scale(0);
-                transform-origin: top left;
+                transform-origin: top right;
                 width: 200px;
             }
             #captain-container.show {
