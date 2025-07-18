@@ -740,6 +740,7 @@
         let inertiaAnimationId = null; 
         const flickThreshold = 0.005; 
         const flickDeceleration = 0.98; 
+        let startRotationForAnimation = 0;
 
         // --- Captain Animation ---
         function animateCaptain(animationType = 'insult', message = '', persist = false) {
@@ -987,18 +988,18 @@
         ];
 
         const forcedRedAfterRedBetPartialWinMessages = [
-            (number, winnings) => `It's BLACK ${number}! But the Captain, in his infinite 'generosity', has rigged it to RED! You snatched a partial reward of $${winnings}!`,
-            (number, winnings) => `Arrr! Black it is, but the Captain's eye is on the prize! Forced to RED ${number}! A meager $${winnings} for your troubles, matey!`,
+            (originalBlack, newRed, winnings) => `It landed on BLACK ${originalBlack}! But the Captain, in his infinite 'generosity', has rigged it to RED ${newRed}! You snatched a partial reward of $${winnings}!`,
+            (originalBlack, newRed, winnings) => `Arrr! Black ${originalBlack} it was, but the Captain's eye is on the prize! Forced to RED ${newRed}! A meager $${winnings} for your troubles, matey!`,
         ];
 
         const forcedRedAfterBlackBetLossMessages = [
-            (number, losses) => `The Captain forced it to RED ${number}! Despite his efforts, your black-hearted bet still cost you $${Math.abs(losses)}!`,
-            (number, losses) => `Even the Captain's magic couldn't save yer foolish black bet! Forced to RED ${number}, but ye still lost $${Math.abs(losses)}! Har har!`,
+            (originalBlack, newRed, losses) => `It was BLACK ${originalBlack}, but the Captain forced it to RED ${newRed}! Despite his efforts, your black-hearted bet still cost you $${Math.abs(losses)}!`,
+            (originalBlack, newRed, losses) => `Even the Captain's magic couldn't save yer foolish black bet! It was BLACK ${originalBlack}, forced to RED ${newRed}, but ye still lost $${Math.abs(losses)}! Har har!`,
         ];
 
         const forcedRedAfterOtherBetLossMessages = [
-            (number, losses) => `The Captain forced it to RED ${number}! You bet on a different path, and it cost you $${Math.abs(losses)} for yer folly!`,
-            (number, losses) => `Ye strayed from the colors, and the Captain's intervention to RED ${number} couldn't save ye! Lost $${Math.abs(losses)}!`,
+            (originalBlack, newRed, losses) => `It landed on BLACK ${originalBlack}, but the Captain forced it to RED ${newRed}! You bet on a different path, and it cost you $${Math.abs(losses)} for yer folly!`,
+            (originalBlack, newRed, losses) => `Ye strayed from the colors! It was BLACK ${originalBlack}, but the Captain's intervention to RED ${newRed} couldn't save ye! Lost $${Math.abs(losses)}!`,
         ];
 
         const redWinMessages = [
@@ -1006,7 +1007,7 @@
             (number, winnings) => `A glorious RED ${number}! The Captain's favor is upon ye! You've plundered $${winnings}!`,
         ];
 
-        const redLossAfterBlackBetLossMessages = [
+        const redLossAfterBlackBetMessages = [
             (number, losses) => `It's RED ${number}! The Captain scoffs at yer black-hearted bet! You lose $${Math.abs(losses)}!`,
             (number, losses) => `Ye chose darkness, but the light of RED ${number} prevailed! You're down $${Math.abs(losses)}!`,
         ];
@@ -1089,8 +1090,7 @@
             
             predeterminedTargetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotations) * 2 * Math.PI) + rotationDifference;
             
-            let start = null;
-            const startRotationForAnimation = currentWheelRotation; 
+            startRotationForAnimation = currentWheelRotation; 
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
@@ -1298,11 +1298,11 @@
                             finalMessageAfterIntervention = `By the Captain's will, it's RED ${forcedRedNumber}! And it matches your number! A grand 35x haul!`;
                         } else {
                             if (playerBetRedColorOrSpecific) {
-                                finalMessageAfterIntervention = forcedRedAfterRedBetPartialWinMessages[0](forcedRedNumber, winningsBeforeIntervention);
+                                finalMessageAfterIntervention = forcedRedAfterRedBetPartialWinMessages[0](actualLandedNumber, forcedRedNumber, winningsBeforeIntervention);
                             } else if (playerBetBlackColorOrSpecific) {
-                                finalMessageAfterIntervention = forcedRedAfterBlackBetLossMessages[0](forcedRedNumber, winningsBeforeIntervention);
+                                finalMessageAfterIntervention = forcedRedAfterBlackBetLossMessages[0](actualLandedNumber, forcedRedNumber, winningsBeforeIntervention);
                             } else {
-                                finalMessageAfterIntervention = forcedRedAfterOtherBetLossMessages[0](forcedRedNumber, winningsBeforeIntervention);
+                                finalMessageAfterIntervention = forcedRedAfterOtherBetLossMessages[0](actualLandedNumber, forcedRedNumber, winningsBeforeIntervention);
                             }
                         }
                         processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention, 'smug');
@@ -1320,7 +1320,7 @@
                     message = redWinMessages[0](actualLandedNumber, currentRoundWinnings);
                 } else if (playerBetBlackColorOrSpecific) {
                     currentRoundWinnings = -betAmount * 20;
-                    message = redLossAfterBlackBetLossMessages[0](actualLandedNumber, currentRoundWinnings);
+                    message = redLossAfterBlackBetMessages[0](actualLandedNumber, currentRoundWinnings);
                 } else {
                     currentRoundWinnings = -betAmount;
                     message = otherLossMessages[0](actualLandedNumber, currentRoundWinnings);
@@ -1453,7 +1453,7 @@
             const t = Math.min(progress / flickSpinDuration, 1);
             const easedT = easeOutQuad(t);
             
-            const rotation = animateInertia.startRotation + (easedT * (predeterminedTargetAngle - startRotationForAnimation));
+            const rotation = startRotationForAnimation + (easedT * (predeterminedTargetAngle - startRotationForAnimation));
 
             drawWheel(rotation);
             currentWheelRotation = rotation; 
