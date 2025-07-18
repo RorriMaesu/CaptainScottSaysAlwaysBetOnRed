@@ -1157,17 +1157,16 @@
             requestAnimationFrame(reSpinAnimate);
         }
         
-        function processEndOfRound(winningsForVisuals, message, isFinalStep = true) { 
+        function processEndOfRound(winningsForVisuals, message, animationType, isFinalStep = true) { 
             balanceEl.textContent = balance; 
             profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`; 
             profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
 
+            animateCaptain(animationType, 4000, message);
+
             if (winningsForVisuals > 0) { 
                 gameContainer.classList.add('shaking');
                 spinButton.classList.add('flashing');
-                animateCaptain('win', 4000, message); 
-            } else if (winningsForVisuals < 0) {
-                animateCaptain('smug', 4000, message); 
             }
             
             if (isFinalStep) {
@@ -1226,6 +1225,7 @@
 
             let currentRoundWinnings = 0;
             let message = '';
+            let animationType = '';
             
             const playerBetRedColorOrSpecific = (currentBet === 'red' || (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)));
             const playerBetBlackColorOrSpecific = (currentBet === 'black' || (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet)));
@@ -1246,7 +1246,7 @@
                     gameContainer.classList.add('shaking');
                     setTimeout(() => {
                         gameContainer.classList.remove('shaking');
-                        processEndOfRound(0, ''); // Message is handled by captain now
+                        processEndOfRound(0, '', 'smug'); // Final update without message
                     }, 4000);
                 }, 2000);
                 return;
@@ -1316,7 +1316,7 @@
                                     finalMessageAfterIntervention = forcedRedAfterOtherBetLossMessages[0](forcedRedNumber, winningsBeforeIntervention);
                                 }
                             }
-                            processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention);
+                            processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention, 'smug');
                         });
                     }, 1500);
                 }, 3000);
@@ -1326,7 +1326,7 @@
             if (redNumbers.includes(actualLandedNumber)) {
                  if (betIsOnSpecificNumber && actualLandedNumber === parsedCurrentBet) {
                     currentRoundWinnings = betAmount * 35;
-                    message = specificNumberWinMessages[0](actualLandedNumber, winningsBeforeIntervention);
+                    message = specificNumberWinMessages[0](actualLandedNumber, currentRoundWinnings);
                 } else if (playerBetRedColorOrSpecific) {
                     currentRoundWinnings = betAmount; 
                     message = redWinMessages[0](actualLandedNumber, currentRoundWinnings);
@@ -1342,7 +1342,8 @@
             totalWinLoss += currentRoundWinnings;
             balance += currentRoundWinnings;
             
-            processEndOfRound(currentRoundWinnings, message);
+            animationType = currentRoundWinnings > 0 ? 'win' : 'smug';
+            processEndOfRound(currentRoundWinnings, message, animationType);
         }
         
         function restartGame() {
