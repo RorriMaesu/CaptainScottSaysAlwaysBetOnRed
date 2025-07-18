@@ -36,6 +36,7 @@
             background-color: var(--background-color);
             color: var(--text-color);
             display: flex;
+            flex-direction: column; /* Allow body to manage its children vertically */
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -54,6 +55,10 @@
             text-align: center;
             width: 100%;
             max-width: 900px;
+            max-height: 98vh; /* Limit overall height to prevent scrolling */
+            overflow-y: auto; /* Add scroll if content still overflows (fallback) */
+            display: flex; /* Make it a flex container to manage its children's height */
+            flex-direction: column; /* Stack children vertically */
         }
 
         h1 {
@@ -76,17 +81,23 @@
             fill: currentColor;
         }
 
+        /* Default for mobile-first */
         .game-area {
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex; /* Changed from grid */
+            flex-direction: column;
             align-items: center;
             gap: 1.5rem;
+            flex: 1; /* Allow this section to take available vertical space and shrink */
+            min-height: 0; /* Important for flex items to shrink below content size */
         }
         
-        /* Desktop layout */
+        /* Desktop layout override */
         @media (min-width: 768px) {
             .game-area {
+                display: grid; /* Revert to grid for desktop */
                 grid-template-columns: 300px 1fr;
+                flex-direction: initial; /* Reset flex-direction */
+                gap: 1.5rem; /* Keep gap */
             }
         }
 
@@ -122,22 +133,22 @@
 
         .stats p {
             margin: 5px 0;
-            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem); /* Adjusted min font size */
         }
         
         #balance, #profit-loss {
             color: var(--gold-color);
             font-weight: bold;
-            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            font-size: clamp(1.1rem, 3vw, 1.5rem); /* Adjusted min font size */
         }
 
         #profit-loss.loss { color: var(--primary-color); }
         #profit-loss.profit { color: #00ff00; }
         
         #message-box {
-            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            font-size: clamp(1rem, 2.5vw, 1.3rem); /* Adjusted min font size */
             color: var(--primary-color);
-            min-height: 50px;
+            min-height: auto; /* Allow it to shrink */
             font-weight: bold;
             grid-column: span 2;
         }
@@ -148,7 +159,7 @@
             padding: 10px;
             border-radius: 10px;
             width: 100%;
-            min-height: 60px;
+            min-height: auto; /* Allow it to shrink */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -156,11 +167,11 @@
         }
         
         #orders-text {
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-size: clamp(0.8rem, 2vw, 1.1rem); /* Adjusted min font size */
         }
         
         #potential-haul {
-            font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem); /* Adjusted min font size */
             font-weight: bold;
             color: var(--gold-color);
         }
@@ -170,6 +181,8 @@
             flex-direction: column;
             gap: 15px;
             width: 100%;
+            flex: 1; /* Allow controls to shrink */
+            min-height: 0; /* Allow it to shrink */
         }
         
         .betting-area {
@@ -196,9 +209,9 @@
         }
 
         .bet-option {
-            padding: 15px;
+            padding: clamp(8px, 2vw, 15px); /* Adjusted padding */
             border-radius: 10px;
-            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-size: clamp(1.1rem, 4vw, 1.8rem); /* Adjusted min font size */
             font-weight: bold;
             border: 3px solid #000;
             cursor: pointer;
@@ -216,7 +229,7 @@
             align-items: center;
             border-radius: 10px;
             border: 3px solid #000;
-            padding: 10px;
+            padding: clamp(8px, 2vw, 10px); /* Adjusted padding */
             gap: 10px;
             flex: 1.5;
         }
@@ -231,14 +244,14 @@
             background: none;
             border: none;
             color: var(--gold-color);
-            font-size: clamp(2rem, 6vw, 3rem);
+            font-size: clamp(1.8rem, 6vw, 3rem); /* Adjusted min font size */
             font-weight: bold;
             cursor: pointer;
         }
         
         .number-display {
             padding: 10px 20px;
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-size: clamp(1.6rem, 5vw, 2.5rem); /* Adjusted min font size */
             font-weight: bold;
             color: #fff;
             border-radius: 5px;
@@ -253,7 +266,7 @@
         .number-display.green { background-color: var(--green-color); }
         
         .bet-input-wrapper {
-            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem); /* Adjusted min font size */
             color: var(--text-color);
         }
         
@@ -266,7 +279,7 @@
             border-radius: 5px;
             text-align: center;
             font-family: inherit;
-            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem); /* Adjusted min font size */
             font-weight: bold;
         }
         
@@ -459,7 +472,8 @@
         const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
         const wheelSequence = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Removed the AudioContext initialization as sounds are no longer needed.
+        // const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         // --- Drag/Swipe Spin Variables ---
         let isDragging = false;
@@ -472,34 +486,34 @@
         const flickThreshold = 0.005; // Minimum velocity (radians/ms) to trigger inertia
         const flickDeceleration = 0.98; // Multiplier per frame for inertia decay (0.98 = 2% decay per frame)
 
-        // --- Sound Generation ---
-        function playSound(type) {
-            if (!audioCtx) return;
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
+        // --- Sound Generation (Removed) ---
+        // function playSound(type) {
+        //     if (!audioCtx) return;
+        //     const oscillator = audioCtx.createOscillator();
+        //     const gainNode = audioCtx.createGain();
+        //     oscillator.connect(gainNode);
+        //     gainNode.connect(audioCtx.destination);
 
-            if (type === 'spin') {
-                oscillator.type = 'sawtooth';
-                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 1.5);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
-            } else if (type === 'win') {
-                oscillator.type = 'square';
-                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2);
-            } else if (type === 'lose') {
-                oscillator.type = 'triangle';
-                gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
-                oscillator.frequency.setValueAtTime(155.56, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(130.81, audioCtx.currentTime + 0.5);
-            }
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 1.5);
-        }
+        //     if (type === 'spin') {
+        //         oscillator.type = 'sawtooth';
+        //         oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+        //         gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        //         oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 1.5);
+        //         gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+        //     } else if (type === 'win') {
+        //         oscillator.type = 'square';
+        //         gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        //         oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        //         oscillator.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2);
+        //     } else if (type === 'lose') {
+        //         oscillator.type = 'triangle';
+        //         gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        //         oscillator.frequency.setValueAtTime(155.56, audioCtx.currentTime);
+        //         oscillator.frequency.exponentialRampToValueAtTime(130.81, audioCtx.currentTime + 0.5);
+        //     }
+        //     oscillator.start();
+        //     oscillator.stop(audioCtx.currentTime + 1.5);
+        // }
 
         // --- UI and Wheel Drawing ---
         function createModalGrid() {
@@ -789,7 +803,7 @@
             spinButton.disabled = true;
             canvas.classList.remove('grabbing'); // Remove grabbing cursor
             canvas.style.cursor = 'default'; // Reset cursor
-            playSound('spin');
+            // playSound('spin'); // Removed sound effect
 
             const spinDuration = 4000;
             const minAdditionalRotations = 5; // Minimum full rotations for the main spin
@@ -906,7 +920,7 @@
             balance += winnings;
             totalWinLoss += winnings;
             messageBox.innerHTML = message;
-            playSound(sound);
+            // playSound(sound); // Removed sound effect
             
             balanceEl.textContent = balance;
             profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`; // Format with dollar sign
@@ -974,7 +988,7 @@
 
             // Captain Scottathy's special rule for landing on 0 (Green)
             if (actualLandedNumber === 0) {
-                playSound('lose');
+                // playSound('lose'); // Removed sound effect
                 messageBox.innerHTML = `<strong>A voice from the deep bellows...</strong>`;
                 setTimeout(() => {
                     messageBox.innerHTML = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
@@ -1016,7 +1030,7 @@
                 profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
 
                 messageBox.innerHTML = `It's BLACK ${actualLandedNumber}! Awaiting Captain's orders...`;
-                playSound('lose'); // Play lose sound for the black landing
+                // playSound('lose'); // Removed sound effect
 
                 // Now, set a timeout for the Captain's intervention
                 setTimeout(() => {
@@ -1140,7 +1154,7 @@
             isSpinning = true; // Set spinning state to true for visual animation
             spinButton.disabled = true;
             canvas.style.cursor = 'default';
-            playSound('spin');
+            // playSound('spin'); // Removed sound effect
         }
 
         function handleMove(e) {
