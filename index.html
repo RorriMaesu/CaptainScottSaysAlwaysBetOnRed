@@ -746,50 +746,49 @@
             }
 
             let winAmount = 0;
-            let loseAmount = 0;
+            let loseAmountDisplay = 0; 
             let winPercentage = 0;
             let losePercentage = 0;
-            let orderMessage = ""; // This is what I need to randomize
+            let orderMessage = "";
 
             const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
             const parsedBetNumber = parseInt(currentBet);
 
             if (betIsOnSpecificNumber) {
-                if (redNumbers.includes(parsedBetNumber)) {
-                    winAmount = betAmount * 35;
-                    loseAmount = 0; // Always safe for specific red bet if not hit
-                    winPercentage = 3500;
-                    losePercentage = 0; // Always safe for specific red bet if not hit
+                winAmount = betAmount * 35;
+                winPercentage = 3500;
+
+                if (parsedBetNumber === 0) {
+                    winAmount = 0; 
+                    loseAmountDisplay = "ALL GOLD"; 
+                    losePercentage = 100; 
+                    orderMessage = "The Kraken's Eye! A fool's bet... or a legend's jackpot?";
+                } else if (redNumbers.includes(parsedBetNumber)) {
+                    loseAmountDisplay = betAmount; // 1x loss for specific red if it misses
+                    losePercentage = 100;
                     orderMessage = "A true gamble! Risk it for a king's ransom!";
                 } else if (blackNumbers.includes(parsedBetNumber)) {
-                    winAmount = betAmount * 35; // Specific black number bet wins 35x
-                    loseAmount = 0; 
-                    winPercentage = 3500;
-                    losePercentage = 0; 
+                    // Corrected: 20x loss for specific black if it misses and Captain intervenes
+                    loseAmountDisplay = betAmount * 20; 
+                    losePercentage = 2000;
                     orderMessage = "A true gamble! Risk it for a king's ransom!";
-                } else if (parsedBetNumber === 0) { 
-                    winAmount = 0; 
-                    loseAmount = "ALL GOLD"; // Indicates total loss
-                    winPercentage = 0;
-                    losePercentage = 100; // Represents 100% loss of all gold
-                    orderMessage = "The Kraken's Eye! A fool's bet... or a legend's jackpot?";
                 }
             } else if (currentBet === 'red') {
                 winAmount = betAmount;
-                loseAmount = 0; // Always safe for red color bet if not hit
+                loseAmountDisplay = betAmount; // Lose 1x if red doesn't hit
                 winPercentage = 100;
-                losePercentage = 0; // Always safe for red color bet if not hit
+                losePercentage = 100;
                 orderMessage = redBetMessages[Math.floor(Math.random() * redBetMessages.length)];
             } else if (currentBet === 'black') {
-                winAmount = 0; 
-                loseAmount = betAmount * 20; // Updated to 20x bet
-                winPercentage = 0;
+                winAmount = betAmount; // Win 1x if black hits
+                loseAmountDisplay = betAmount * 20; // Lose 20x if black misses (and red hits)
+                winPercentage = 100;
                 losePercentage = 2000;
                 orderMessage = blackBetMessages[Math.floor(Math.random() * blackBetMessages.length)];
             }
 
             ordersText.textContent = orderMessage;
-            potentialHaul.textContent = `Win: $${winAmount} (${winPercentage}%) | Lose: $${loseAmount} (${losePercentage}%)`;
+            potentialHaul.textContent = `Win: $${winAmount} (${winPercentage}%) | Lose: $${loseAmountDisplay} (${losePercentage}%)`;
         }
 
         function selectBet(bet, element) {
@@ -1318,23 +1317,17 @@
 
             let currentRoundWinnings = 0; // This will hold the net change for this specific outcome
             let message = '';
-            let captainIntervention = false; // Flag to indicate if captain intervenes
-
+            
             // Determine if the player bet on RED (color or specific red number)
-            const playerBetRed = (currentBet === 'red' || (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)));
+            const playerBetRedColorOrSpecific = (currentBet === 'red' || (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)));
             // Determine if the player bet on BLACK (color or specific black number)
-            const playerBetBlack = (currentBet === 'black' || (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet)));
+            const playerBetBlackColorOrSpecific = (currentBet === 'black' || (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet)));
             // Determine if the player bet on GREEN (specific 0)
             const playerBetGreen = (betIsOnSpecificNumber && parsedCurrentBet === 0);
 
 
-            // --- WINNING ON SPECIFIC NUMBER (Highest Priority) ---
-            if (betIsOnSpecificNumber && actualLandedNumber === parsedCurrentBet) {
-                currentRoundWinnings = betAmount * 35;
-                message = specificNumberWinMessages[Math.floor(Math.random() * specificNumberWinMessages.length)](actualLandedNumber, currentRoundWinnings);
-            }
             // --- HANDLE LANDING ON GREEN (0) ---
-            else if (actualLandedNumber === 0) {
+            if (actualLandedNumber === 0) {
                 console.log('Landed on GREEN (0). Captain steals all gold!');
                 const goldLost = balance;
                 currentRoundWinnings = -goldLost;
@@ -1354,46 +1347,55 @@
                         processEndOfRound(0, messageBox.textContent);
                     }, 4000);
                 }, 2000);
-                return;
+                return; // Exit, special handling for 0
             }
-            // --- Handle landing on BLACK number ---
-            else if (blackNumbers.includes(actualLandedNumber)) {
-                console.log('Landed on BLACK number:', actualLandedNumber);
-                
-                // Store the calculated winnings/message temporarily before the animation chain
-                let tempCurrentRoundWinnings = 0;
-                let tempMessage = '';
 
-                if (playerBetBlack) { // User bet on BLACK (color or specific black number)
-                    tempCurrentRoundWinnings = -betAmount * 20; // 20x loss
-                    tempMessage = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice! You lose $${Math.abs(tempCurrentRoundWinnings)}!`;
-                } else if (playerBetRed) { // User bet on RED (color or specific red number)
-                    let originalPotentialWin = 0;
-                    if (currentBet === 'red') {
-                        originalPotentialWin = betAmount;
-                    } else if (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)) {
-                        originalPotentialWin = betAmount * 35;
-                    }
-                    tempCurrentRoundWinnings = Math.floor(originalPotentialWin * 0.25); // Partial win due to Captain's intervention
-                    tempMessage = `It's BLACK ${actualLandedNumber}! But the Captain, in his infinite 'generosity', has rigged it to RED!`;
-                } else if (playerBetGreen) { // User bet on GREEN (0)
-                    tempCurrentRoundWinnings = -betAmount; // 1x loss
-                    tempMessage = `It's BLACK ${actualLandedNumber}! You bet on ${parsedCurrentBet}, but the tide turned! You lose $${Math.abs(tempCurrentRoundWinnings)}!`;
-                } else { // Catch-all for other bets (e.g., if a specific number that's not black, red, or green was chosen, which shouldn't happen with current UI)
-                    tempCurrentRoundWinnings = -betAmount;
-                    tempMessage = `It's BLACK ${actualLandedNumber}! You lose $${Math.abs(tempCurrentRoundWinnings)}!`;
+            // --- Handle landing on BLACK number (potential intervention) ---
+            if (blackNumbers.includes(actualLandedNumber)) {
+                console.log('Landed on BLACK number:', actualLandedNumber, 'Captain intervention will occur.');
+                let initialMessageBeforeIntervention = '';
+                let winningsBeforeIntervention = 0; // This will store the net change before the forced re-spin
+
+                // Case: Player bet on a specific BLACK number and it landed on it
+                if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet) && actualLandedNumber === parsedCurrentBet) {
+                    winningsBeforeIntervention = betAmount * 35;
+                    initialMessageBeforeIntervention = specificNumberWinMessages[Math.floor(Math.random() * specificNumberWinMessages.length)](actualLandedNumber, winningsBeforeIntervention);
+                    initialMessageBeforeIntervention += ` But the Captain demands RED!`; // Add Captain's demand
+                    // Apply this win immediately to balance and totalWinLoss
+                    balance += winningsBeforeIntervention;
+                    totalWinLoss += winningsBeforeIntervention;
+                }
+                // Case: Player bet on BLACK color or a different BLACK number
+                else if (playerBetBlackColorOrSpecific) {
+                    winningsBeforeIntervention = -betAmount * 20; // 20x loss
+                    initialMessageBeforeIntervention = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice! You lose $${Math.abs(winningsBeforeIntervention)}! But the wheel must be RED!`;
+                    balance += winningsBeforeIntervention; // Apply loss
+                    totalWinLoss += winningsBeforeIntervention; // Apply loss
+                }
+                // Case: Player bet on RED color or a specific RED number
+                else if (playerBetRedColorOrSpecific) {
+                    let originalPotentialWin = (currentBet === 'red') ? betAmount : (betAmount * 35);
+                    winningsBeforeIntervention = Math.floor(originalPotentialWin * 0.25); // Partial win
+                    initialMessageBeforeIntervention = `It's BLACK ${actualLandedNumber}! But the Captain, in his infinite 'generosity', has rigged it to RED! You snatched a partial reward of $${winningsBeforeIntervention}!`;
+                    balance += winningsBeforeIntervention; // Apply partial win
+                    totalWinLoss += winningsBeforeIntervention; // Apply partial win
+                }
+                // Case: Any other bet (e.g., green, or no specific bet)
+                else {
+                    winningsBeforeIntervention = -betAmount; // 1x loss
+                    initialMessageBeforeIntervention = `It's BLACK ${actualLandedNumber}! You lose $${Math.abs(winningsBeforeIntervention)}! The Captain demands RED!`;
+                    balance += winningsBeforeIntervention; // Apply loss
+                    totalWinLoss += winningsBeforeIntervention; // Apply loss
                 }
 
-                // Display the initial message immediately
-                messageBox.innerHTML = tempMessage;
+                messageBox.innerHTML = initialMessageBeforeIntervention;
 
-                // Start the animation sequence for Captain's intervention
                 setTimeout(() => {
                     messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
                     gameContainer.classList.add('shaking');
                     
                     setTimeout(() => {
-                        let forcedRedNumber = actualLandedNumber;
+                        let forcedRedNumber = actualLandedNumber; // Default to current if no red found
                         let currentIndex = wheelSequence.indexOf(actualLandedNumber);
                         for (let i = 1; i < segments; i++) {
                             const checkIndex = (currentIndex + i) % segments;
@@ -1406,42 +1408,54 @@
 
                         animateToForcedRed(forcedRedNumber, () => {
                             gameContainer.classList.remove('shaking');
-                            // ONLY NOW, after the animation, apply the actual winnings/losses
-                            balance += tempCurrentRoundWinnings;
-                            totalWinLoss += tempCurrentRoundWinnings;
+                            let finalMessageAfterIntervention = '';
+                            let additionalWinningsFromIntervention = 0;
 
-                            let finalMessage = '';
-                            if (playerBetRed) {
-                                finalMessage = forcedRedAfterRedBetPartialWinMessages[Math.floor(Math.random() * forcedRedAfterRedBetPartialWinMessages.length)](forcedRedNumber, tempCurrentRoundWinnings);
-                            } else if (playerBetBlack) {
-                                finalMessage = forcedRedAfterBlackBetLossMessages[Math.floor(Math.random() * forcedRedAfterBlackBetLossMessages.length)](forcedRedNumber, tempCurrentRoundWinnings);
+                            // Special rule: Player bet on specific RED number, landed BLACK, forced to RED, and lands on *that specific RED number*
+                            if (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet) && forcedRedNumber === parsedCurrentBet) {
+                                additionalWinningsFromIntervention = (betAmount * 35) - winningsBeforeIntervention; // Calculate the remaining win
+                                balance += additionalWinningsFromIntervention;
+                                totalWinLoss += additionalWinningsFromIntervention;
+                                finalMessageAfterIntervention = `By the Captain's will, it's RED ${forcedRedNumber}! And it matches your number! A grand 35x haul!`;
                             } else {
-                                finalMessage = forcedRedAfterOtherBetLossMessages[Math.floor(Math.random() * forcedRedAfterOtherBetLossMessages.length)](forcedRedNumber, tempCurrentRoundWinnings);
+                                // Default messages for after intervention
+                                if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet) && actualLandedNumber === parsedCurrentBet) {
+                                    finalMessageAfterIntervention = `The wheel was forced to RED ${forcedRedNumber}. Your original black number hit was still a win!`;
+                                } else if (playerBetRedColorOrSpecific) {
+                                    finalMessageAfterIntervention = forcedRedAfterRedBetPartialWinMessages[Math.floor(Math.random() * forcedRedAfterRedBetPartialWinMessages.length)](forcedRedNumber, winningsBeforeIntervention);
+                                } else if (playerBetBlackColorOrSpecific) {
+                                    finalMessageAfterIntervention = forcedRedAfterBlackBetLossMessages[Math.floor(Math.random() * forcedRedAfterBlackBetLossMessages.length)](forcedRedNumber, winningsBeforeIntervention);
+                                } else {
+                                    finalMessageAfterIntervention = forcedRedAfterOtherBetLossMessages[Math.floor(Math.random() * forcedRedAfterOtherBetLossMessages.length)](forcedRedNumber, winningsBeforeIntervention);
+                                }
                             }
-                            processEndOfRound(tempCurrentRoundWinnings, finalMessage);
+                            processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention); // Pass total change for visuals
                         });
                     }, 3000); // Delay for the rude comment
                 }, 1500); // Delay for the initial message
-                return; // Important: Exit the function here so the final processEndOfRound is not called immediately
+                return; // Exit, as intervention takes over
             }
-            // --- Handle landing on RED number ---
-            else if (redNumbers.includes(actualLandedNumber)) {
-                console.log('Landed on RED number:', actualLandedNumber);
-                if (playerBetRed) { // User bet on RED (color or specific red number)
+
+            // --- Handle landing on RED number (no intervention) ---
+            if (redNumbers.includes(actualLandedNumber)) {
+                console.log('Landed on RED number:', actualLandedNumber, 'No Captain intervention.');
+                // Case: Player bet on a specific RED number and it landed on it (already handled by the first `if` block for direct hits)
+                // This block is for other red number outcomes or color red bets
+                if (playerBetRedColorOrSpecific) { // User bet on RED (color)
                     currentRoundWinnings = betAmount; 
                     message = redWinMessages[Math.floor(Math.random() * redWinMessages.length)](actualLandedNumber, currentRoundWinnings);
-                } else if (playerBetBlack) { // User bet on BLACK (color or specific black number)
-                    currentRoundWinnings = -betAmount * 20; // 20x loss - THIS IS THE KEY FIX
+                } else if (playerBetBlackColorOrSpecific) { // User bet on BLACK (color or specific black number)
+                    currentRoundWinnings = -betAmount * 20; // 20x loss
                     message = redLossAfterBlackBetMessages[Math.floor(Math.random() * redLossAfterBlackBetMessages.length)](actualLandedNumber, currentRoundWinnings);
                 } else if (playerBetGreen) { // User bet on GREEN (0)
                     currentRoundWinnings = -betAmount; // 1x loss
                     message = redLossAfterOtherBetMessages[Math.floor(Math.random() * redLossAfterOtherBetMessages.length)](actualLandedNumber, currentRoundWinnings);
-                } else { // Catch-all for other bets
+                } else { // Catch-all for other bets (not red, black, or green)
                     currentRoundWinnings = -betAmount;
                     message = otherLossMessages[Math.floor(Math.random() * otherLossMessages.length)](actualLandedNumber, currentRoundWinnings);
                 }
             } else {
-                // This case should ideally not be hit if all numbers are covered by red/black/green
+                // This else block should ideally not be hit if all numbers are covered by red/black/green
                 currentRoundWinnings = -betAmount;
                 message = otherLossMessages[Math.floor(Math.random() * otherLossMessages.length)](actualLandedNumber, currentRoundWinnings);
             }
