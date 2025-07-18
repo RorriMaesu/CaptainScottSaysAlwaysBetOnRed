@@ -1122,7 +1122,7 @@
         
         function animateToForcedRed(targetRedNumber, callback) {
             const message = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
-            const duration = animateCaptain('cheat', message); 
+            animateCaptain('cheat', message); 
             isSpinning = true; 
             spinButton.disabled = true; 
 
@@ -1262,21 +1262,15 @@
 
             if (blackNumbers.includes(actualLandedNumber)) {
                 let winningsBeforeIntervention = 0;
-                let initialMessage = '';
-
                 if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet) && actualLandedNumber === parsedCurrentBet) {
                     winningsBeforeIntervention = betAmount * 35;
-                    initialMessage = `It's BLACK ${actualLandedNumber}! A lucky shot, but I don't like it...`;
                 } else if (playerBetBlackColorOrSpecific) {
                     winningsBeforeIntervention = -betAmount * 20;
-                    initialMessage = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice!`;
                 } else if (playerBetRedColorOrSpecific) {
                     let originalPotentialWin = (currentBet === 'red') ? betAmount : (betAmount * 35);
                     winningsBeforeIntervention = Math.floor(originalPotentialWin * 0.25);
-                    initialMessage = `It's BLACK ${actualLandedNumber}! Bah! I'll give ye a pittance for yer good taste...`;
                 } else {
                     winningsBeforeIntervention = -betAmount;
-                    initialMessage = `It's BLACK ${actualLandedNumber}! A fool's bet from the start!`;
                 }
                 balance += winningsBeforeIntervention;
                 totalWinLoss += winningsBeforeIntervention;
@@ -1284,7 +1278,6 @@
                 profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
                 profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
 
-                const initialDuration = animateCaptain('rage', initialMessage);
 
                 setTimeout(() => {
                     gameContainer.classList.add('shaking');
@@ -1320,7 +1313,7 @@
                         }
                         processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention, 'smug');
                     });
-                }, initialDuration + 200);
+                }, 2000); // Increased delay to allow reading time
                 return;
             }
 
