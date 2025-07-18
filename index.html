@@ -1256,15 +1256,21 @@
 
             if (blackNumbers.includes(actualLandedNumber)) {
                 let winningsBeforeIntervention = 0;
+                let initialMessage = '';
+
                 if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet) && actualLandedNumber === parsedCurrentBet) {
                     winningsBeforeIntervention = betAmount * 35;
+                    initialMessage = `It's BLACK ${actualLandedNumber}! A lucky shot, but I don't like it...`;
                 } else if (playerBetBlackColorOrSpecific) {
                     winningsBeforeIntervention = -betAmount * 20;
+                    initialMessage = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice!`;
                 } else if (playerBetRedColorOrSpecific) {
                     let originalPotentialWin = (currentBet === 'red') ? betAmount : (betAmount * 35);
                     winningsBeforeIntervention = Math.floor(originalPotentialWin * 0.25);
+                    initialMessage = `It's BLACK ${actualLandedNumber}! Bah! I'll give ye a pittance for yer good taste...`;
                 } else {
                     winningsBeforeIntervention = -betAmount;
+                    initialMessage = `It's BLACK ${actualLandedNumber}! A fool's bet from the start!`;
                 }
                 balance += winningsBeforeIntervention;
                 totalWinLoss += winningsBeforeIntervention;
@@ -1272,40 +1278,43 @@
                 profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
                 profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
 
-                
-                gameContainer.classList.add('shaking');
-                let forcedRedNumber = actualLandedNumber;
-                let currentIndex = wheelSequence.indexOf(actualLandedNumber);
-                for (let i = 1; i < segments; i++) {
-                    const checkIndex = (currentIndex + i) % segments;
-                    const potentialRed = wheelSequence[checkIndex];
-                    if (redNumbers.includes(potentialRed)) {
-                        forcedRedNumber = potentialRed;
-                        break;
-                    }
-                }
+                const initialDuration = animateCaptain('rage', initialMessage);
 
-                animateToForcedRed(forcedRedNumber, () => {
-                    gameContainer.classList.remove('shaking');
-                    let finalMessageAfterIntervention = '';
-                    let additionalWinningsFromIntervention = 0;
-
-                    if (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet) && forcedRedNumber === parsedCurrentBet) {
-                        additionalWinningsFromIntervention = (betAmount * 35) - winningsBeforeIntervention;
-                        balance += additionalWinningsFromIntervention;
-                        totalWinLoss += additionalWinningsFromIntervention;
-                        finalMessageAfterIntervention = `By the Captain's will, it's RED ${forcedRedNumber}! And it matches your number! A grand 35x haul!`;
-                    } else {
-                        if (playerBetRedColorOrSpecific) {
-                            finalMessageAfterIntervention = forcedRedAfterRedBetPartialWinMessages[0](forcedRedNumber, winningsBeforeIntervention);
-                        } else if (playerBetBlackColorOrSpecific) {
-                            finalMessageAfterIntervention = forcedRedAfterBlackBetLossMessages[0](forcedRedNumber, winningsBeforeIntervention);
-                        } else {
-                            finalMessageAfterIntervention = forcedRedAfterOtherBetLossMessages[0](forcedRedNumber, winningsBeforeIntervention);
+                setTimeout(() => {
+                    gameContainer.classList.add('shaking');
+                    let forcedRedNumber = actualLandedNumber;
+                    let currentIndex = wheelSequence.indexOf(actualLandedNumber);
+                    for (let i = 1; i < segments; i++) {
+                        const checkIndex = (currentIndex + i) % segments;
+                        const potentialRed = wheelSequence[checkIndex];
+                        if (redNumbers.includes(potentialRed)) {
+                            forcedRedNumber = potentialRed;
+                            break;
                         }
                     }
-                    processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention, 'smug');
-                });
+
+                    animateToForcedRed(forcedRedNumber, () => {
+                        gameContainer.classList.remove('shaking');
+                        let finalMessageAfterIntervention = '';
+                        let additionalWinningsFromIntervention = 0;
+
+                        if (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet) && forcedRedNumber === parsedCurrentBet) {
+                            additionalWinningsFromIntervention = (betAmount * 35) - winningsBeforeIntervention;
+                            balance += additionalWinningsFromIntervention;
+                            totalWinLoss += additionalWinningsFromIntervention;
+                            finalMessageAfterIntervention = `By the Captain's will, it's RED ${forcedRedNumber}! And it matches your number! A grand 35x haul!`;
+                        } else {
+                            if (playerBetRedColorOrSpecific) {
+                                finalMessageAfterIntervention = forcedRedAfterRedBetPartialWinMessages[0](forcedRedNumber, winningsBeforeIntervention);
+                            } else if (playerBetBlackColorOrSpecific) {
+                                finalMessageAfterIntervention = forcedRedAfterBlackBetLossMessages[0](forcedRedNumber, winningsBeforeIntervention);
+                            } else {
+                                finalMessageAfterIntervention = forcedRedAfterOtherBetLossMessages[0](forcedRedNumber, winningsBeforeIntervention);
+                            }
+                        }
+                        processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention, 'smug');
+                    });
+                }, initialDuration + 500); // Wait for the first comment to finish + a small pause
                 return;
             }
 
