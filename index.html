@@ -206,6 +206,7 @@
             width: 100%;
             flex: 1; 
             min-height: 0; 
+            position: relative; /* Added for absolute positioning of bet-display-bubble */
         }
         
         .betting-area {
@@ -489,6 +490,52 @@
             }
         }
 
+        /* Bet Display Bubble Styles */
+        #bet-display-bubble {
+            position: absolute; /* Changed to absolute */
+            top: 150px; /* Adjust as needed to position it over other elements */
+            left: 50%;
+            transform: translateX(-50%) translateY(10px); /* Centered horizontally, slight initial offset */
+            background-color: var(--container-bg);
+            border: 2px solid var(--gold-color);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            font-weight: bold;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            z-index: 990; /* Ensure it's above other betting controls but below modals/tooltips */
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+
+        #bet-display-bubble.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #bet-display-bubble .number-display {
+            padding: 4px 8px;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        #bet-display-bubble .number-display.red {
+            background-color: var(--primary-color);
+        }
+
+        #bet-display-bubble .number-display.black {
+            background-color: var(--black-color);
+        }
+
+        #bet-display-bubble .number-display.green {
+            background-color: var(--green-color);
+        }
+
     </style>
 </head>
 <body>
@@ -513,6 +560,9 @@
                     <span id="orders-text">Make a bet, ye coward!</span>
                     <span id="potential-haul"></span>
                 </div>
+                <!-- New element for displaying chosen number bet -->
+                <div id="bet-display-bubble" class="hidden"></div>
+
                 <div class="betting-area">
                     <div class="bet-amount-controls">
                         <button class="bet-stepper-button" id="minus-bet-button" data-tooltip="Lessen yer wager, ye lily-livered landlubber!">-</button>
@@ -570,6 +620,7 @@
         const modalClose = document.getElementById('modal-close');
         const customTooltip = document.getElementById('custom-tooltip'); // Tooltip element
         const instructionalTooltip = document.getElementById('instructional-tooltip'); // Instructional tooltip element
+        const betDisplayBubble = document.getElementById('bet-display-bubble'); // New: Bet display bubble
 
         // Game State
         let balance = 300; // Changed starting balance to 300
@@ -751,6 +802,31 @@
                 element.classList.add('selected');
             }
             
+            // Handle bet display bubble visibility and content
+            const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
+            if (betIsOnSpecificNumber) {
+                const parsedBetNumber = parseInt(currentBet);
+                const numberSpan = document.createElement('span');
+                numberSpan.classList.add('number-display');
+                numberSpan.textContent = parsedBetNumber;
+
+                // Determine color for the bubble
+                if (redNumbers.includes(parsedBetNumber)) {
+                    numberSpan.classList.add('red');
+                } else if (blackNumbers.includes(parsedBetNumber)) {
+                    numberSpan.classList.add('black');
+                } else if (parsedBetNumber === 0) {
+                    numberSpan.classList.add('green');
+                }
+                betDisplayBubble.innerHTML = `You bet on: `;
+                betDisplayBubble.appendChild(numberSpan);
+                betDisplayBubble.classList.add('show');
+                betDisplayBubble.classList.remove('hidden'); // Ensure it's visible
+            } else {
+                betDisplayBubble.classList.remove('show');
+                betDisplayBubble.classList.add('hidden'); // Hide the bubble
+            }
+
             updatePotentialHaul();
         }
 
@@ -1165,6 +1241,8 @@
                 currentBet = null;
                 document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
                 updatePotentialHaul(); 
+                betDisplayBubble.classList.remove('show'); // Hide bubble on round end
+                betDisplayBubble.classList.add('hidden');
 
                 if (balance <= 0) {
                     const threats = [
@@ -1213,6 +1291,8 @@
                 currentBet = null; 
                 document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
                 updatePotentialHaul(); 
+                betDisplayBubble.classList.remove('show'); // Hide bubble on free spin end
+                betDisplayBubble.classList.add('hidden');
                 console.log('endSpin(): Free spin completed, state reset.');
                 return;
             }
@@ -1389,6 +1469,8 @@
             updatePotentialHaul(); 
             canvas.style.cursor = 'grab'; 
             bettingArea.classList.remove('disabled'); 
+            betDisplayBubble.classList.remove('show'); // Hide bubble on restart
+            betDisplayBubble.classList.add('hidden');
             console.log('restartGame() completed. State reset.');
         }
 
