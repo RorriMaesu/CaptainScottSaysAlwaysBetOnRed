@@ -802,21 +802,16 @@
             const winningIndex = wheelSequence.indexOf(winningNumber);
             const desiredFinalSegmentPosition = -(winningIndex * segmentAngle) - (segmentAngle / 2) - (Math.PI / 2);
 
-            const randomAdditionalRotations = minAdditionalRotations + Math.random() * (maxAdditionalRotations - minAdditionalRotations);
-            console.log('spin(): randomAdditionalRotations generated:', randomAdditionalRotations); // Added log
+            // Changed from const to let to address potential ReferenceError
+            let randomAdditionalRotations = minAdditionalRotations + Math.random() * (maxAdditionalRotations - minAdditionalRotations);
+            console.log('spin(): randomAdditionalRotations generated:', randomAdditionalRotations); 
             
-            // The final target angle for the animation
-            // It should be `currentWheelRotation` plus a certain number of full rotations, plus the offset
-            // needed to land on the `desiredFinalSegmentPosition`.
-            
-            // Calculate the difference between the desired final position and the current rotation's effective position (modulo 2PI)
             let rotationDifference = desiredFinalSegmentPosition - (currentWheelRotation % (2 * Math.PI));
-            if (rotationDifference < 0) { // Ensure it's a positive rotation to reach the target from current position
+            if (rotationDifference < 0) { 
                 rotationDifference += 2 * Math.PI;
             }
 
-            console.log('spin(): Calculating targetAngle with currentWheelRotation:', currentWheelRotation, 'randomAdditionalRotations:', randomAdditionalRotations, 'rotationDifference:', rotationDifference); // Added log
-            // The target angle is the current rotation + the number of full spins + the exact difference needed
+            console.log('spin(): Calculating targetAngle with currentWheelRotation:', currentWheelRotation, 'randomAdditionalRotations:', randomAdditionalRotations, 'rotationDifference:', rotationDifference); 
             const targetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotations) * 2 * Math.PI) + rotationDifference;
 
             let start = null;
@@ -832,7 +827,6 @@
 
                 drawWheel(rotation);
                 currentWheelRotation = rotation; 
-                // console.log('animate() loop. currentWheelRotation:', currentWheelRotation); // Too verbose, uncomment if needed
 
                 if (progress < spinDuration) {
                     requestAnimationFrame(animate);
@@ -868,7 +862,8 @@
             if (revolutionsNeeded < minRevolutions) {
                 revolutionsNeeded = minRevolutions;
             }
-            const randomRevolutions = minRevolutions + Math.random() * (maxRevolutions - minRevolutions);
+            // Changed from const to let for consistency
+            let randomRevolutions = minRevolutions + Math.random() * (maxRevolutions - minRevolutions);
             revolutionsNeeded = Math.max(revolutionsNeeded, Math.ceil(randomRevolutions));
 
 
