@@ -144,11 +144,12 @@
             align-items: center;
             gap: 15px; /* Space between treasure and profit/loss */
             background: #000;
-            padding: 6px; /* Reduced padding */
+            padding: 6px 8px; /* Adjusted padding: vertical 6px, horizontal 8px */
             border-radius: 10px;
             border: 2px solid var(--text-color);
             width: 100%;
             flex-wrap: wrap; /* Allow wrapping on very small screens */
+            box-sizing: border-box; /* Include padding in the width calculation */
         }
 
         .stats p {
@@ -176,7 +177,7 @@
         #orders-panel {
             background: #111;
             border: 2px dashed var(--gold-color);
-            padding: 6px; /* Reduced padding */
+            padding: 6px 8px; /* Adjusted padding: vertical 6px, horizontal 8px */
             border-radius: 10px;
             width: 100%;
             min-height: auto; 
@@ -185,6 +186,7 @@
             justify-content: center;
             align-items: center;
             margin-top: 0.4rem; /* Reduced margin */
+            box-sizing: border-box; /* Include padding in the width calculation */
         }
         
         #orders-text {
