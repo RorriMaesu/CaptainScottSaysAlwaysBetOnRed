@@ -639,7 +639,7 @@
                     winAmount = 0; 
                     loseAmount = betAmount * 20; 
                     winPercentage = 0;
-                    losePercentage = 2000;
+                    losePercentage = 2000; // Updated to 2000%
                     orderMessage = "The Captain spits on yer black-hearted choice!";
                 } else if (parsedBetNumber === 0) { 
                     winAmount = 0; 
@@ -656,9 +656,9 @@
                 orderMessage = "A safe bet for a true sailor!";
             } else if (currentBet === 'black') {
                 winAmount = 0; 
-                loseAmount = betAmount * 5; 
+                loseAmount = betAmount * 20; // Updated to 20x bet
                 winPercentage = 0;
-                losePercentage = 500;
+                losePercentage = 2000; // Updated to 2000%
                 orderMessage = "BAH! Black is for landlubbers! A costly mistake!";
             }
 
@@ -1030,8 +1030,7 @@
                     winnings = -betAmount * 20; 
                     console.log('Bet on specific BLACK number. Winnings:', winnings);
                 } else if (currentBet === 'black') {
-                    // Player bet on black color, and a black number hit
-                    winnings = -betAmount * 5; 
+                    winnings = -betAmount * 20; // Updated to 20x bet for black color bet
                     console.log('Bet on BLACK color. Winnings:', winnings);
                 } else {
                     // Player bet on red or a specific red/green number, but it landed black
