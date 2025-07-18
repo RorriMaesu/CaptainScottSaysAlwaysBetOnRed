@@ -509,6 +509,10 @@
         let currentNumber = 0; // This will now represent the selected number for 'BET ON NUMBER'
         let isFreeSpin = false; 
 
+        // Global variables to store the pre-determined outcome
+        let predeterminedWinningNumber = -1;
+        let predeterminedTargetAngle = 0;
+
         const segments = 37;
         const segmentAngle = (2 * Math.PI) / segments;
         const segmentColors = [];
@@ -636,11 +640,11 @@
                     losePercentage = 0; // Always safe for specific red bet if not hit
                     orderMessage = "A true gamble! Risk it for a king's ransom!";
                 } else if (blackNumbers.includes(parsedBetNumber)) {
-                    winAmount = 0; 
-                    loseAmount = betAmount * 20; 
-                    winPercentage = 0;
-                    losePercentage = 2000;
-                    orderMessage = "The Captain spits on yer black-hearted choice!";
+                    winAmount = betAmount * 35; // Specific black number bet wins 35x
+                    loseAmount = 0; 
+                    winPercentage = 3500;
+                    losePercentage = 0; 
+                    orderMessage = "A true gamble! Risk it for a king's ransom!";
                 } else if (parsedBetNumber === 0) { 
                     winAmount = 0; 
                     loseAmount = "ALL GOLD"; // Indicates total loss
@@ -678,23 +682,6 @@
             }
             
             updatePotentialHaul();
-        }
-
-        /**
-         * Determines the number currently under the pointer based on the wheel's rotation.
-         * The pointer is fixed at the top of the canvas (angle -PI/2 or 3PI/2).
-         * Segments are drawn clockwise starting from angle 0 (right) in the wheel's local coordinates.
-         * The wheel itself is rotated by `currentWheelRotation`.
-         * @param {number} rotation The current rotation of the wheel in radians.
-         * @returns {number} The number on the wheel that the pointer is currently indicating.
-         */
-        function getLandedNumberFromRotation(rotation) {
-            const pointerFixedAngle = -Math.PI / 2;
-            let angleInWheelCoords = (pointerFixedAngle - rotation);
-            angleInWheelCoords = (angleInWheelCoords % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-            let landedIndex = Math.floor(angleInWheelCoords / segmentAngle);
-            landedIndex = Math.min(landedIndex, segments - 1);
-            return wheelSequence[landedIndex];
         }
 
         const noBetInsults = [
@@ -814,21 +801,31 @@
             const minAdditionalRotations = 5; 
             const maxAdditionalRotations = 10; 
             
-            const winningNumber = wheelSequence[Math.floor(Math.random() * wheelSequence.length)]; 
-            const winningIndex = wheelSequence.indexOf(winningNumber);
-            const desiredFinalSegmentPosition = -(winningIndex * segmentAngle) - (segmentAngle / 2) - (Math.PI / 2);
-
-            // Changed from const to let to address potential ReferenceError
-            let randomAdditionalRotations = minAdditionalRotations + Math.random() * (maxAdditionalRotations - minAdditionalRotations);
-            console.log('spin(): randomAdditionalRotations generated:', randomAdditionalRotations); 
+            // --- DETERMINE WINNING NUMBER AND TARGET ANGLE HERE ---
+            predeterminedWinningNumber = wheelSequence[Math.floor(Math.random() * wheelSequence.length)];
+            const winningIndex = wheelSequence.indexOf(predeterminedWinningNumber);
             
-            let rotationDifference = desiredFinalSegmentPosition - (currentWheelRotation % (2 * Math.PI));
-            if (rotationDifference < 0) { 
-                rotationDifference += 2 * Math.PI;
-            }
+            // Calculate the absolute angle for the predetermined winning number to be under the pointer
+            // The pointer is at -Math.PI / 2 (top). Segments are drawn clockwise from 0 (right).
+            // A segment's center is at (index * segmentAngle + segmentAngle / 2).
+            // To bring this center to -Math.PI / 2, the wheel needs to rotate by:
+            // -(current segment center angle) - (angle of pointer from 0)
+            const absoluteTargetAngleForNumber = -(winningIndex * segmentAngle + segmentAngle / 2) - (Math.PI / 2);
 
-            console.log('spin(): Calculating targetAngle with currentWheelRotation:', currentWheelRotation, 'randomAdditionalRotations:', randomAdditionalRotations, 'rotationDifference:', rotationDifference); 
-            const targetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotations) * 2 * Math.PI) + rotationDifference;
+            // Calculate the difference from the current rotation to this absolute target
+            let rotationDifference = absoluteTargetAngleForNumber - currentWheelRotation;
+
+            // Normalize rotationDifference to be within a single positive revolution (0 to 2*PI)
+            // This ensures we always rotate in the positive direction for the shortest path within one revolution
+            rotationDifference = (rotationDifference % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
+            // Add full rotations to ensure it spins enough times before landing
+            const randomAdditionalRotations = minAdditionalRotations + Math.random() * (maxAdditionalRotations - minAdditionalRotations);
+            
+            predeterminedTargetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotations) * 2 * Math.PI) + rotationDifference;
+            
+            console.log('spin(): Predetermined Winning Number:', predeterminedWinningNumber, 'Target Angle:', predeterminedTargetAngle);
+            // --- END DETERMINE WINNING NUMBER AND TARGET ANGLE HERE ---
 
             let start = null;
             const startRotationForAnimation = currentWheelRotation; 
@@ -839,7 +836,9 @@
                 const easeOutQuad = t => t * (2 - t);
                 const t = Math.min(progress / spinDuration, 1);
                 const easedT = easeOutQuad(t);
-                const rotation = startRotationForAnimation + (easedT * (targetAngle - startRotationForAnimation));
+                
+                // Animate towards the predetermined target angle
+                const rotation = startRotationForAnimation + (easedT * (predeterminedTargetAngle - startRotationForAnimation));
 
                 drawWheel(rotation);
                 currentWheelRotation = rotation; 
@@ -847,9 +846,9 @@
                 if (progress < spinDuration) {
                     requestAnimationFrame(animate);
                 } else {
-                    console.log('animate() finished. Calling endSpin().');
-                    currentWheelRotation = targetAngle; 
-                    endSpin(); 
+                    currentWheelRotation = predeterminedTargetAngle; // Snap to final position
+                    drawWheel(currentWheelRotation); // Ensure it's drawn at the final position
+                    endSpin(predeterminedWinningNumber); // Pass the predetermined winning number
                 }
             }
             console.log('spin(): Starting animation.');
@@ -878,7 +877,6 @@
             if (revolutionsNeeded < minRevolutions) {
                 revolutionsNeeded = minRevolutions;
             }
-            // Changed from const to let for consistency
             let randomRevolutions = minRevolutions + Math.random() * (maxRevolutions - minRevolutions);
             revolutionsNeeded = Math.max(revolutionsNeeded, Math.ceil(randomRevolutions));
 
@@ -902,7 +900,6 @@
                 if (progress < reSpinDuration) {
                     requestAnimationFrame(reSpinAnimate);
                 } else {
-                    console.log('reSpinAnimate() finished. Calling callback.');
                     currentWheelRotation = targetAngle; 
                     drawWheel(currentWheelRotation); 
                     isSpinning = false; 
@@ -965,9 +962,10 @@
         /**
          * Handles the end of a spin, processes results, and applies Captain's rules.
          * This function is now called after *any* spin (manual or automated) has visually stopped.
+         * @param {number} finalLandedNumber The number the wheel was predetermined to land on.
          */
-        function endSpin() {
-            console.log('endSpin() called. isFreeSpin:', isFreeSpin);
+        function endSpin(finalLandedNumber) {
+            console.log('endSpin() called. isFreeSpin:', isFreeSpin, 'finalLandedNumber:', finalLandedNumber);
             if (isFreeSpin) {
                 isSpinning = false;
                 spinButton.disabled = false;
@@ -980,7 +978,7 @@
             }
 
             isSpinning = false; // Ensure isSpinning is false before processing results
-            const actualLandedNumber = getLandedNumberFromRotation(currentWheelRotation);
+            const actualLandedNumber = finalLandedNumber; // Use the predetermined number
             const betAmount = parseInt(betAmountInput.value);
             const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
             const parsedCurrentBet = parseInt(currentBet);
@@ -990,7 +988,8 @@
             console.log('Current Bet (string):', currentBet);
             console.log('Is bet on specific number (parsed)?:', betIsOnSpecificNumber);
             console.log('Parsed Current Bet Number:', parsedCurrentBet);
-            console.log('Actual Landed Number:', actualLandedNumber);
+            console.log('blackNumbers.includes(parsedCurrentBet):', blackNumbers.includes(parsedCurrentBet)); // Added for debugging
+            console.log('Actual Landed Number (predetermined):', actualLandedNumber);
             console.log('Is actual landed number BLACK?:', blackNumbers.includes(actualLandedNumber));
             console.log('Is actual landed number RED?:', redNumbers.includes(actualLandedNumber));
             console.log('Is actual landed number GREEN (0)?:', actualLandedNumber === 0);
@@ -1002,109 +1001,80 @@
 
             // Determine if the player bet on RED (color or specific red number)
             const playerBetRed = (currentBet === 'red' || (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)));
+            // Determine if the player bet on BLACK (color or specific black number)
+            const playerBetBlack = (currentBet === 'black' || (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet)));
+            // Determine if the player bet on GREEN (specific 0)
+            const playerBetGreen = (betIsOnSpecificNumber && parsedCurrentBet === 0);
 
-            // --- Handle landing on GREEN (0) - ALWAYS LOSE ALL GOLD ---
-            if (actualLandedNumber === 0) {
+
+            // --- WINNING ON SPECIFIC NUMBER (Highest Priority) ---
+            if (betIsOnSpecificNumber && actualLandedNumber === parsedCurrentBet) {
+                currentRoundWinnings = betAmount * 35;
+                message = `It's ${actualLandedNumber}! A DIRECT HIT! You win $${currentRoundWinnings}!`;
+            }
+            // --- HANDLE LANDING ON GREEN (0) ---
+            else if (actualLandedNumber === 0) {
                 console.log('Landed on GREEN (0). Captain steals all gold!');
-                const goldLost = balance; // Amount of gold to be stolen
-                currentRoundWinnings = -goldLost; // Set winnings to negative of current balance
-                balance = 0; // Set balance to 0
-                
-                // Apply winnings/losses to totalWinLoss immediately
-                totalWinLoss += currentRoundWinnings;
-                
-                // Update UI elements immediately with the first message
+                const goldLost = balance;
+                currentRoundWinnings = -goldLost;
+                balance = 0; // Set balance to 0, as all gold is lost
+                totalWinLoss += currentRoundWinnings; // Update total win/loss
+
                 balanceEl.textContent = balance;
                 profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
                 profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
-                messageBox.innerHTML = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)]; // First message
+                messageBox.innerHTML = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
 
-                setTimeout(() => { // Delay for the first message
-                    messageBox.innerHTML = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`; // Second message
+                setTimeout(() => {
+                    messageBox.innerHTML = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
                     gameContainer.classList.add('shaking');
-                    setTimeout(() => { // Delay for the second message and shaking
+                    setTimeout(() => {
                         gameContainer.classList.remove('shaking');
-                        // For green, the game is over, so processEndOfRound will handle the restart logic
-                        processEndOfRound(0, messageBox.textContent); // Pass 0 winnings as it's already applied, use current message
-                    }, 4000); // Increased to 4 seconds
-                }, 2000); // Reduced to 2 seconds for the first message
+                        processEndOfRound(0, messageBox.textContent);
+                    }, 4000);
+                }, 2000);
                 return;
             }
             // --- Handle landing on BLACK number ---
             else if (blackNumbers.includes(actualLandedNumber)) {
                 console.log('Landed on BLACK number:', actualLandedNumber);
-                if (currentBet === 'black' || (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet))) {
-                    currentRoundWinnings = -betAmount * 20; // 20x loss for betting on black (color or specific number)
+                
+                if (playerBetBlack) { // User bet on BLACK (color or specific black number)
+                    currentRoundWinnings = -betAmount * 20; // 20x loss
                     message = `It's BLACK ${actualLandedNumber}! The Captain spits on yer black-hearted choice! You lose $${Math.abs(currentRoundWinnings)}!`;
-                } else if (playerBetRed) {
-                    // Player bet on red, but it it landed black. Captain intervenes and gives partial reward.
+                } else if (playerBetRed) { // User bet on RED (color or specific red number)
                     let originalPotentialWin = 0;
                     if (currentBet === 'red') {
-                        originalPotentialWin = betAmount; // 1x for red color bet
+                        originalPotentialWin = betAmount;
                     } else if (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)) {
-                        originalPotentialWin = betAmount * 35; // 35x for specific red number bet
+                        originalPotentialWin = betAmount * 35;
                     }
-                    currentRoundWinnings = Math.floor(originalPotentialWin * 0.25); // 25% of the original potential win
-                    message = `It's BLACK ${actualLandedNumber}! But the Captain, in his infinite 'generosity', has rigged it to RED!`; // Initial message
-                } else {
-                    currentRoundWinnings = -betAmount; // Default 1x loss for other bets landing on black
-                    message = `It's BLACK ${actualLandedNumber}! You bet on the wrong tide! You lose $${Math.abs(currentRoundWinnings)}!`;
+                    currentRoundWinnings = Math.floor(originalPotentialWin * 0.25); // Partial win due to Captain's intervention
+                    message = `It's BLACK ${actualLandedNumber}! But the Captain, in his infinite 'generosity', has rigged it to RED!`;
+                } else if (playerBetGreen) { // User bet on GREEN (0)
+                    currentRoundWinnings = -betAmount; // 1x loss
+                    message = `It's BLACK ${actualLandedNumber}! You bet on ${parsedCurrentBet}, but the tide turned! You lose $${Math.abs(currentRoundWinnings)}!`;
+                } else { // Catch-all for other bets (e.g., if a specific number that's not black, red, or green was chosen, which shouldn't happen with current UI)
+                    currentRoundWinnings = -betAmount;
+                    message = `It's BLACK ${actualLandedNumber}! You lose $${Math.abs(currentRoundWinnings)}!`;
                 }
                 captainIntervention = true; // Captain always intervenes on black
-
-                // Apply winnings/losses to balance and totalWinLoss immediately after determining currentRoundWinnings
-                balance += currentRoundWinnings;
-                totalWinLoss += currentRoundWinnings;
-
-                // Update UI elements immediately
-                balanceEl.textContent = balance;
-                profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
-                profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
-                messageBox.innerHTML = message; // Update message box with initial outcome
-
-                setTimeout(() => { // Delay for the first message (2000ms)
-                    messageBox.innerHTML = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`; // Second message
-                    gameContainer.classList.add('shaking');
-                    
-                    setTimeout(() => { // **New Delay for the rude comment (3000ms)**
-                        let forcedRedNumber = actualLandedNumber;
-                        let currentIndex = wheelSequence.indexOf(actualLandedNumber);
-                        for (let i = 1; i < segments; i++) {
-                            const checkIndex = (currentIndex + i) % segments;
-                            const potentialRed = wheelSequence[checkIndex];
-                            if (redNumbers.includes(potentialRed)) {
-                                forcedRedNumber = potentialRed;
-                                break;
-                            }
-                        }
-
-                        animateToForcedRed(forcedRedNumber, () => {
-                            gameContainer.classList.remove('shaking');
-                            let finalMessage = '';
-                            if (playerBetRed) {
-                                // This is the final message after intervention for red bets
-                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! For his 'generosity', you received a partial reward of $${currentRoundWinnings}!`;
-                            } else {
-                                finalMessage = `The Captain forced it to RED ${forcedRedNumber}! You lose $${Math.abs(currentRoundWinnings)} for yer folly!`;
-                            }
-                            processEndOfRound(currentRoundWinnings, finalMessage); // Pass currentRoundWinnings for visual effects, and final message
-                        });
-                    }, 3000); // Increased to 3 seconds for the rude comment to be visible before re-spin animation starts
-                }, 1500); // Reduced to 1.5 seconds for the first message
-                return; // Exit endSpin as the rest is handled by the setTimeout/callback
             }
             // --- Handle landing on RED number ---
             else if (redNumbers.includes(actualLandedNumber)) {
                 console.log('Landed on RED number:', actualLandedNumber);
-                if (betIsOnSpecificNumber && parsedCurrentBet === actualLandedNumber) {
-                    currentRoundWinnings = betAmount * 35;
-                    message = `It's ${actualLandedNumber}! THE CAPTAIN'S GENIUS IS UNMATCHED! You win $${currentRoundWinnings}!`;
-                } else if (currentBet === 'red') {
+                if (playerBetRed) { // User bet on RED (color or specific red number)
                     currentRoundWinnings = betAmount; 
                     message = `It's RED ${actualLandedNumber}! SEE?! I TOLD YE! You win $${currentRoundWinnings}!`;
-                } else {
-                    currentRoundWinnings = -betAmount; // Player bet on black or specific black/green, but it landed red
-                    message = `It's RED ${actualLandedNumber}! You bet on the wrong tide! You lose $${Math.abs(currentRoundWinnings)}!`;
+                } else if (playerBetBlack) { // User bet on BLACK (color or specific black number)
+                    currentRoundWinnings = -betAmount * 20; // 20x loss - THIS IS THE KEY FIX
+                    message = `It's RED ${actualLandedNumber}! The Captain scoffs at yer black-hearted bet! You lose $${Math.abs(currentRoundWinnings)}!`;
+                } else if (playerBetGreen) { // User bet on GREEN (0)
+                    currentRoundWinnings = -betAmount; // 1x loss
+                    message = `It's RED ${actualLandedNumber}! You bet on ${parsedCurrentBet}, but the tide turned! You lose $${Math.abs(currentRoundWinnings)}!`;
+                } else { // Catch-all for other bets
+                    currentRoundWinnings = -betAmount;
+                    message = `It's RED ${actualLandedNumber}! You lose $${Math.abs(currentRoundWinnings)}!`;
                 }
             } else {
                 // This case should ideally not be hit if all numbers are covered by red/black/green
@@ -1197,6 +1167,22 @@
             spinButton.disabled = true;
             canvas.style.cursor = 'default';
             console.log('handleStart(): State updated: isSpinning:', isSpinning, 'spinButton.disabled:', spinButton.disabled);
+
+            // --- DETERMINE WINNING NUMBER AND TARGET ANGLE HERE FOR DRAG SPINS ---
+            predeterminedWinningNumber = wheelSequence[Math.floor(Math.random() * wheelSequence.length)];
+            const winningIndexDrag = wheelSequence.indexOf(predeterminedWinningNumber);
+            
+            const absoluteTargetAngleForNumberDrag = -(winningIndexDrag * segmentAngle + segmentAngle / 2) - (Math.PI / 2);
+            let rotationDifferenceDrag = absoluteTargetAngleForNumberDrag - currentWheelRotation;
+            rotationDifferenceDrag = (rotationDifferenceDrag % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
+            const minAdditionalRotationsDrag = 5;
+            const maxAdditionalRotationsDrag = 10;
+            let randomAdditionalRotationsDrag = minAdditionalRotationsDrag + Math.random() * (maxAdditionalRotationsDrag - minAdditionalRotationsDrag);
+
+            predeterminedTargetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotationsDrag) * 2 * Math.PI) + rotationDifferenceDrag;
+            console.log('handleStart(): Predetermined Winning Number (Drag):', predeterminedWinningNumber, 'Target Angle (Drag):', predeterminedTargetAngle);
+            // --- END DETERMINE WINNING NUMBER AND TARGET ANGLE HERE ---
         }
 
         function handleMove(e) {
@@ -1225,24 +1211,28 @@
         }
 
         // This function handles the natural deceleration after a flick
-        function animateInertia() {
-            if (!isSpinning) {
-                inertiaAnimationId = null;
-                console.log('animateInertia(): isSpinning is false, stopping animation.');
-                return;
-            }
+        function animateInertia(timestamp) {
+            if (!animateInertia.start) animateInertia.start = timestamp; // Initialize start time for this animation
+            const progress = timestamp - animateInertia.start;
+            const flickSpinDuration = 4000; // Increased to 4000ms for smoother stop
+            const easeOutQuad = t => t * (2 - t);
+            const t = Math.min(progress / flickSpinDuration, 1);
+            const easedT = easeOutQuad(t);
+            
+            // Animate towards the predetermined target angle
+            const rotation = animateInertia.startRotation + (easedT * (predeterminedTargetAngle - animateInertia.startRotation));
 
-            flickVelocity *= flickDeceleration;
-            currentWheelRotation += flickVelocity * 16; 
+            drawWheel(rotation);
+            currentWheelRotation = rotation; 
 
-            drawWheel(currentWheelRotation);
-
-            if (Math.abs(flickVelocity) > flickThreshold / 5) {
+            if (progress < flickSpinDuration) {
                 inertiaAnimationId = requestAnimationFrame(animateInertia);
             } else {
                 inertiaAnimationId = null;
-                console.log('animateInertia(): Velocity too low, calling endSpin().');
-                endSpin(); 
+                currentWheelRotation = predeterminedTargetAngle; // Snap to final position
+                drawWheel(currentWheelRotation); // Redraw at final position
+                animateInertia.start = null; // Reset start time for next flick
+                endSpin(predeterminedWinningNumber); // Pass the predetermined winning number
             }
         }
 
@@ -1253,15 +1243,12 @@
             canvas.classList.remove('grabbing');
             canvas.style.cursor = 'grab'; 
 
-            if (Math.abs(flickVelocity) > flickThreshold) {
-                console.log('handleEnd(): Starting inertia animation.');
-                animateInertia();
-            } else {
-                console.log('handleEnd(): No significant flick, calling endSpin() directly.');
-                if (isSpinning) { // Only call endSpin if a spin was actually initiated by drag
-                    endSpin();
-                }
-            }
+            // Always start an animation to the predetermined target angle
+            // The starting point for this animation is the current visual rotation
+            animateInertia.startRotation = currentWheelRotation;
+            animateInertia.start = null; // Ensure fresh start for timestamp
+            inertiaAnimationId = requestAnimationFrame(animateInertia);
+
             totalDragRotation = 0; 
         }
 
