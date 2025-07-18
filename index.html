@@ -430,6 +430,31 @@
         .shaking { animation: shake 0.5s; }
         .flashing { animation: flash 0.2s infinite; }
 
+        /* Tooltip Styles */
+        #custom-tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: var(--gold-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+            white-space: nowrap;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none; /* Allows clicks to pass through when hidden */
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(5px); /* Initial slight offset for animation */
+            border: 1px solid var(--gold-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        #custom-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto; /* Enable interaction when visible */
+        }
+
     </style>
 </head>
 <body>
@@ -446,7 +471,8 @@
             </div>
             <div class="controls">
                 <div class="stats">
-                    <p>Treasure: <span id="balance">100</span> | Profit/Loss: <span id="profit-loss">0</span></p>
+                    <p data-tooltip="Your current pirate treasure. Don't let it hit zero, or the sharks get hungry!">Treasure: <span id="balance">100</span></p>
+                    <p data-tooltip="Yer gains or losses this voyage. Aim for gold, not barnacles!">Profit/Loss: <span id="profit-loss">0</span></p>
                     <p id="message-box" class="message-box">The Captain is watchin' ye...</p>
                 </div>
                 <div id="orders-panel">
@@ -455,15 +481,15 @@
                 </div>
                 <div class="betting-area">
                     <div class="bet-amount-controls">
-                        <button class="bet-stepper-button" id="minus-bet-button">-</button>
-                        Bet: <input type="number" id="bet-amount" value="10" min="1">
-                        <button class="bet-stepper-button" id="plus-bet-button">+</button>
+                        <button class="bet-stepper-button" id="minus-bet-button" data-tooltip="Lessen yer wager, ye lily-livered landlubber!">-</button>
+                        Bet: <input type="number" id="bet-amount" value="10" min="1" data-tooltip="How much gold ye risk on this spin. Choose wisely, or walk the plank!">
+                        <button class="bet-stepper-button" id="plus-bet-button" data-tooltip="More gold on the line! A true buccaneer's courage!">+</button>
                     </div>
                     <div class="bet-row">
-                        <div class="bet-option" id="bet-red" data-bet="red">RED</div>
-                        <div class="bet-option" id="bet-black" data-bet="black">BLACK</div>
+                        <div class="bet-option" id="bet-red" data-bet="red" data-tooltip="Bet on the fiery red numbers. A bold choice, matey!">RED</div>
+                        <div class="bet-option" id="bet-black" data-bet="black" data-tooltip="Bet on the dark black numbers. High risk, high reward... or just high risk!">BLACK</div>
                     </div>
-                    <button class="bet-option" id="bet-number-button">BET ON NUMBER</button>
+                    <button class="bet-option" id="bet-number-button" data-tooltip="Pick yer lucky number, from 0 to 36. A direct hit means a king's ransom!">BET ON NUMBER</button>
                 </div>
             </div>
         </div>
@@ -477,8 +503,11 @@
     </div>
 
     <div class="sticky-footer">
-        <button id="spin-button">SPIN THE WHEEL!</button>
+        <button id="spin-button" data-tooltip="SPIN THE WHEEL! May the winds of fortune be in yer favor!">SPIN THE WHEEL!</button>
     </div>
+
+    <!-- Custom Tooltip Element -->
+    <div id="custom-tooltip" class="hidden"></div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -500,6 +529,7 @@
         const modalOverlay = document.getElementById('modal-overlay');
         const modalGrid = document.getElementById('modal-grid');
         const modalClose = document.getElementById('modal-close');
+        const customTooltip = document.getElementById('custom-tooltip'); // Tooltip element
 
         // Game State
         let balance = 100;
@@ -1332,6 +1362,54 @@
             totalDragRotation = 0; 
         }
 
+        // --- Tooltip Functions ---
+        let activeTooltipElement = null; // Keep track of the element currently showing a tooltip
+
+        function showTooltip(element) {
+            const tooltipText = element.dataset.tooltip;
+            if (!tooltipText) return;
+
+            // Hide any currently active tooltip
+            hideTooltip();
+
+            customTooltip.textContent = tooltipText;
+            customTooltip.classList.remove('hidden');
+            customTooltip.classList.add('show');
+            activeTooltipElement = element; // Set the active element
+
+            positionTooltip(element);
+        }
+
+        function hideTooltip() {
+            if (customTooltip.classList.contains('show')) {
+                customTooltip.classList.remove('show');
+                customTooltip.classList.add('hidden');
+            }
+            activeTooltipElement = null; // Clear the active element
+        }
+
+        function positionTooltip(element) {
+            const rect = element.getBoundingClientRect();
+            const tooltipRect = customTooltip.getBoundingClientRect();
+
+            let top = rect.top - tooltipRect.height - 10; // 10px above the element
+            let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+            // Keep tooltip within viewport
+            if (top < 0) { // If it goes above the top, position below
+                top = rect.bottom + 10;
+            }
+            if (left < 0) { // If it goes off left, align to left edge
+                left = 5; // Small padding from edge
+            }
+            if (left + tooltipRect.width > window.innerWidth) { // If it goes off right, align to right edge
+                left = window.innerWidth - tooltipRect.width - 5; // Small padding from edge
+            }
+
+            customTooltip.style.top = `${top + window.scrollY}px`;
+            customTooltip.style.left = `${left + window.scrollX}px`;
+        }
+
         // --- Event Listeners ---
         document.getElementById('bet-red').addEventListener('click', (e) => selectBet(e.target.dataset.bet, e.target));
         document.getElementById('bet-black').addEventListener('click', (e) => selectBet(e.target.dataset.bet, e.target));
@@ -1390,6 +1468,10 @@
             canvas.width = wheelContainer.clientWidth;
             canvas.height = wheelContainer.clientHeight;
             drawWheel(currentWheelRotation); 
+            // Reposition tooltip if it's currently visible
+            if (activeTooltipElement) {
+                positionTooltip(activeTooltipElement);
+            }
         }
 
         // Initial setup calls
@@ -1411,6 +1493,36 @@
         canvas.addEventListener('touchmove', handleMove);
         canvas.addEventListener('touchend', handleEnd);
         canvas.addEventListener('touchcancel', handleEnd); 
+
+        // --- Tooltip Event Listeners ---
+        document.querySelectorAll('[data-tooltip]').forEach(element => {
+            // Desktop hover events
+            element.addEventListener('mouseenter', () => {
+                if (!isSpinning) { // Don't show tooltips during spin
+                    showTooltip(element);
+                }
+            });
+            element.addEventListener('mouseleave', hideTooltip);
+
+            // Mobile touch events
+            element.addEventListener('touchstart', (e) => {
+                if (!isSpinning) {
+                    e.stopPropagation(); // Prevent document click from immediately hiding
+                    if (activeTooltipElement === element) {
+                        hideTooltip(); // Tap same element to dismiss
+                    } else {
+                        showTooltip(element); // Tap different element to show new tooltip
+                    }
+                }
+            }, { passive: true }); // Use passive for better scroll performance
+        });
+
+        // Global click listener to hide tooltip if clicking outside the active tooltip element
+        document.addEventListener('click', (e) => {
+            if (activeTooltipElement && !activeTooltipElement.contains(e.target) && !customTooltip.contains(e.target)) {
+                hideTooltip();
+            }
+        });
     });
     </script>
 </body>
