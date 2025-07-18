@@ -546,8 +546,7 @@
             top: 30%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
-            width: 90vw;
-            max-width: 280px;
+            width: 180px;
             z-index: 2000;
             display: flex;
             flex-direction: column; /* Bubble is always on top */
@@ -563,8 +562,7 @@
         }
 
         #captain-image {
-            width: 180px; /* Give image a consistent base size */
-            max-width: 100%;
+            width: 100%;
             height: auto;
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.5);
@@ -577,13 +575,12 @@
             color: #000;
             border-radius: 20px;
             padding: 0.8rem;
-            width: 100%;
+            width: 160px;
             font-size: 0.9rem;
             font-weight: bold;
             margin-bottom: 15px;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
             box-sizing: border-box;
-            overflow-wrap: break-word; /* Prevents overflow */
         }
 
         /* The tail of the thought bubble - pointing down */
@@ -614,9 +611,9 @@
             #captain-container {
                 position: absolute; /* Position relative to body */
                 top: 2rem;
-                left: calc(50% - 450px - 220px); /* 50% - half_container_width - captain_width - gap */
+                left: calc(50% + 470px); /* 50% + half of game container + gap */
                 transform: scale(0);
-                transform-origin: top right;
+                transform-origin: top left;
                 width: 200px;
             }
             #captain-container.show {
@@ -748,7 +745,7 @@
         const flickDeceleration = 0.98; 
 
         // --- Captain Animation ---
-        function animateCaptain(animationType = 'insult', duration = 4000, message = '', persist = false) {
+        function animateCaptain(animationType = 'insult', duration = 4000, message = '') {
             const animationClasses = ['animate-insult', 'animate-rage', 'animate-smug', 'animate-cheat', 'animate-win'];
             const animationClass = `animate-${animationType}`;
             
@@ -773,16 +770,14 @@
                 captainImage.classList.add(animationClass);
             }, 10);
 
-            // Hide the captain after the specified duration unless persist is true
-            if (!persist) {
+            // Hide the captain after the specified duration
+            setTimeout(() => {
+                captainContainer.classList.remove('show');
+                 // Clean up the class after the hide transition is done
                 setTimeout(() => {
-                    captainContainer.classList.remove('show');
-                     // Clean up the class after the hide transition is done
-                    setTimeout(() => {
-                        captainImage.classList.remove(animationClass);
-                    }, 500); // This should match the transition duration in the CSS
-                }, duration);
-            }
+                    captainImage.classList.remove(animationClass);
+                }, 500); // This should match the transition duration in the CSS
+            }, duration);
         }
 
         // --- UI and Wheel Drawing ---
@@ -1167,6 +1162,8 @@
             profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`; 
             profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
 
+            animateCaptain(animationType, 4000, message);
+
             if (winningsForVisuals > 0) { 
                 gameContainer.classList.add('shaking');
                 spinButton.classList.add('flashing');
@@ -1194,12 +1191,11 @@
                     const randomEncouragement = donationEncouragements[Math.floor(Math.random() * donationEncouragements.length)];
                     const finalMessage = `<strong>${randomThreat}</strong><br><p>${randomEncouragement} <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain's brother a coffee!</a></p>`;
                     
-                    animateCaptain('smug', 6000, finalMessage, true); // Persist this message
+                    animateCaptain('smug', 6000, finalMessage); 
                     balanceEl.textContent = "BROKE";
                     spinButton.textContent = "RESTART";
                     bettingArea.classList.add('disabled'); 
                 } else {
-                    animateCaptain(animationType, 4000, message);
                     spinButton.textContent = "SPIN AGAIN!";
                     bettingArea.classList.remove('disabled'); 
                 }
@@ -1351,7 +1347,6 @@
         }
         
         function restartGame() {
-            captainContainer.classList.remove('show'); // Hide persistent captain
             balance = 300;
             totalWinLoss = 0;
             balanceEl.textContent = balance;
