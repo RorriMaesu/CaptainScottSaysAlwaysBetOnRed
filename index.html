@@ -107,13 +107,22 @@
         .wheel-container {
             position: relative;
             max-width: 300px;
-            width: 100%;
+            width: 100%; /* Ensures it scales up to max-width */
             margin: 0 auto;
-            /* New: Limit height to a percentage of viewport height */
-            max-height: 45vh; /* Adjust this value as needed to fit content */
-            display: flex; /* Make it a flex container to center canvas */
+            /* For mobile, limit height to prevent scrolling */
+            max-height: 45vh; 
+            display: flex; 
             justify-content: center;
             align-items: center;
+            /* Add aspect ratio for better control on both mobile/desktop if width is defined */
+            aspect-ratio: 1 / 1; /* Ensures it's always square based on its width */
+        }
+        /* Desktop override for wheel-container */
+        @media (min-width: 768px) {
+            .wheel-container {
+                max-height: 300px; /* Explicitly set max-height to match max-width for square on desktop */
+                width: 300px; /* Fixed width on desktop */
+            }
         }
         
         #roulette-canvas {
@@ -754,7 +763,11 @@
 
         // This function handles the "Spin!" button click and controlled spins
         function spin() {
-            if (isSpinning || balance <= 0) return; 
+            console.log('spin() called. Initial state: isSpinning:', isSpinning, 'balance:', balance, 'spinButton.disabled:', spinButton.disabled);
+            if (isSpinning || balance <= 0) {
+                console.log('spin() early exit: isSpinning or balance <= 0. isSpinning:', isSpinning, 'balance:', balance);
+                return; 
+            }
             
             const betAmount = parseInt(betAmountInput.value);
             const hasValidBet = !isNaN(betAmount) && betAmount > 0 && betAmount <= balance && currentBet !== null;
@@ -762,20 +775,24 @@
             if (!hasValidBet) {
                 isFreeSpin = true; 
                 messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
+                console.log('spin(): No valid bet, performing free spin.');
             } else {
                 isFreeSpin = false; 
                 messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
+                console.log('spin(): Valid bet placed.');
             }
 
             if (inertiaAnimationId) {
                 cancelAnimationFrame(inertiaAnimationId);
                 inertiaAnimationId = null;
+                console.log('spin(): Cancelled existing inertia animation.');
             }
 
             isSpinning = true; 
             spinButton.disabled = true;
             canvas.classList.remove('grabbing'); 
             canvas.style.cursor = 'default'; 
+            console.log('spin(): State updated: isSpinning:', isSpinning, 'spinButton.disabled:', spinButton.disabled);
 
             const spinDuration = 4000;
             const minAdditionalRotations = 5; 
@@ -785,11 +802,21 @@
             const winningIndex = wheelSequence.indexOf(winningNumber);
             const desiredFinalSegmentPosition = -(winningIndex * segmentAngle) - (segmentAngle / 2) - (Math.PI / 2);
 
+            const randomAdditionalRotations = minAdditionalRotations + Math.random() * (maxAdditionalRotations - minAdditionalRotations);
+            console.log('spin(): randomAdditionalRotations generated:', randomAdditionalRotations); // Added log
+            
+            // The final target angle for the animation
+            // It should be `currentWheelRotation` plus a certain number of full rotations, plus the offset
+            // needed to land on the `desiredFinalSegmentPosition`.
+            
+            // Calculate the difference between the desired final position and the current rotation's effective position (modulo 2PI)
             let rotationDifference = desiredFinalSegmentPosition - (currentWheelRotation % (2 * Math.PI));
-            if (rotationDifference < 0) { 
+            if (rotationDifference < 0) { // Ensure it's a positive rotation to reach the target from current position
                 rotationDifference += 2 * Math.PI;
             }
 
+            console.log('spin(): Calculating targetAngle with currentWheelRotation:', currentWheelRotation, 'randomAdditionalRotations:', randomAdditionalRotations, 'rotationDifference:', rotationDifference); // Added log
+            // The target angle is the current rotation + the number of full spins + the exact difference needed
             const targetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotations) * 2 * Math.PI) + rotationDifference;
 
             let start = null;
@@ -805,14 +832,17 @@
 
                 drawWheel(rotation);
                 currentWheelRotation = rotation; 
+                // console.log('animate() loop. currentWheelRotation:', currentWheelRotation); // Too verbose, uncomment if needed
 
                 if (progress < spinDuration) {
                     requestAnimationFrame(animate);
                 } else {
+                    console.log('animate() finished. Calling endSpin().');
                     currentWheelRotation = targetAngle; 
                     endSpin(); 
                 }
             }
+            console.log('spin(): Starting animation.');
             requestAnimationFrame(animate);
         }
 
@@ -823,6 +853,7 @@
          * @param {function} callback Function to execute after animation completes.
          */
         function animateToForcedRed(targetRedNumber, callback) {
+            console.log('animateToForcedRed() called. Target:', targetRedNumber);
             isSpinning = true; 
             spinButton.disabled = true; 
 
@@ -860,6 +891,7 @@
                 if (progress < reSpinDuration) {
                     requestAnimationFrame(reSpinAnimate);
                 } else {
+                    console.log('reSpinAnimate() finished. Calling callback.');
                     currentWheelRotation = targetAngle; 
                     drawWheel(currentWheelRotation); 
                     isSpinning = false; 
@@ -871,6 +903,7 @@
         }
         
         function processEndOfRound(winnings, message, isFinalStep = true) { 
+            console.log('processEndOfRound() called. Winnings:', winnings, 'isFinalStep:', isFinalStep);
             balance += winnings;
             totalWinLoss += winnings;
             messageBox.innerHTML = message;
@@ -882,12 +915,14 @@
             if (winnings > 0) {
                 gameContainer.classList.add('shaking');
                 spinButton.classList.add('flashing');
+                console.log('processEndOfRound(): Positive winnings, adding visual effects.');
             }
             
             if (isFinalStep) {
                 setTimeout(() => {
                     gameContainer.classList.remove('shaking');
                     spinButton.classList.remove('flashing');
+                    console.log('processEndOfRound(): Visual effects removed.');
                 }, 1000); 
 
                 currentBet = null;
@@ -905,12 +940,16 @@
                     balanceEl.textContent = "BROKE";
                     spinButton.textContent = "RESTART";
                     bettingArea.classList.add('disabled'); 
+                    console.log('processEndOfRound(): Game Over state. Button text: RESTART, betting disabled.');
                 } else {
                     spinButton.textContent = "SPIN AGAIN!";
                     bettingArea.classList.remove('disabled'); 
+                    console.log('processEndOfRound(): Game continues. Button text: SPIN AGAIN!, betting enabled.');
                 }
-                spinButton.disabled = false;
+                spinButton.disabled = false; 
+                isSpinning = false; 
                 canvas.style.cursor = 'grab'; 
+                console.log('processEndOfRound(): Final state update: isSpinning:', isSpinning, 'spinButton.disabled:', spinButton.disabled);
             }
         }
 
@@ -919,6 +958,7 @@
          * This function is now called after *any* spin (manual or automated) has visually stopped.
          */
         function endSpin() {
+            console.log('endSpin() called. isFreeSpin:', isFreeSpin);
             if (isFreeSpin) {
                 isSpinning = false;
                 spinButton.disabled = false;
@@ -926,10 +966,11 @@
                 currentBet = null; 
                 document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
                 updatePotentialHaul(); 
+                console.log('endSpin(): Free spin completed, state reset.');
                 return;
             }
 
-            isSpinning = false;
+            isSpinning = false; // Ensure isSpinning is false before processing results
             const actualLandedNumber = getLandedNumberFromRotation(currentWheelRotation);
             const betAmount = parseInt(betAmountInput.value);
             const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
@@ -1062,6 +1103,7 @@
         }
         
         function restartGame() {
+            console.log('restartGame() called.');
             balance = 100;
             totalWinLoss = 0;
             balanceEl.textContent = balance;
@@ -1075,6 +1117,7 @@
             updatePotentialHaul(); 
             canvas.style.cursor = 'grab'; 
             bettingArea.classList.remove('disabled'); 
+            console.log('restartGame() completed. State reset.');
         }
 
         // --- Drag/Swipe Functions ---
@@ -1099,7 +1142,11 @@
         }
 
         function handleStart(e) {
-            if (isSpinning || balance <= 0) return; 
+            console.log('handleStart() called. Initial state: isSpinning:', isSpinning, 'balance:', balance);
+            if (isSpinning || balance <= 0) {
+                console.log('handleStart() early exit: isSpinning or balance <= 0.');
+                return; 
+            }
             e.preventDefault(); 
 
             const betAmount = parseInt(betAmountInput.value);
@@ -1108,9 +1155,11 @@
             if (!hasValidBet) {
                 isFreeSpin = true; 
                 messageBox.innerHTML = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
+                console.log('handleStart(): No valid bet, performing free spin.');
             } else {
                 isFreeSpin = false; 
                 messageBox.textContent = "THE CAPTAIN'S WILL BE DONE!";
+                console.log('handleStart(): Valid bet placed.');
             }
 
             isDragging = true;
@@ -1123,10 +1172,12 @@
             if (inertiaAnimationId) { 
                 cancelAnimationFrame(inertiaAnimationId);
                 inertiaAnimationId = null;
+                console.log('handleStart(): Cancelled existing inertia animation.');
             }
             isSpinning = true; 
             spinButton.disabled = true;
             canvas.style.cursor = 'default';
+            console.log('handleStart(): State updated: isSpinning:', isSpinning, 'spinButton.disabled:', spinButton.disabled);
         }
 
         function handleMove(e) {
@@ -1158,6 +1209,7 @@
         function animateInertia() {
             if (!isSpinning) {
                 inertiaAnimationId = null;
+                console.log('animateInertia(): isSpinning is false, stopping animation.');
                 return;
             }
 
@@ -1170,20 +1222,24 @@
                 inertiaAnimationId = requestAnimationFrame(animateInertia);
             } else {
                 inertiaAnimationId = null;
+                console.log('animateInertia(): Velocity too low, calling endSpin().');
                 endSpin(); 
             }
         }
 
         function handleEnd(e) {
+            console.log('handleEnd() called. isDragging:', isDragging, 'isSpinning:', isSpinning);
             if (!isDragging) return; 
             isDragging = false; 
             canvas.classList.remove('grabbing');
             canvas.style.cursor = 'grab'; 
 
             if (Math.abs(flickVelocity) > flickThreshold) {
+                console.log('handleEnd(): Starting inertia animation.');
                 animateInertia();
             } else {
-                if (isSpinning) {
+                console.log('handleEnd(): No significant flick, calling endSpin() directly.');
+                if (isSpinning) { // Only call endSpin if a spin was actually initiated by drag
                     endSpin();
                 }
             }
@@ -1230,9 +1286,12 @@
         });
 
         spinButton.addEventListener('click', () => {
+            console.log('Spin button clicked. Current balance:', balance);
             if (balance <= 0) {
+                console.log('Spin button: Balance is 0 or less, calling restartGame().');
                 restartGame();
             } else {
+                console.log('Spin button: Balance is positive, calling spin().');
                 spin(); 
             }
         });
@@ -1241,9 +1300,7 @@
         betAmountInput.addEventListener('change', updatePotentialHaul); 
         
         function resizeCanvas() {
-            // Get the actual rendered dimensions of the canvas container
             const wheelContainer = document.querySelector('.wheel-container');
-            // Set canvas drawing buffer size to match its display size
             canvas.width = wheelContainer.clientWidth;
             canvas.height = wheelContainer.clientHeight;
             drawWheel(currentWheelRotation); 
