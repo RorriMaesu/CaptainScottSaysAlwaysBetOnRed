@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captain Scottathy's Roulette</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='black'/%3E%3Cellipse cx='12' cy='14' rx='2' ry='3' fill='white'/%3E%3Cellipse cx='20' cy='14' rx='2' ry='3' fill='white'/%3E%3Crect x='13' y='20' width='6' height='2' fill='white'/%3E%3Cpath d='M8 28 Q16 24 24 28' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+    
+    <style>
+        /* Desktop video overlay positioning */
+        @media (min-width: 1200px) {
+            #desktop-logo-wrapper {
+                position: relative;
+            }
+            #desktop-logo-wrapper #video-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.85);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 5000;
+                border-radius: 16px;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+                overflow: hidden;
+            }
+            #game-video {
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 12px;
+                background: #000;
+            }
+            #close-video-btn {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                z-index: 21;
+                background: rgba(0,0,0,0.7);
+                color: #ffd700;
+                border-radius: 50%;
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                border: none;
+                cursor: pointer;
+            }
+        }
+        /* Video Overlay Styles */
+        #video-overlay {
+          position: fixed;
+          top: 0; left: 0;
+          width: 100vw; height: 100vh;
+          background: rgba(0,0,0,0.95);
+          display: flex; flex-direction: column;
+          justify-content: center; align-items: center;
+          z-index: 5000;
+        }
+        #video-overlay.hidden { display: none; }
+        #game-video { max-width: 90vw; max-height: 70vh; border-radius: 12px; }
+        #close-video-btn {
+          margin-top: 20px;
+          padding: 10px 20px;
+          font-size: 1.2rem;
+          border-radius: 8px;
+          background: var(--gold-color);
+          color: #000;
+          border: none;
+          cursor: pointer;
+        }
+        /* Mobile Logo Overlay Animation */
+        #mobile-logo-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(13,26,38,0.92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            transition: opacity 0.7s cubic-bezier(.77,0,.18,1), transform 0.7s cubic-bezier(.77,0,.18,1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #mobile-logo-overlay.hide {
+            opacity: 0;
+            transform: scale(0.7) translateY(-80px) rotate(-10deg);
+            pointer-events: none;
+        }
+        #mobile-logo-overlay img {
+            max-width: 70vw;
+            max-height: 40vh;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            border: 3px solid var(--gold-color);
+            background: var(--container-bg);
+            padding: 10px;
+            animation: mobile-logo-pop-in 0.7s cubic-bezier(.77,0,.18,1);
+        }
+        @keyframes mobile-logo-pop-in {
+            0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+            80% { opacity: 1; transform: scale(1.1) rotate(3deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+        @media (min-width: 1200px) {
+            @keyframes desktop-logo-pop-in {
+                0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+                80% { opacity: 1; transform: scale(1.1) rotate(3deg); }
+                100% { opacity: 1; transform: scale(1) rotate(0deg); }
+            }
+            #desktop-logo.animate-pop-in {
+                animation: desktop-logo-pop-in 0.7s cubic-bezier(.77,0,.18,1);
+            }
+            #mobile-logo-overlay { display: none !important; }
+        }
+        @media (max-width: 1199px) {
+            #mobile-logo-overlay { display: flex; }
+        }
+        /* Keyframe Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+        /* Desktop Logo Styles */
+        #desktop-logo-wrapper {
+            display: none;
+        }
+        @media (min-width: 1200px) {
+            #desktop-logo-wrapper {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin-top: 2.2rem; /* Increased top margin to move logo down */
+                margin-bottom:2.2rem;
+                position: relative;
+                /* min-height removed for better spacing control */
+            }
+            #desktop-logo {
+                max-width: 270px; /* 180px x 1.5 = 270px */
+                height: auto;
+                border-radius: 12px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+                border: 2px solid var(--gold-color);
+                background: var(--container-bg);
+                padding: 6px;
+                display: block;
+                margin: 0 auto;
+            }
+        }
+        @media (max-width: 1199px) {
+            #desktop-logo-wrapper {
+                display: none !important;
+            }
+        }
+
+        @keyframes flash {
+            0%, 100% { background-color: var(--gold-color); color: #000; }
+            50% { background-color: var(--primary-color); color: #fff; }
+        }
+        
+        @keyframes skull-glow {
+            0%, 100% { filter: drop-shadow(0 0 5px var(--primary-color)); }
+            50% { filter: drop-shadow(0 0 15px var(--primary-color)); }
+        }
+
+        /* --- NEW CAPTAIN ANIMATIONS --- */
+        @keyframes captain-insult { /* Quick pop for insults */
+            0% { transform: scale(0) rotate(180deg); opacity: 0; }
+            60% { transform: scale(1.1) rotate(-10deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes captain-rage-shake { /* For when he has to cheat */
+            0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px red) brightness(1.2); }
+            10%, 90% { transform: scale(1.05) translate(-2px, 2px) rotate(-2deg); }
+            20%, 80% { transform: scale(1.05) translate(2px, -2px) rotate(2deg); }
+            30%, 50%, 70% { transform: scale(1.05) translate(-2px, 2px) rotate(-2deg); }
+            40%, 60% { transform: scale(1.05) translate(2px, -2px) rotate(2deg); }
+            100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px red) brightness(1.2); }
+        }
+        
+        @keyframes captain-smug-zoom { /* For when the player loses */
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 15px var(--gold-color)) saturate(1.5); }
+        }
+
+        @keyframes captain-cheat-glow { /* When he forces the wheel to change */
+            0%, 100% { transform: scale(1.1); filter: drop-shadow(0 0 20px var(--primary-color)) brightness(1.5); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 30px var(--primary-color)) brightness(2); }
+        }
+
+        @keyframes captain-win-glow { /* For when the player wins */
+             0%, 100% { filter: drop-shadow(0 0 15px var(--gold-color)) saturate(1.2); }
+             50% { filter: drop-shadow(0 0 30px var(--gold-color)) saturate(1.8) brightness(1.2); }
+        }
+
+
+        /* Root Variables */
+        :root {
+            --primary-color: #ff0000;
+            --background-color: #1a2a3a;
+            --container-bg: #0d1a26;
+            --text-color: #f0f0f0;
+            --gold-color: #ffd700;
+            --black-color: #222;
+            --green-color: #006400;
+        }
+
+        /* General Body and Container Styling */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling on the body */
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center; /* Center game container */
+            align-items: center; /* Center game container */
+            padding: 1rem;
+            box-sizing: border-box;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill='%23142433' fill-opacity='0.4'%3E%3Crect x='0' y='0' width='50' height='50'/%3E%3Crect x='50' y='50' width='50' height='50'/%3E%3C/g%E3C/svg%3E");
+            position: relative; /* Context for absolute positioning */
+        }
+
+        .game-container {
+            background-color: var(--container-bg);
+            padding: clamp(0.5rem, 2vw, 1rem);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 5px solid var(--gold-color);
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            height: 100%;
+            max-height: 900px; /* Set a max-height for very tall screens */
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 5px #000;
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            margin: 0.2rem 0;
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            flex-shrink: 0; /* Prevent title from shrinking */
+        }
+        
+        .skull {
+            width: clamp(25px, 4vw, 35px); 
+            height: clamp(25px, 4vw, 35px); 
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 10px; 
+            animation: skull-glow 2s infinite;
+            fill: currentColor;
+        }
+
+        /* Game Layout */
+        .game-area {
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1; /* Allow this area to grow and shrink */
+            min-height: 0; /* Important for flex shrinking */
+        }
+        
+        @media (min-width: 768px) {
+            .game-area {
+                display: grid; 
+                grid-template-columns: 320px 1fr;
+                align-items: start;
+                flex-direction: initial; 
+                gap: 1.5rem; 
+            }
+        }
+
+        /* Wheel and Canvas */
+        .wheel-container {
+            position: relative;
+            width: clamp(220px, 60vw, 300px);
+            margin: 0 auto;
+            flex-shrink: 0;
+            height: 0;
+            padding-bottom: clamp(220px, 60vw, 300px); /* Maintain aspect ratio */
+        }
+        
+        #roulette-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 10px ridge var(--gold-color);
+            box-sizing: border-box;
+            cursor: grab; 
+        }
+        #roulette-canvas.grabbing {
+            cursor: grabbing;
+        }
+
+        /* Stats and Info Panels */
+        .stats {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            background: #000;
+            padding: 0.3rem 0.5rem;
+            border-radius: 10px;
+            border: 2px solid var(--text-color);
+            width: 100%;
+            flex-wrap: wrap;
+            box-sizing: border-box;
+        }
+
+        .stats p {
+            margin: 0;
+            font-size: clamp(0.7rem, 2.2vw, 1rem);
+        }
+        
+        #balance, #profit-loss {
+            color: var(--gold-color);
+            font-weight: bold;
+            font-size: clamp(0.8rem, 2.8vw, 1.2rem);
+        }
+
+        #profit-loss.loss { color: var(--primary-color); }
+        #profit-loss.profit { color: #00ff00; }
+        
+        #orders-panel {
+            background: #111;
+            border: 2px dashed var(--gold-color);
+            padding: 0.3rem 0.5rem;
+            border-radius: 10px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0.2rem 0;
+            box-sizing: border-box;
+        }
+        
+        #orders-text {
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+        }
+        
+        #potential-haul {
+            font-size: clamp(0.8rem, 2.2vw, 1.1rem);
+            font-weight: bold;
+            color: var(--gold-color);
+        }
+
+        /* Controls and Betting */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+            flex: 1; 
+            min-height: 0;
+            justify-content: center;
+            position: relative; /* Anchor for the tooltip */
+        }
+        
+        .betting-area {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            background: #000;
+            padding: 0.5rem;
+            border-radius: 10px;
+        }
+        
+        .bet-row {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: stretch;
+            gap: 0.3rem;
+        }
+
+        @media (min-width: 500px) {
+            .bet-row {
+                flex-direction: row;
+            }
+        }
+
+        .bet-option {
+            padding: clamp(6px, 1.8vw, 10px);
+            border-radius: 8px;
+            font-size: clamp(0.9rem, 3vw, 1.4rem);
+            font-weight: bold;
+            border: 3px solid #000;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 40px;
+        }
+        
+        .bet-amount-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: 8px;
+            border: 3px solid #000;
+            padding: clamp(4px, 1.5vw, 6px);
+            flex: 1.5;
+        }
+
+        .bet-stepper-button {
+            background: none;
+            border: none;
+            color: var(--gold-color);
+            font-size: clamp(1.4rem, 4.5vw, 2.5rem);
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 0.5rem;
+            min-width: 40px;
+            min-height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #bet-amount {
+            width: 60px;
+            padding: 4px;
+            background: #333;
+            color: var(--gold-color);
+            border: 1px solid var(--gold-color);
+            border-radius: 5px;
+            text-align: center;
+            font-family: inherit;
+            font-size: clamp(0.8rem, 2.2vw, 1rem);
+            font-weight: bold;
+            min-height: 30px;
+        }
+        
+        .bet-option:hover, .bet-stepper-button:hover, #bet-number-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .selected {
+            box-shadow: 0 0 25px var(--gold-color);
+            border-color: var(--gold-color) !important;
+            transform: scale(1.05);
+        }
+
+        #bet-red { background-color: var(--primary-color); color: #fff; }
+        #bet-black { background-color: var(--black-color); color: #fff; }
+        #bet-number-button { 
+            background-color: var(--green-color); 
+            color: #fff;
+            padding: clamp(6px, 1.8vw, 10px);
+            border-radius: 8px;
+            font-size: clamp(0.9rem, 3vw, 1.4rem);
+            font-weight: bold;
+            border: 3px solid #000;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 40px;
+        }
+
+        .spin-button-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0.5rem;
+            padding: 0.2rem;
+            box-sizing: border-box;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        #spin-button {
+            width: 100%; 
+            max-width: 400px;
+            padding: clamp(10px, 2.2vw, 16px);
+            font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+            font-weight: bold;
+            color: #000;
+            background: linear-gradient(145deg, var(--gold-color), #b89b00);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px; 
+        }
+        
+        #spin-button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .betting-area.disabled .bet-option,
+        .betting-area.disabled .bet-amount-controls,
+        .betting-area.disabled #bet-amount,
+        .betting-area.disabled #bet-number-button {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none; 
+        }
+        
+        /* Modal Styles */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 0.5rem; 
+            box-sizing: border-box;
+        }
+        
+        .modal-content {
+            background: var(--container-bg);
+            padding: 15px; 
+            border-radius: 10px;
+            border: 3px solid var(--gold-color);
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        #modal-close {
+            position: absolute;
+            top: -12px; 
+            right: -12px; 
+            background: var(--primary-color);
+            color: #fff;
+            border: 2px solid #000;
+            border-radius: 50%;
+            width: 35px; 
+            height: 35px; 
+            font-size: 1.3rem; 
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        #modal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
+            gap: 6px; 
+        }
+        
+        .modal-number-box {
+            padding: 10px 8px; 
+            font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            border: 2px solid #555;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .modal-number-box.red { background-color: var(--primary-color); }
+        .modal-number-box.black { background-color: var(--black-color); }
+        .modal-number-box.green { background-color: var(--green-color); grid-column: 1 / -1; }
+        
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .shaking { animation: shake 0.5s; }
+        .flashing { animation: flash 0.2s infinite; }
+
+        /* Tooltip Styles */
+        #custom-tooltip {
+            position: fixed; /* Changed to fixed for viewport relativity */
+            background-color: rgba(0, 0, 0, 0.9);
+            color: var(--gold-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(5px);
+            border: 1px solid var(--gold-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            white-space: normal;
+            width: auto;
+            max-width: 250px;
+        }
+
+        #custom-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        #instructional-tooltip {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: var(--gold-color);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+            text-align: center;
+            white-space: nowrap;
+            z-index: 1002;
+            opacity: 0;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            border: 1px solid var(--gold-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            pointer-events: none;
+        }
+
+        #instructional-tooltip.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        @media (max-width: 767px) {
+            #instructional-tooltip {
+                bottom: calc(60px + 0.4rem + 10px);
+                white-space: normal;
+                width: 80%;
+                max-width: 300px;
+                left: 50%;
+                transform: translateX(-50%) translateY(10px);
+            }
+        }
+
+        /* Bet Display Bubble */
+        #bet-display-bubble {
+            margin: 0.5rem 0;
+            background-color: var(--container-bg);
+            border: 2px solid var(--gold-color);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            font-weight: bold;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            white-space: nowrap;
+        }
+
+        #bet-display-bubble.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #bet-display-bubble .number-display {
+            padding: 4px 8px;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        #bet-display-bubble .number-display.red { background-color: var(--primary-color); }
+        #bet-display-bubble .number-display.black { background-color: var(--black-color); }
+        #bet-display-bubble .number-display.green { background-color: var(--green-color); }
+
+        /* --- CAPTAIN AND THOUGHT BUBBLE STYLES --- */
+        #captain-container {
+            position: fixed;
+            /* Mobile-first: Centered over the wheel area */
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 90vw;
+            max-width: 280px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column; /* Bubble is always on top */
+            align-items: center;
+            opacity: 0;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+            pointer-events: none;
+        }
+
+        #captain-container.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #captain-image {
+            width: 180px; /* Give image a consistent base size */
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            border: 3px solid var(--gold-color);
+        }
+        
+        #message-box {
+            position: relative;
+            background: #fff;
+            color: #000;
+            border-radius: 20px;
+            padding: 0.8rem;
+            width: 100%;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+            box-sizing: border-box;
+            overflow-wrap: break-word; /* Prevents overflow */
+        }
+
+        /* The tail of the thought bubble - pointing down */
+        #message-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-top-color: #fff;
+            border-bottom: 0;
+            margin-left: -20px;
+            margin-bottom: -20px;
+        }
+        
+        /* Animation classes for JS to toggle */
+        #captain-image.animate-insult { animation: captain-insult 0.6s ease-out forwards; }
+        #captain-image.animate-rage { animation: captain-rage-shake 0.8s ease-in-out forwards; }
+        #captain-image.animate-smug { animation: captain-smug-zoom 1.2s ease-out forwards; }
+        #captain-image.animate-cheat { animation: captain-cheat-glow 1.5s ease-in-out infinite; }
+        #captain-image.animate-win { animation: captain-win-glow 2s ease-in-out infinite; }
+
+
+        /* Responsive Captain for Desktop */
+        @media (min-width: 1200px) { /* Wider breakpoint for better spacing */
+            #captain-container {
+                position: absolute; /* Position relative to body */
+                top: 2rem;
+                left: calc(50% - 450px - 220px); /* 50% - half_container_width - captain_width - gap */
+                transform: scale(0);
+                transform-origin: top right;
+                width: 200px;
+            }
+            #captain-container.show {
+                transform: scale(1);
+            }
+            #message-box {
+                font-size: 1rem;
+                width: 180px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Mobile Logo Overlay (mobile only) -->
+    <div id="mobile-logo-overlay">
+        <img src="logo.png" alt="Captain Scottathy Logo" />
+    </div>
+    <div class="game-container" id="game-container">
+        <h1>
+            <svg class="skull" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9c-.83 0-1.5.67-1.5 1.5S9.17 14 10 14s1.5-.67 1.5-1.5S10.83 11 10 11zm4 0c-.83 0-1.5.67-1.5 1.5S13.17 14 14 14s1.5-.67 1.5-1.5S14.83 11 14 11zm-4 4h4v2h-4v-2z"/></svg>
+            Captain Scottathy's Roulette
+            <svg class="skull" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9c-.83 0-1.5.67-1.5 1.5S9.17 14 10 14s1.5-.67 1.5-1.5S10.83 11 10 11zm4 0c-.83 0-1.5.67-1.5 1.5S13.17 14 14 14s1.5-.67 1.5-1.5S14.83 11 14 11zm-4 4h4v2h-4v-2z"/></svg>
+        </h1>
+        <div class="game-area">
+            <div class="wheel-container">
+                <canvas id="roulette-canvas" width="300" height="300"></canvas>
+            </div>
+            <div class="controls">
+                <div class="stats">
+                    <p data-tooltip="Your current pirate treasure. Don't let it hit zero, or the sharks get hungry!">Treasure: <span id="balance">300</span></p>
+                    <p data-tooltip="Yer gains or losses this voyage. Aim for gold, not barnacles!">Profit/Loss: <span id="profit-loss">0</span></p>
+                </div>
+                <div id="orders-panel">
+                    <span id="orders-text">Make a bet, ye coward!</span>
+                    <span id="potential-haul"></span>
+                </div>
+                <div id="bet-display-bubble" class="hidden"></div>
+
+                <div class="betting-area">
+                    <div class="bet-amount-controls">
+                        <button class="bet-stepper-button" id="minus-bet-button" data-tooltip="Lessen yer wager, ye lily-livered landlubber!">-</button>
+                        Bet: <input type="number" id="bet-amount" value="10" min="1" data-tooltip="How much gold ye risk on this spin. Choose wisely, or walk the plank!">
+                        <button class="bet-stepper-button" id="plus-bet-button" data-tooltip="More gold on the line! A true buccaneer's courage!">+</button>
+                    </div>
+                    <div class="bet-row">
+                        <div class="bet-option" id="bet-red" data-bet="red" data-tooltip="Bet on the fiery red numbers. A bold choice, matey!">RED</div>
+                        <div class="bet-option" id="bet-black" data-bet="black" data-tooltip="Bet on the dark black numbers. High risk, high reward... or just high risk!">BLACK</div>
+                    </div>
+                    <button class="bet-option" id="bet-number-button" data-tooltip="Pick yer lucky number, from 0 to 36. A direct hit means a king's ransom!">BET ON NUMBER</button>
+                </div>
+            </div>
+        </div>
+        <!-- Desktop Logo above spin button (desktop only) -->
+        <div id="desktop-logo-wrapper">
+            <img id="desktop-logo" src="logo.png" alt="Captain Scottathy Logo" />
+        </div>
+        <div class="spin-button-wrapper">
+            <button id="spin-button" data-tooltip="SPIN THE WHEEL! May the winds of fortune be in yer favor!">SPIN THE WHEEL!</button>
+        </div>
+    </div>
+    
+    <div id="modal-overlay" class="hidden">
+        <div class="modal-content">
+            <button id="modal-close">X</button>
+            <div id="modal-grid"></div>
+        </div>
+    </div>
+
+    <!-- Captain's Animated Image -->
+    <div id="captain-container">
+        <div id="message-box" class="message-box"></div>
+        <img id="captain-image" src="CaptainScottathy.png" alt="Captain Scottathy" onerror="this.onerror=null; this.src='https://placehold.co/200x200/0d1a26/ffd700?text=Captain+Missing!';">
+    </div>
+
+    <!-- Tooltip Elements -->
+
+    <div id="custom-tooltip" class="hidden"></div>
+    <div id="instructional-tooltip" class="hidden">
+        <p>Drag the wheel or press 'SPIN THE WHEEL!' to begin!</p>
+    </div>
+
+    <!-- Video Overlay for game events -->
+    <div id="video-overlay" class="hidden">
+      <video id="game-video" width="100%" height="100%" controls playsinline></video>
+      <button id="close-video-btn">Close</button>
+    </div>
+
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Desktop video overlay repositioning
+        function positionVideoOverlayDesktop() {
+          const videoOverlay = document.getElementById('video-overlay');
+          const desktopLogoWrapper = document.getElementById('desktop-logo-wrapper');
+          if (window.innerWidth >= 1200 && videoOverlay && desktopLogoWrapper) {
+            if (videoOverlay.parentNode !== desktopLogoWrapper) {
+              desktopLogoWrapper.appendChild(videoOverlay);
+              videoOverlay.style.position = 'absolute';
+              videoOverlay.style.top = '0';
+              videoOverlay.style.left = '0';
+              videoOverlay.style.width = '100%';
+              videoOverlay.style.height = '100%';
+            }
+          } else {
+            if (videoOverlay.parentNode !== document.body) {
+              document.body.appendChild(videoOverlay);
+              videoOverlay.style.position = 'fixed';
+              videoOverlay.style.top = '0';
+              videoOverlay.style.left = '0';
+              videoOverlay.style.width = '100vw';
+              videoOverlay.style.height = '100vh';
+            }
+          }
+        }
+        positionVideoOverlayDesktop();
+        window.addEventListener('resize', positionVideoOverlayDesktop);
+        // --- Video Overlay Setup ---
+        const videoOverlay = document.getElementById('video-overlay');
+        const gameVideo = document.getElementById('game-video');
+        const closeVideoBtn = document.getElementById('close-video-btn');
+
+        function showGameVideo(src) {
+          gameVideo.src = src;
+          videoOverlay.classList.remove('hidden');
+          gameVideo.play();
+        }
+        function hideGameVideo() {
+          gameVideo.pause();
+          gameVideo.src = '';
+          videoOverlay.classList.add('hidden');
+        }
+        closeVideoBtn.addEventListener('click', hideGameVideo);
+        gameVideo.addEventListener('ended', hideGameVideo);
+        // Desktop logo animation on page load
+        if (window.innerWidth >= 1200) {
+            const desktopLogo = document.getElementById('desktop-logo');
+            if (desktopLogo) {
+                desktopLogo.classList.add('animate-pop-in');
+                setTimeout(() => {
+                    desktopLogo.classList.remove('animate-pop-in');
+                }, 800); // Remove class after animation
+            }
+        }
+        // Mobile logo overlay logic
+        const mobileLogoOverlay = document.getElementById('mobile-logo-overlay');
+        if (mobileLogoOverlay && window.innerWidth < 1200) {
+            setTimeout(() => {
+                mobileLogoOverlay.classList.add('hide');
+                // Remove from DOM after animation
+                setTimeout(() => {
+                    if (mobileLogoOverlay.parentNode) {
+                        mobileLogoOverlay.parentNode.removeChild(mobileLogoOverlay);
+                    }
+                }, 800); // Wait for transition
+            }, 2000); // Show for 2 seconds
+        }
+        // Game Elements
+        const canvas = document.getElementById('roulette-canvas');
+        const ctx = canvas.getContext('2d');
+        const balanceEl = document.getElementById('balance');
+        const profitLossEl = document.getElementById('profit-loss');
+        const messageBox = document.getElementById('message-box');
+        const spinButton = document.getElementById('spin-button');
+        const gameContainer = document.getElementById('game-container');
+        const betAmountInput = document.getElementById('bet-amount');
+        const ordersText = document.getElementById('orders-text');
+        const potentialHaul = document.getElementById('potential-haul');
+        const bettingArea = document.querySelector('.betting-area'); 
+        const minusBetButton = document.getElementById('minus-bet-button');
+        const plusBetButton = document.getElementById('plus-bet-button');
+        const betNumberButton = document.getElementById('bet-number-button');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalGrid = document.getElementById('modal-grid');
+        const modalClose = document.getElementById('modal-close');
+        const customTooltip = document.getElementById('custom-tooltip');
+        const instructionalTooltip = document.getElementById('instructional-tooltip');
+        const betDisplayBubble = document.getElementById('bet-display-bubble');
+        const captainContainer = document.getElementById('captain-container');
+        const captainImage = document.getElementById('captain-image');
+
+        // Show desktop logo only on desktop
+        function updateLogoVisibility() {
+            const logo = document.getElementById('desktop-logo');
+            if (window.innerWidth >= 1200) {
+                logo.style.display = 'block';
+            } else {
+                logo.style.display = 'none';
+            }
+        }
+        updateLogoVisibility();
+        window.addEventListener('resize', updateLogoVisibility);
+
+        // Game State
+        let balance = 300;
+        let totalWinLoss = 0;
+        let isSpinning = false; 
+        let currentBet = null;
+        let currentNumber = 0;
+        let isFreeSpin = false; 
+
+        // Pre-determined outcome variables
+        let predeterminedWinningNumber = -1;
+        let predeterminedTargetAngle = 0;
+
+        const segments = 37;
+        const segmentAngle = (2 * Math.PI) / segments;
+        const segmentColors = [];
+        const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+        const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
+        const wheelSequence = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+
+        // Drag/Swipe Spin Variables
+        let isDragging = false;
+        let lastPointerAngle = 0; 
+        let currentWheelRotation = 0; 
+        let totalDragRotation = 0; 
+        let lastMoveTime = 0; 
+        let flickVelocity = 0; 
+        let inertiaAnimationId = null; 
+        const flickThreshold = 0.005; 
+        const flickDeceleration = 0.98; 
+        let startRotationForAnimation = 0;
+
+        // --- Captain Animation ---
+        function animateCaptain(animationType = 'insult', message = '', persist = false) {
+            const animationClasses = ['animate-insult', 'animate-rage', 'animate-smug', 'animate-cheat', 'animate-win'];
+            const animationClass = `animate-${animationType}`;
+            
+            // Set the image source based on animation type
+            if (animationType === 'win') {
+                captainImage.src = 'CaptainScottathyRichAnimation2.gif';
+            } else {
+                captainImage.src = 'CaptainScottathy.png';
+            }
+
+            // Set the message in the bubble
+            messageBox.innerHTML = message;
+            
+            // --- DYNAMIC DURATION CALCULATION ---
+            const textOnly = message.replace(/<[^>]*>?/gm, ''); // Strip HTML tags
+            const wordCount = textOnly.split(/\s+/).filter(Boolean).length; // Count words
+            // Base time of 2 seconds, plus 300ms per word (200 wpm)
+            const duration = 2000 + (wordCount * 300);
+
+            // Remove any existing animation classes
+            captainImage.classList.remove(...animationClasses);
+
+            // Make the container visible
+            captainContainer.classList.add('show');
+            
+            // Add the new animation class after a brief delay to ensure it restarts
+            setTimeout(() => {
+                captainImage.classList.add(animationClass);
+            }, 10);
+
+            // Hide the captain after the specified duration unless persist is true
+            if (!persist) {
+                setTimeout(() => {
+                    captainContainer.classList.remove('show');
+                     // Clean up the class after the hide transition is done
+                    setTimeout(() => {
+                        captainImage.classList.remove(animationClass);
+                    }, 500); // This should match the transition duration in the CSS
+                }, duration);
+            }
+            return duration; // Return the calculated duration
+        }
+
+        // --- UI and Wheel Drawing ---
+        function createModalGrid() {
+            modalGrid.innerHTML = '';
+            for (let i = 0; i <= 36; i++) {
+                const numberBox = document.createElement('div');
+                numberBox.classList.add('modal-number-box');
+                numberBox.textContent = i;
+                numberBox.dataset.bet = i;
+                if (redNumbers.includes(i)) numberBox.classList.add('red');
+                else if (blackNumbers.includes(i)) numberBox.classList.add('black');
+                else numberBox.classList.add('green');
+                
+                numberBox.addEventListener('click', () => {
+                    currentBet = String(i); 
+                    selectBet(currentBet, betNumberButton); 
+                    modalOverlay.classList.add('hidden');
+                });
+                modalGrid.appendChild(numberBox);
+            }
+        }
+
+        function initializeWheel() {
+            const computedStyles = getComputedStyle(document.documentElement);
+            const primaryColor = computedStyles.getPropertyValue('--primary-color').trim();
+            const blackColor = computedStyles.getPropertyValue('--black-color').trim();
+            const greenColor = computedStyles.getPropertyValue('--green-color').trim();
+
+            wheelSequence.forEach(number => {
+                if (number === 0) segmentColors.push(greenColor);
+                else if (redNumbers.includes(number)) segmentColors.push(primaryColor);
+                else segmentColors.push(blackColor);
+            });
+        }
+
+        function drawWheel(rotation = 0) {
+            const goldColor = getComputedStyle(document.documentElement).getPropertyValue('--gold-color').trim();
+            const wheelSize = canvas.width;
+            
+            ctx.clearRect(0, 0, wheelSize, wheelSize);
+            ctx.save();
+            ctx.translate(wheelSize / 2, wheelSize / 2);
+            ctx.rotate(rotation); 
+
+            for (let i = 0; i < segments; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                const startAngle = i * segmentAngle;
+                ctx.arc(0, 0, Math.max(0, wheelSize / 2 - 5), startAngle, startAngle + segmentAngle);
+                ctx.closePath();
+                ctx.fillStyle = segmentColors[i];
+                ctx.fill();
+                
+                ctx.save();
+                ctx.fillStyle = '#fff';
+                ctx.font = `bold ${wheelSize * 0.045}px 'Arial', sans-serif`; 
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const numberToDraw = wheelSequence[i];
+                const textAngle = startAngle + segmentAngle / 2;
+                ctx.rotate(textAngle);
+                ctx.fillText(numberToDraw, wheelSize / 2 - (wheelSize * 0.07), 0);
+                ctx.restore();
+            }
+            ctx.restore();
+
+            // Draw the pointer
+            ctx.fillStyle = goldColor;
+            ctx.beginPath();
+            ctx.moveTo(wheelSize / 2 - 8, 0);
+            ctx.lineTo(wheelSize / 2 + 8, 0);
+            ctx.lineTo(wheelSize / 2, 15);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // --- Game Logic ---
+        function updatePotentialHaul() {
+            const betAmount = parseInt(betAmountInput.value) || 0;
+            if (betAmount <= 0) {
+                ordersText.textContent = "Enter a valid bet amount!";
+                potentialHaul.textContent = "";
+                return;
+            }
+
+            if (!currentBet) {
+                ordersText.textContent = "Make a bet, ye coward!";
+                potentialHaul.textContent = "";
+                return;
+            }
+
+            let winAmount = 0;
+            let loseAmountDisplay = 0; 
+            let winPercentage = 0;
+            let losePercentage = 0;
+            let orderMessage = "";
+
+            const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
+            const parsedBetNumber = parseInt(currentBet);
+
+            if (betIsOnSpecificNumber) {
+                winAmount = betAmount * 35;
+                winPercentage = 3500;
+
+                if (parsedBetNumber === 0) {
+                    winAmount = 0; 
+                    loseAmountDisplay = "ALL GOLD"; 
+                    losePercentage = 100; 
+                    orderMessage = "The Kraken's Eye! A fool's bet... or a legend's jackpot?";
+                } else if (redNumbers.includes(parsedBetNumber)) {
+                    loseAmountDisplay = betAmount;
+                    losePercentage = 100;
+                    orderMessage = "A true gamble! Risk it for a king's ransom!";
+                } else if (blackNumbers.includes(parsedBetNumber)) {
+                    loseAmountDisplay = betAmount * 20; 
+                    losePercentage = 2000;
+                    orderMessage = "A true gamble! Risk it for a king's ransom!";
+                }
+            } else if (currentBet === 'red') {
+                winAmount = betAmount;
+                loseAmountDisplay = betAmount;
+                winPercentage = 100;
+                losePercentage = 100;
+                orderMessage = redBetMessages[Math.floor(Math.random() * redBetMessages.length)];
+            } else if (currentBet === 'black') {
+                winAmount = betAmount;
+                loseAmountDisplay = betAmount * 20;
+                winPercentage = 100;
+                losePercentage = 2000;
+                orderMessage = blackBetMessages[Math.floor(Math.random() * blackBetMessages.length)];
+            }
+
+            ordersText.textContent = orderMessage;
+            potentialHaul.textContent = `Win: $${winAmount} (${winPercentage}%) | Lose: $${loseAmountDisplay} (${losePercentage}%)`;
+        }
+
+        function selectBet(bet, element) {
+            if (isSpinning || balance <= 0) return; 
+            currentBet = bet;
+            
+            document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
+            if (element.classList.contains('bet-option')) {
+                element.classList.add('selected');
+            }
+            
+            const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
+            if (betIsOnSpecificNumber) {
+                const parsedBetNumber = parseInt(currentBet);
+                const numberSpan = document.createElement('span');
+                numberSpan.classList.add('number-display');
+                numberSpan.textContent = parsedBetNumber;
+
+                if (redNumbers.includes(parsedBetNumber)) {
+                    numberSpan.classList.add('red');
+                } else if (blackNumbers.includes(parsedBetNumber)) {
+                    numberSpan.classList.add('black');
+                } else if (parsedBetNumber === 0) {
+                    numberSpan.classList.add('green');
+                }
+                betDisplayBubble.innerHTML = `You bet on: `;
+                betDisplayBubble.appendChild(numberSpan);
+                betDisplayBubble.classList.add('show');
+                betDisplayBubble.classList.remove('hidden');
+            } else {
+                betDisplayBubble.classList.remove('show');
+                betDisplayBubble.classList.add('hidden');
+            }
+
+            updatePotentialHaul();
+        }
+
+        const noBetInsults = [
+            "Ye spin without a wager? Are ye a landlubber or a scurvy dog?!",
+            "No bet, no glory! What kind of pirate are ye, a cheapskate?",
+            "Har har! A spin for naught! Get some treasure on the line, ye bilge rat!",
+            "Think ye can trick the Captain? Place yer bet, or walk the plank!",
+            "A spin without a stake is like a ship without a sail! Useless!",
+        ];
+
+        const rudeCommentsToWheel = [
+            `"BLACK?! I'LL HAVE NONE OF THAT ON MY WATCH, WHEEL!"`,
+            `"HEAVE HO, YE BLACKGUARD! RED IT IS, BY MY COMMAND!"`,
+            `"THIS IS MY SHIP, NOT YER DARK ALLEY! LAND ON RED!"`,
+            `"A BLACK OUTCOME? NOT IN THIS LIFETIME! RED, I SAID!"`,
+            `"BLAST YE, WHEEL! THAT'S A BLACK MARK ON MY LOGBOOK! TO RED, YE SCURVY DOG!"`,
+        ];
+
+        const greenPunishmentScenarios = [
+            "The Kraken itself reached out and snatched your entire treasure! All gold lost!",
+            "The Captain's parrot, 'Squawk-and-Steal,' flew off with your entire hoard! Ye be broke!",
+            "A rogue wave of green slime washed over your treasure chest, melting all your gold! Gone!",
+            "The leprechaun at the end of the rainbow decided he liked your gold better. It's all gone!",
+            "Ye angered the sea spirits! They've claimed every last coin as tribute. All lost!",
+        ];
+
+        const donationEncouragements = [
+            "Psst... The Captain's rum fund is lookin' a bit dry. A small 'donation' could help ye find yer sea legs again! And maybe help his brother, the coding wizard, buy some new quills.",
+            "The winds of fortune have abandoned ye, but a kind gesture to the Captain's brother might bring 'em back! He's available for hire, by the way, and his code is sharper than any cutlass!",
+            "Even a pirate needs a patron! Consider tossin' a few coins to the coding genius, Captain Scottathay's brother. He builds mighty fine apps and is always looking for new contracts!",
+        ];
+
+        const forcedRedAfterRedBetPartialWinMessages = [
+            (originalBlack, newRed, winnings) => `It landed on BLACK ${originalBlack}! But the Captain, in his infinite 'generosity', has rigged it to RED ${newRed}! You snatched a partial reward of $${winnings}!`,
+            (originalBlack, newRed, winnings) => `Arrr! Black ${originalBlack} it was, but the Captain's eye is on the prize! Forced to RED ${newRed}! A meager $${winnings} for your troubles, matey!`,
+        ];
+
+        const forcedRedAfterBlackBetLossMessages = [
+            (originalBlack, newRed, losses) => `It was BLACK ${originalBlack}, but the Captain forced it to RED ${newRed}! Despite his efforts, your black-hearted bet still cost you $${Math.abs(losses)}!`,
+            (originalBlack, newRed, losses) => `Even the Captain's magic couldn't save yer foolish black bet! It was BLACK ${originalBlack}, forced to RED ${newRed}, but ye still lost $${Math.abs(losses)}! Har har!`,
+        ];
+
+        const forcedRedAfterOtherBetLossMessages = [
+            (originalBlack, newRed, losses) => `It landed on BLACK ${originalBlack}, but the Captain forced it to RED ${newRed}! You bet on a different path, and it cost you $${Math.abs(losses)} for yer folly!`,
+            (originalBlack, newRed, losses) => `Ye strayed from the colors! It was BLACK ${originalBlack}, but the Captain's intervention to RED ${newRed} couldn't save ye! Lost $${Math.abs(losses)}!`,
+        ];
+
+        const redWinMessages = [
+            (number, winnings) => `It's RED ${number}! A fine choice! You win $${winnings}!`,
+            (number, winnings) => `A glorious RED ${number}! The Captain's favor is upon ye! You've plundered $${winnings}!`,
+        ];
+
+        const redLossAfterBlackBetMessages = [
+            (number, losses) => `It's RED ${number}! The Captain scoffs at yer black-hearted bet! You lose $${Math.abs(losses)}!`,
+            (number, losses) => `Ye chose darkness, but the light of RED ${number} prevailed! You're down $${Math.abs(losses)}!`,
+        ];
+
+        const redLossAfterOtherBetLossMessages = [
+            (number, losses) => `It's RED ${number}! You bet on ${currentBet}, but the tide turned! You lose $${Math.abs(losses)}!`,
+            (number, losses) => `RED ${number} appeared! Your wager on ${currentBet} was a miscalculation. You're out $${Math.abs(losses)}!`,
+        ];
+
+        const specificNumberWinMessages = [
+            (number, winnings) => `It's ${number}! A DIRECT HIT! You win $${winnings}!`,
+            (number, winnings) => `By the stars, ${number}! You pinpointed the treasure! A massive $${winnings} haul!`,
+        ];
+
+        const otherLossMessages = [
+            (number, losses) => `It's ${number}! A strange wind blows... You lose $${Math.abs(losses)}!`,
+            (number, losses) => `The wheel landed on ${number}! Not your lucky number, matey. You lost $${Math.abs(losses)}!`,
+        ];
+
+        const redBetMessages = [ "A safe bet for a true sailor!", "The color of courage! A fine choice, matey!" ];
+        const blackBetMessages = [ "BAH! Black is for landlubbers! A costly mistake!", "Choosing the darkness, are we? A risky gamble, arr!" ];
+
+        let instructionalTooltipTimeout;
+
+        function showInstructionalTooltip() {
+            clearTimeout(instructionalTooltipTimeout);
+            instructionalTooltip.classList.remove('hidden');
+            void instructionalTooltip.offsetWidth;
+            instructionalTooltip.classList.add('show');
+            instructionalTooltipTimeout = setTimeout(hideInstructionalTooltip, 7000);
+        }
+
+        function hideInstructionalTooltip() {
+            clearTimeout(instructionalTooltipTimeout);
+            if (instructionalTooltip.classList.contains('show')) {
+                instructionalTooltip.classList.remove('show');
+                instructionalTooltip.addEventListener('transitionend', function handler() {
+                    instructionalTooltip.classList.add('hidden');
+                    instructionalTooltip.removeEventListener('transitionend', handler);
+                }, { once: true });
+            }
+        }
+
+        function spin() {
+            if (isSpinning || balance <= 0) return; 
+            
+            const betAmount = parseInt(betAmountInput.value);
+            const hasValidBet = !isNaN(betAmount) && betAmount > 0 && betAmount <= balance && currentBet !== null;
+
+            if (!hasValidBet) {
+                isFreeSpin = true; 
+                const insult = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
+                animateCaptain('insult', insult);
+            } else {
+                isFreeSpin = false; 
+            }
+
+            if (inertiaAnimationId) {
+                cancelAnimationFrame(inertiaAnimationId);
+                inertiaAnimationId = null;
+            }
+
+            isSpinning = true; 
+            spinButton.disabled = true;
+            canvas.classList.remove('grabbing'); 
+            canvas.style.cursor = 'default'; 
+
+            const spinDuration = 4000;
+            const minAdditionalRotations = 5; 
+            const maxAdditionalRotations = 10; 
+            
+            predeterminedWinningNumber = wheelSequence[Math.floor(Math.random() * wheelSequence.length)];
+            const winningIndex = wheelSequence.indexOf(predeterminedWinningNumber);
+            
+            const absoluteTargetAngleForNumber = -(winningIndex * segmentAngle + segmentAngle / 2) - (Math.PI / 2);
+            let rotationDifference = absoluteTargetAngleForNumber - currentWheelRotation;
+            rotationDifference = (rotationDifference % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
+            const randomAdditionalRotations = minAdditionalRotations + Math.random() * (maxAdditionalRotations - minAdditionalRotations);
+            
+            predeterminedTargetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotations) * 2 * Math.PI) + rotationDifference;
+            
+            startRotationForAnimation = currentWheelRotation; 
+            let start = null;
+
+            function animate(timestamp) {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                const easeOutQuad = t => t * (2 - t);
+                const t = Math.min(progress / spinDuration, 1);
+                const easedT = easeOutQuad(t);
+                
+                const rotation = startRotationForAnimation + (easedT * (predeterminedTargetAngle - startRotationForAnimation));
+                drawWheel(rotation);
+                currentWheelRotation = rotation; 
+
+                if (progress < spinDuration) {
+                    requestAnimationFrame(animate);
+                } else {
+                    currentWheelRotation = predeterminedTargetAngle;
+                    drawWheel(currentWheelRotation);
+                    endSpin(predeterminedWinningNumber);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        
+        function animateToForcedRed(targetRedNumber, callback) {
+            isSpinning = true; 
+            spinButton.disabled = true; 
+
+            const reSpinDuration = 1500; 
+            const minRevolutions = 1; 
+            const maxRevolutions = 2; 
+
+            const targetIndex = wheelSequence.indexOf(targetRedNumber);
+            const desiredFinalSegmentPosition = -(targetIndex * segmentAngle) - (segmentAngle / 2) - (Math.PI / 2);
+
+            let revolutionsNeeded = Math.ceil((currentWheelRotation - desiredFinalSegmentPosition) / (2 * Math.PI));
+            if (revolutionsNeeded < minRevolutions) {
+                revolutionsNeeded = minRevolutions;
+            }
+            let randomRevolutions = minRevolutions + Math.random() * (maxRevolutions - minRevolutions);
+            revolutionsNeeded = Math.max(revolutionsNeeded, Math.ceil(randomRevolutions));
+
+            const targetAngle = desiredFinalSegmentPosition + (revolutionsNeeded * 2 * Math.PI);
+
+            let start = null;
+            const startRotationForAnimation = currentWheelRotation;
+
+            function reSpinAnimate(timestamp) {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                const easeOutQuad = t => t * (2 - t);
+                const t = Math.min(progress / reSpinDuration, 1);
+                const easedT = easeOutQuad(t);
+                const rotation = startRotationForAnimation + (easedT * (targetAngle - startRotationForAnimation));
+
+                drawWheel(rotation);
+                currentWheelRotation = rotation;
+
+                if (progress < reSpinDuration) {
+                    requestAnimationFrame(reSpinAnimate);
+                } else {
+                    currentWheelRotation = targetAngle; 
+                    drawWheel(currentWheelRotation); 
+                    isSpinning = false; 
+                    spinButton.disabled = false; 
+                    if (callback) callback();
+                }
+            }
+            requestAnimationFrame(reSpinAnimate);
+        }
+        
+        function processEndOfRound(winningsForVisuals, message, animationType, isFinalStep = true) { 
+            balanceEl.textContent = balance; 
+            profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`; 
+            profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
+
+            if (winningsForVisuals > 0) { 
+                gameContainer.classList.add('shaking');
+                spinButton.classList.add('flashing');
+            }
+
+            // --- VIDEO TRIGGERS ---
+            if (isFinalStep) {
+                setTimeout(() => {
+                    gameContainer.classList.remove('shaking');
+                    spinButton.classList.remove('flashing');
+                }, 1000); 
+
+                currentBet = null;
+                document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
+                updatePotentialHaul(); 
+                betDisplayBubble.classList.remove('show');
+                betDisplayBubble.classList.add('hidden');
+
+                if (balance <= 0) {
+                    // Game Over Video
+                    showGameVideo('gameOverV1.mp4');
+                    const threats = [
+                        "The Captain's patience is gone! The loan sharks are comin' for ye!",
+                        "Ye owe the Captain! Pay up, or you'll be sleepin' with the fishes!",
+                        "Yer treasure is gone! I hear the loan sharks have a special plank just for you!",
+                    ];
+                    const randomThreat = threats[Math.floor(Math.random() * threats.length)];
+                    const randomEncouragement = donationEncouragements[Math.floor(Math.random() * donationEncouragements.length)];
+                    const finalMessage = `<strong>${randomThreat}</strong><br><p>${randomEncouragement} <a href="https://buymeacoffee.com/rorrimaesu" target="_blank" style="color: var(--gold-color); text-decoration: underline;">Buy the Captain's brother a coffee!</a></p>`;
+                    
+                    animateCaptain('smug', finalMessage, true); // Persist this message
+                    balanceEl.textContent = "BROKE";
+                    spinButton.textContent = "RESTART";
+                    bettingArea.classList.add('disabled'); 
+                } else {
+                    // Win/Loss Video
+                    if (winningsForVisuals > 0) {
+                        // Big win (specific number)
+                        if (animationType === 'win' && winningsForVisuals >= 350) {
+                            showGameVideo('playerWinv1.mp4');
+                        } else if (animationType === 'win') {
+                            // Normal win
+                            showGameVideo('winv1.mp4');
+                        } else {
+                            // Other win
+                            showGameVideo('winv2.mp4');
+                        }
+                        // Fun random win event for variety
+                        if (Math.random() < 0.15) {
+                            setTimeout(() => { showGameVideo('randomVideo2.mp4'); }, 1200);
+                        }
+                    } else if (winningsForVisuals < 0) {
+                        // Random loss event
+                        showGameVideo('randomVideo.mp4');
+                        // Fun random loss event for variety
+                        if (Math.random() < 0.15) {
+                            setTimeout(() => { showGameVideo('randomVideo2.mp4'); }, 1200);
+                        }
+                    }
+                    animateCaptain(animationType, message);
+                    spinButton.textContent = "SPIN AGAIN!";
+                    bettingArea.classList.remove('disabled'); 
+                }
+                spinButton.disabled = false; 
+                canvas.style.cursor = 'grab'; 
+            }
+        }
+
+        function endSpin(finalLandedNumber) {
+            if (isFreeSpin) {
+                isSpinning = false;
+                spinButton.disabled = false;
+                canvas.style.cursor = 'grab';
+                currentBet = null; 
+                document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
+                updatePotentialHaul(); 
+                betDisplayBubble.classList.remove('show');
+                betDisplayBubble.classList.add('hidden');
+                return;
+            }
+
+            isSpinning = false;
+            const actualLandedNumber = finalLandedNumber;
+            const betAmount = parseInt(betAmountInput.value);
+            const betIsOnSpecificNumber = !isNaN(parseInt(currentBet));
+            const parsedCurrentBet = parseInt(currentBet);
+
+            let currentRoundWinnings = 0;
+            let message = '';
+            let animationType = '';
+            
+            const playerBetRedColorOrSpecific = (currentBet === 'red' || (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet)));
+            const playerBetBlackColorOrSpecific = (currentBet === 'black' || (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet)));
+            const playerBetGreen = (betIsOnSpecificNumber && parsedCurrentBet === 0);
+
+            if (actualLandedNumber === 0) {
+                const goldLost = balance;
+                currentRoundWinnings = -goldLost;
+                balance = 0;
+                totalWinLoss += currentRoundWinnings;
+                // Play Kraken/stealing video
+                showGameVideo('stealingVideo.mp4');
+                // Fun: sometimes play randomVideo2.mp4 for extra drama
+                if (Math.random() < 0.25) {
+                    setTimeout(() => { showGameVideo('randomVideo2.mp4'); }, 1200);
+                }
+                const punishmentMessage = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
+                const finalWords = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
+                const initialDuration = animateCaptain('smug', punishmentMessage); 
+                setTimeout(() => {
+                    gameContainer.classList.add('shaking');
+                    processEndOfRound(currentRoundWinnings, finalWords, 'rage');
+                }, initialDuration + 200);
+                return;
+            }
+
+            if (blackNumbers.includes(actualLandedNumber)) {
+                let winningsBeforeIntervention = 0;
+                if (betIsOnSpecificNumber && blackNumbers.includes(parsedCurrentBet) && actualLandedNumber === parsedCurrentBet) {
+                    winningsBeforeIntervention = betAmount * 35;
+                } else if (playerBetBlackColorOrSpecific) {
+                    winningsBeforeIntervention = -betAmount * 20;
+                } else if (playerBetRedColorOrSpecific) {
+                    let originalPotentialWin = (currentBet === 'red') ? betAmount : (betAmount * 35);
+                    winningsBeforeIntervention = Math.floor(originalPotentialWin * 0.25);
+                } else {
+                    winningsBeforeIntervention = -betAmount;
+                }
+                balance += winningsBeforeIntervention;
+                totalWinLoss += winningsBeforeIntervention;
+                balanceEl.textContent = balance;
+                profitLossEl.textContent = totalWinLoss >= 0 ? `$${totalWinLoss}` : `-$${Math.abs(totalWinLoss)}`;
+                profitLossEl.className = totalWinLoss > 0 ? 'profit' : (totalWinLoss < 0 ? 'loss' : '');
+
+                const message = `<strong>${rudeCommentsToWheel[Math.floor(Math.random() * rudeCommentsToWheel.length)]}</strong>`;
+                const initialDuration = animateCaptain('rage', message);
+
+                setTimeout(() => {
+                    gameContainer.classList.add('shaking');
+                    let forcedRedNumber = actualLandedNumber;
+                    let currentIndex = wheelSequence.indexOf(actualLandedNumber);
+                    for (let i = 1; i < segments; i++) {
+                        const checkIndex = (currentIndex + i) % segments;
+                        const potentialRed = wheelSequence[checkIndex];
+                        if (redNumbers.includes(potentialRed)) {
+                            forcedRedNumber = potentialRed;
+                            break;
+                        }
+                    }
+
+                    animateToForcedRed(forcedRedNumber, () => {
+                        gameContainer.classList.remove('shaking');
+                        let finalMessageAfterIntervention = '';
+                        let additionalWinningsFromIntervention = 0;
+
+                        if (betIsOnSpecificNumber && redNumbers.includes(parsedCurrentBet) && forcedRedNumber === parsedCurrentBet) {
+                            additionalWinningsFromIntervention = (betAmount * 35) - winningsBeforeIntervention;
+                            balance += additionalWinningsFromIntervention;
+                            totalWinLoss += additionalWinningsFromIntervention;
+                            finalMessageAfterIntervention = `By the Captain's will, it's RED ${forcedRedNumber}! And it matches your number! A grand 35x haul!`;
+                        } else {
+                            if (playerBetRedColorOrSpecific) {
+                                finalMessageAfterIntervention = forcedRedAfterRedBetPartialWinMessages[0](actualLandedNumber, forcedRedNumber, winningsBeforeIntervention);
+                            } else if (playerBetBlackColorOrSpecific) {
+                                finalMessageAfterIntervention = forcedRedAfterBlackBetLossMessages[0](actualLandedNumber, forcedRedNumber, winningsBeforeIntervention);
+                            } else {
+                                finalMessageAfterIntervention = forcedRedAfterOtherBetLossMessages[0](actualLandedNumber, forcedRedNumber, winningsBeforeIntervention);
+                            }
+                        }
+                        processEndOfRound(winningsBeforeIntervention + additionalWinningsFromIntervention, finalMessageAfterIntervention, 'smug');
+                    });
+                }, initialDuration + 500);
+                return;
+            }
+
+            if (redNumbers.includes(actualLandedNumber)) {
+                 if (betIsOnSpecificNumber && actualLandedNumber === parsedCurrentBet) {
+                    currentRoundWinnings = betAmount * 35;
+                    message = specificNumberWinMessages[0](actualLandedNumber, currentRoundWinnings);
+                } else if (playerBetRedColorOrSpecific) {
+                    currentRoundWinnings = betAmount; 
+                    message = redWinMessages[0](actualLandedNumber, currentRoundWinnings);
+                } else if (playerBetBlackColorOrSpecific) {
+                    currentRoundWinnings = -betAmount * 20;
+                    message = redLossAfterBlackBetMessages[0](actualLandedNumber, currentRoundWinnings);
+                } else {
+                    currentRoundWinnings = -betAmount;
+                    message = otherLossMessages[0](actualLandedNumber, currentRoundWinnings);
+                }
+            }
+            
+            totalWinLoss += currentRoundWinnings;
+            balance += currentRoundWinnings;
+            
+            animationType = currentRoundWinnings > 0 ? 'win' : 'smug';
+            processEndOfRound(currentRoundWinnings, message, animationType);
+        }
+        
+        function restartGame() {
+            captainContainer.classList.remove('show'); // Hide persistent captain
+            balance = 300;
+            totalWinLoss = 0;
+            balanceEl.textContent = balance;
+            profitLossEl.textContent = `$${totalWinLoss}`; 
+            profitLossEl.className = '';
+            animateCaptain('insult', "The Captain gives ye another chance... Don't waste it.");
+           
+            spinButton.textContent = "SPIN THE WHEEL!";
+            spinButton.disabled = false;
+            currentBet = null;
+            document.querySelectorAll('.bet-option.selected').forEach(el => el.classList.remove('selected'));
+            updatePotentialHaul(); 
+            canvas.style.cursor = 'grab'; 
+            bettingArea.classList.remove('disabled'); 
+            betDisplayBubble.classList.remove('show');
+            betDisplayBubble.classList.add('hidden');
+        }
+
+        // --- Drag/Swipe Functions ---
+        function getPointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            return {
+                x: clientX - rect.left - canvas.width / 2,
+                y: clientY - rect.top - canvas.height / 2
+            };
+        }
+
+        function getAngle(x, y) {
+            return Math.atan2(y, x);
+        }
+
+        function handleStart(e) {
+            if (isSpinning || balance <= 0) return; 
+            hideInstructionalTooltip();
+
+            e.preventDefault(); 
+
+            const betAmount = parseInt(betAmountInput.value);
+            const hasValidBet = !isNaN(betAmount) && betAmount > 0 && betAmount <= balance && currentBet !== null;
+
+            if (!hasValidBet) {
+                isFreeSpin = true; 
+                const insult = `<strong>${noBetInsults[Math.floor(Math.random() * noBetInsults.length)]}</strong>`;
+                animateCaptain('insult', insult);
+            } else {
+                isFreeSpin = false; 
+            }
+
+            isDragging = true;
+            canvas.classList.add('grabbing');
+            const pos = getPointerPos(e);
+            lastPointerAngle = getAngle(pos.x, pos.y); 
+            totalDragRotation = 0; 
+            lastMoveTime = e.timeStamp; 
+            flickVelocity = 0; 
+            if (inertiaAnimationId) { 
+                cancelAnimationFrame(inertiaAnimationId);
+                inertiaAnimationId = null;
+            }
+            isSpinning = true; 
+            spinButton.disabled = true;
+            canvas.style.cursor = 'default';
+
+            predeterminedWinningNumber = wheelSequence[Math.floor(Math.random() * wheelSequence.length)];
+            const winningIndexDrag = wheelSequence.indexOf(predeterminedWinningNumber);
+            
+            const absoluteTargetAngleForNumberDrag = -(winningIndexDrag * segmentAngle + segmentAngle / 2) - (Math.PI / 2);
+            let rotationDifferenceDrag = absoluteTargetAngleForNumberDrag - currentWheelRotation;
+            rotationDifferenceDrag = (rotationDifferenceDrag % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
+            const minAdditionalRotationsDrag = 5;
+            const maxAdditionalRotationsDrag = 10;
+            let randomAdditionalRotationsDrag = minAdditionalRotationsDrag + Math.random() * (maxAdditionalRotationsDrag - minAdditionalRotationsDrag);
+
+            predeterminedTargetAngle = currentWheelRotation + (Math.ceil(randomAdditionalRotationsDrag) * 2 * Math.PI) + rotationDifferenceDrag;
+        }
+
+        function handleMove(e) {
+            if (!isDragging || !isSpinning) return; 
+            e.preventDefault(); 
+            const pos = getPointerPos(e);
+            const currentAngle = getAngle(pos.x, pos.y);
+            
+            let deltaAngle = currentAngle - lastPointerAngle; 
+
+            if (deltaAngle > Math.PI) deltaAngle -= 2 * Math.PI;
+            if (deltaAngle < -Math.PI) deltaAngle += 2 * Math.PI;
+
+            currentWheelRotation += deltaAngle; 
+            totalDragRotation += deltaAngle;   
+
+            drawWheel(currentWheelRotation); 
+
+            const currentTime = e.timeStamp;
+            const deltaTime = currentTime - lastMoveTime;
+            if (deltaTime > 0) {
+                flickVelocity = deltaAngle / deltaTime; 
+            }
+            lastPointerAngle = currentAngle; 
+            lastMoveTime = currentTime; 
+        }
+
+        function animateInertia(timestamp) {
+            let start = null;
+            if (!animateInertia.start) {
+                animateInertia.start = timestamp;
+                animateInertia.startRotation = currentWheelRotation;
+            }
+            const progress = timestamp - animateInertia.start;
+            const flickSpinDuration = 4000;
+            const easeOutQuad = t => t * (2 - t);
+            const t = Math.min(progress / flickSpinDuration, 1);
+            const easedT = easeOutQuad(t);
+            
+            const rotation = animateInertia.startRotation + (easedT * (predeterminedTargetAngle - animateInertia.startRotation));
+
+            drawWheel(rotation);
+            currentWheelRotation = rotation; 
+
+            if (progress < flickSpinDuration) {
+                inertiaAnimationId = requestAnimationFrame(animateInertia);
+            } else {
+                inertiaAnimationId = null;
+                currentWheelRotation = predeterminedTargetAngle;
+                drawWheel(currentWheelRotation);
+                animateInertia.start = null;
+                endSpin(predeterminedWinningNumber);
+            }
+        }
+
+        function handleEnd(e) {
+            if (!isDragging) return; 
+            isDragging = false; 
+            canvas.classList.remove('grabbing');
+            canvas.style.cursor = 'grab'; 
+
+            animateInertia.startRotation = currentWheelRotation;
+            animateInertia.start = null;
+            inertiaAnimationId = requestAnimationFrame(animateInertia);
+
+            totalDragRotation = 0; 
+        }
+
+        // --- Tooltip Functions ---
+        let activeTooltipElement = null;
+
+        function showTooltip(element) {
+            const tooltipText = element.dataset.tooltip;
+            if (!tooltipText) return;
+
+            hideTooltip();
+
+            customTooltip.textContent = tooltipText;
+            customTooltip.classList.remove('hidden');
+            customTooltip.classList.add('show');
+            activeTooltipElement = element;
+
+            positionTooltip(element);
+        }
+
+        function hideTooltip() {
+            if (customTooltip.classList.contains('show')) {
+                customTooltip.classList.remove('show');
+                customTooltip.classList.add('hidden');
+            }
+            activeTooltipElement = null;
+        }
+
+        function positionTooltip(element) {
+            const rect = element.getBoundingClientRect();
+            const tooltipRect = customTooltip.getBoundingClientRect();
+
+            let top = rect.top - tooltipRect.height - 10;
+            let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+            if (top < 0) { 
+                top = rect.bottom + 10; 
+            }
+            if (left < 0) { 
+                left = 5; 
+            }
+            if (left + tooltipRect.width > window.innerWidth) { 
+                left = window.innerWidth - tooltipRect.width - 5; 
+            }
+
+            customTooltip.style.top = `${top}px`;
+            customTooltip.style.left = `${left}px`;
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('bet-red').addEventListener('click', (e) => selectBet(e.target.dataset.bet, e.target));
+        document.getElementById('bet-black').addEventListener('click', (e) => selectBet(e.target.dataset.bet, e.target));
+        
+        betNumberButton.addEventListener('click', () => {
+            if (!isSpinning && balance > 0) {
+                selectBet(currentBet, betNumberButton); 
+                modalOverlay.classList.remove('hidden');
+            }
+        });
+
+        minusBetButton.addEventListener('click', () => {
+            if (isSpinning || balance <= 0) return;
+            let currentBetAmount = parseInt(betAmountInput.value);
+            if (currentBetAmount > 1) {
+                betAmountInput.value = currentBetAmount - 1;
+                updatePotentialHaul();
+            }
+        });
+
+        plusBetButton.addEventListener('click', () => {
+            if (isSpinning || balance <= 0) return;
+            let currentBetAmount = parseInt(betAmountInput.value);
+            betAmountInput.value = currentBetAmount + 1;
+            updatePotentialHaul();
+        });
+
+        modalClose.addEventListener('click', () => modalOverlay.classList.add('hidden'));
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) modalOverlay.classList.add('hidden');
+        });
+
+        spinButton.addEventListener('click', () => {
+            if (balance <= 0) {
+                restartGame();
+            } else {
+                hideInstructionalTooltip();
+                spin(); 
+            }
+        });
+
+        betAmountInput.addEventListener('input', updatePotentialHaul);
+        betAmountInput.addEventListener('change', updatePotentialHaul); 
+        
+        function resizeCanvas() {
+            const wheelContainer = document.querySelector('.wheel-container');
+            const size = Math.min(wheelContainer.clientWidth, wheelContainer.clientHeight);
+            canvas.width = size;
+            canvas.height = size;
+            drawWheel(currentWheelRotation); 
+            if (activeTooltipElement) {
+                positionTooltip(activeTooltipElement);
+            }
+        }
+
+        // Initial setup
+        createModalGrid();
+        initializeWheel();
+        resizeCanvas(); 
+        updatePotentialHaul(); 
+        setTimeout(showInstructionalTooltip, 2000);
+
+        // Event listeners
+        window.addEventListener('resize', resizeCanvas);
+        canvas.addEventListener('mousedown', handleStart);
+        canvas.addEventListener('mousemove', handleMove);
+        canvas.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('mouseleave', handleEnd); 
+        canvas.addEventListener('touchstart', handleStart);
+        canvas.addEventListener('touchmove', handleMove);
+        canvas.addEventListener('touchend', handleEnd);
+        canvas.addEventListener('touchcancel', handleEnd); 
+
+        document.querySelectorAll('[data-tooltip]').forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                if (!isSpinning) showTooltip(element);
+            });
+            element.addEventListener('mouseleave', hideTooltip);
+            element.addEventListener('touchstart', (e) => {
+                if (!isSpinning) {
+                    e.stopPropagation();
+                    if (activeTooltipElement === element) {
+                        hideTooltip();
+                    } else {
+                        showTooltip(element);
+                    }
+                }
+            }, { passive: true });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (activeTooltipElement && !activeTooltipElement.contains(e.target) && !customTooltip.contains(e.target)) {
+                hideTooltip();
+            }
+        });
+    });
+    </script>
+</body>
+</html>
