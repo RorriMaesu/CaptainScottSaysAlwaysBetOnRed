@@ -52,16 +52,16 @@ A satirical, animated web experience that pokes fun at capitalism, luck, and the
       <sub>Captain Scottathy Rich Animation</sub>
     </td>
     <td align="center">
-      <a href="gameOverV1.mp4">🎬 Game Over Video</a><br>
-      <sub>(Click to watch)</sub>
+      <img src="gameOverV1.gif" alt="Game Over GIF" width="180" /><br>
+      <sub>Game Over Animation</sub>
     </td>
     <td align="center">
-      <a href="playerWinv1.mp4">🎬 Player Win Video</a><br>
-      <sub>(Click to watch)</sub>
+      <img src="playerWinv1.gif" alt="Player Win GIF" width="180" /><br>
+      <sub>Player Win Animation</sub>
     </td>
     <td align="center">
-      <a href="randomVideo.mp4">🎬 Random Event Video</a><br>
-      <sub>(Click to watch)</sub>
+      <img src="randomVideo.gif" alt="Random Event GIF" width="180" /><br>
+      <sub>Random Event Animation</sub>
     </td>
   </tr>
 </table>
@@ -90,13 +90,13 @@ CaptainScottSaysAlwaysBetOnRed/
 ├── CaptainScottathy.png
 ├── CaptainScottathyRichAnimation2.gif
 ├── capitalismsucksbutiamsuperpassionateaboutbeingabletoaffordfood.png
-├── gameOverV1.mp4
-├── playerWinv1.mp4
-├── randomVideo.mp4
-├── randomVideo2.mp4
-├── stealingVideo.mp4
-├── winv1.mp4
-├── winv2.mp4
+├── gameOverV1.gif
+├── playerWinv1.gif
+├── randomVideo.gif
+├── randomVideo2.gif
+├── stealingVideo.gif
+├── winv1.gif
+├── winv2.gif
 ```
 
 ---

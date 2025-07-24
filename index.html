@@ -1002,17 +1002,31 @@
         function animateCaptain(animationType = 'insult', message = '', persist = false) {
             const animationClasses = ['animate-insult', 'animate-rage', 'animate-smug', 'animate-cheat', 'animate-win'];
             const animationClass = `animate-${animationType}`;
-            
-            // Set the image source based on animation type
-            if (animationType === 'win') {
-                captainImage.src = 'CaptainScottathyRichAnimation2.gif';
-            } else {
-                captainImage.src = 'CaptainScottathy.png';
+
+            // Use different GIFs for different animation types
+            switch (animationType) {
+                case 'win':
+                    captainImage.src = 'CaptainScottathyRichAnimation2.gif';
+                    break;
+                case 'smug':
+                    captainImage.src = 'playerWinv1.gif';
+                    break;
+                case 'rage':
+                    captainImage.src = 'gameOverV1.gif';
+                    break;
+                case 'cheat':
+                    captainImage.src = 'stealingVideo.gif';
+                    break;
+                case 'insult':
+                    captainImage.src = 'randomVideo.gif';
+                    break;
+                default:
+                    captainImage.src = 'CaptainScottathy.png';
             }
 
             // Set the message in the bubble
             messageBox.innerHTML = message;
-            
+
             // --- DYNAMIC DURATION CALCULATION ---
             const textOnly = message.replace(/<[^>]*>?/gm, ''); // Strip HTML tags
             const wordCount = textOnly.split(/\s+/).filter(Boolean).length; // Count words
@@ -1024,7 +1038,7 @@
 
             // Make the container visible
             captainContainer.classList.add('show');
-            
+
             // Add the new animation class after a brief delay to ensure it restarts
             setTimeout(() => {
                 captainImage.classList.add(animationClass);
@@ -1034,7 +1048,7 @@
             if (!persist) {
                 setTimeout(() => {
                     captainContainer.classList.remove('show');
-                     // Clean up the class after the hide transition is done
+                    // Clean up the class after the hide transition is done
                     setTimeout(() => {
                         captainImage.classList.remove(animationClass);
                     }, 500); // This should match the transition duration in the CSS
@@ -1042,6 +1056,35 @@
             }
             return duration; // Return the calculated duration
         }
+
+        // --- Show all GIFs for demo or random event ---
+        function showAllGifsDemo() {
+            const gifList = [
+                'CaptainScottathyRichAnimation2.gif',
+                'gameOverV1.gif',
+                'playerWinv1.gif',
+                'randomVideo.gif',
+                'randomVideo2.gif',
+                'stealingVideo.gif',
+                'winv1.gif',
+                'winv2.gif'
+            ];
+            let idx = 0;
+            function showNextGif() {
+                if (idx >= gifList.length) return;
+                showGameVideo(gifList[idx]);
+                idx++;
+                setTimeout(() => {
+                    hideGameVideo();
+                    setTimeout(showNextGif, 500);
+                }, 1800);
+            }
+            showNextGif();
+        }
+
+        // Example: show all GIFs on a special event or for testing
+        // Uncomment to demo all GIFs on load
+        // showAllGifsDemo();
 
         // --- UI and Wheel Drawing ---
         function createModalGrid() {
@@ -1442,8 +1485,8 @@
                 betDisplayBubble.classList.add('hidden');
 
                 if (balance <= 0) {
-                    // Game Over Video
-                    showGameVideo('gameOverV1.mp4');
+                    // Game Over GIF
+                    showGameVideo('gameOverV1.gif');
                     const threats = [
                         "The Captain's patience is gone! The loan sharks are comin' for ye!",
                         "Ye owe the Captain! Pay up, or you'll be sleepin' with the fishes!",
@@ -1462,24 +1505,24 @@
                     if (winningsForVisuals > 0) {
                         // Big win (specific number)
                         if (animationType === 'win' && winningsForVisuals >= 350) {
-                            showGameVideo('playerWinv1.mp4');
+                            showGameVideo('playerWinv1.gif');
                         } else if (animationType === 'win') {
                             // Normal win
-                            showGameVideo('winv1.mp4');
+                            showGameVideo('winv1.gif');
                         } else {
                             // Other win
-                            showGameVideo('winv2.mp4');
+                            showGameVideo('winv2.gif');
                         }
                         // Fun random win event for variety
                         if (Math.random() < 0.15) {
-                            setTimeout(() => { showGameVideo('randomVideo2.mp4'); }, 1200);
+                            setTimeout(() => { showGameVideo('randomVideo2.gif'); }, 1200);
                         }
                     } else if (winningsForVisuals < 0) {
                         // Random loss event
-                        showGameVideo('randomVideo.mp4');
+                        showGameVideo('randomVideo.gif');
                         // Fun random loss event for variety
                         if (Math.random() < 0.15) {
-                            setTimeout(() => { showGameVideo('randomVideo2.mp4'); }, 1200);
+                            setTimeout(() => { showGameVideo('randomVideo2.gif'); }, 1200);
                         }
                     }
                     animateCaptain(animationType, message);
@@ -1523,11 +1566,11 @@
                 currentRoundWinnings = -goldLost;
                 balance = 0;
                 totalWinLoss += currentRoundWinnings;
-                // Play Kraken/stealing video
-                showGameVideo('stealingVideo.mp4');
-                // Fun: sometimes play randomVideo2.mp4 for extra drama
+                // Play Kraken/stealing GIF
+                showGameVideo('stealingVideo.gif');
+                // Fun: sometimes play randomVideo2.gif for extra drama
                 if (Math.random() < 0.25) {
-                    setTimeout(() => { showGameVideo('randomVideo2.mp4'); }, 1200);
+                    setTimeout(() => { showGameVideo('randomVideo2.gif'); }, 1200);
                 }
                 const punishmentMessage = greenPunishmentScenarios[Math.floor(Math.random() * greenPunishmentScenarios.length)];
                 const finalWords = `<strong>"SCOTTATHY! I TOLD YOU... ALWAYS. BET. ON. RED!"</strong>`;
