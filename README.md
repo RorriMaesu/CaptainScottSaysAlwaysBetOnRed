@@ -71,8 +71,9 @@ A satirical, animated web experience that pokes fun at capitalism, luck, and the
 ## ☕ Support Me
 
 
+
 <a href="https://buymeacoffee.com/rorrimaesu" target="_blank">
-  <img src="BuyMeACoffeeButton.png" alt="Buy Me a Coffee" width="235" height="62" style="display:inline-block;vertical-align:middle;" />
+  <img src="donationCup.png" alt="Buy Me a Coffee" width="120" style="display:inline-block;vertical-align:middle;" />
 </a>
 
 <br>
