@@ -1,6 +1,12 @@
 # Captain Scott Says: Always Bet On Red
 
-![Captain Logo](CaptainScottSaysAlwaysBetOnRed/logo.png)
+<a href="https://rorrimaesu.github.io/CaptainScottSaysAlwaysBetOnRed/" target="_blank">
+  <img src="logo.png" alt="Captain Scott Says: Always Bet On Red Logo" width="220" />
+</a>
+
+<p align="center">
+<b><a href="https://rorrimaesu.github.io/CaptainScottSaysAlwaysBetOnRed/" target="_blank">▶️ Click here to play the game instantly in your browser! ◀️</a></b>
+</p>
 
 ## 🎰 Welcome to Captain Scott's Red Wheel!
 
@@ -10,11 +16,11 @@ A satirical, animated web experience that pokes fun at capitalism, luck, and the
 
 ## 🚀 Features
 - **Rich Animations:**
-  - ![Rich Animation](CaptainScottSaysAlwaysBetOnRed/CaptainScottathyRichAnimation2.gif)
+  - ![Rich Animation](CaptainScottathyRichAnimation2.gif)
 - **Video Events:**
   - Game over, win, and random event videos for every outcome.
 - **Satirical Art:**
-  - ![Passionate About Food](CaptainScottSaysAlwaysBetOnRed/capitalismsucksbutiamsuperpassionateaboutbeingabletoaffordfood.png)
+  - ![Passionate About Food](capitalismsucksbutiamsuperpassionateaboutbeingabletoaffordfood.png)
 - **Simple HTML Experience:**
   - No install required, just open `index.html` and play!
 
@@ -33,15 +39,21 @@ A satirical, animated web experience that pokes fun at capitalism, luck, and the
 ## 📸 Gallery
 | Animation | Game Over | Player Win | Random Event |
 |-----------|-----------|------------|-------------|
-| ![Animation](CaptainScottSaysAlwaysBetOnRed/CaptainScottathyRichAnimation2.gif) | ![Game Over](CaptainScottSaysAlwaysBetOnRed/gameOverV1.mp4) | ![Win](CaptainScottSaysAlwaysBetOnRed/playerWinv1.mp4) | ![Random](CaptainScottSaysAlwaysBetOnRed/randomVideo.mp4) |
+| ![Animation](CaptainScottathyRichAnimation2.gif) | ![Game Over](gameOverV1.mp4) | ![Win](playerWinv1.mp4) | ![Random](randomVideo.mp4) |
 
 ---
 
 ## ☕ Support Me
 
+
 <a href="https://buymeacoffee.com/rorrimaesu" target="_blank">
-  <img src="BuyMeACoffeeButton.png" alt="Buy Me a Coffee" width="235" height="62" />
+  <img src="BuyMeACoffeeButton.png" alt="Buy Me a Coffee" width="235" height="62" style="display:inline-block;vertical-align:middle;" />
 </a>
+
+<br>
+<b>Feeling lucky? Or just feeling sorry for the Captain's brother, who coded this masterpiece while living off instant noodles and pirate puns? Click the button above to buy him a coffee!<br>
+Every donation increases your luck by 0.0001% (probably).<br>
+Support the code, support the chaos, and keep the Captain's mug full!</b>
 
 ---
 
