@@ -37,18 +37,19 @@ A satirical, animated web experience that pokes fun at capitalism, luck, and the
 ---
 
 
+
 ## 📸 Gallery
 
 <table>
   <tr>
-    <th>Animation</th>
+    <th>Captain Rich</th>
     <th>Game Over</th>
     <th>Player Win</th>
-    <th>Random Event</th>
+    <th>Random Event 1</th>
   </tr>
   <tr>
     <td align="center">
-      <img src="CaptainScottathyRichAnimation2.gif" alt="Animation" width="180" /><br>
+      <img src="CaptainScottathyRichAnimation2.gif" alt="Captain Scottathy Rich Animation" width="180" /><br>
       <sub>Captain Scottathy Rich Animation</sub>
     </td>
     <td align="center">
@@ -62,6 +63,30 @@ A satirical, animated web experience that pokes fun at capitalism, luck, and the
     <td align="center">
       <img src="randomVideo.gif" alt="Random Event GIF" width="180" /><br>
       <sub>Random Event Animation</sub>
+    </td>
+  </tr>
+  <tr>
+    <th>Random Event 2</th>
+    <th>Stealing Event</th>
+    <th>Win V1</th>
+    <th>Win V2</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="randomVideo2.gif" alt="Random Event 2 GIF" width="180" /><br>
+      <sub>Random Event 2 Animation</sub>
+    </td>
+    <td align="center">
+      <img src="stealingVideo.gif" alt="Stealing Event GIF" width="180" /><br>
+      <sub>Stealing Event Animation</sub>
+    </td>
+    <td align="center">
+      <img src="winv1.gif" alt="Win V1 GIF" width="180" /><br>
+      <sub>Win Animation V1</sub>
+    </td>
+    <td align="center">
+      <img src="winv2.gif" alt="Win V2 GIF" width="180" /><br>
+      <sub>Win Animation V2</sub>
     </td>
   </tr>
 </table>
