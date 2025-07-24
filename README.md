@@ -38,58 +38,51 @@ A satirical, animated web experience that pokes fun at capitalism, luck, and the
 
 
 
-## 📸 Gallery
 
-<table>
-  <tr>
-    <th>Captain Rich</th>
-    <th>Game Over</th>
-    <th>Player Win</th>
-    <th>Random Event 1</th>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="CaptainScottathyRichAnimation2.gif" alt="Captain Scottathy Rich Animation" width="180" /><br>
-      <sub>Captain Scottathy Rich Animation</sub>
-    </td>
-    <td align="center">
-      <img src="gameOverV1.gif" alt="Game Over GIF" width="180" /><br>
-      <sub>Game Over Animation</sub>
-    </td>
-    <td align="center">
-      <img src="playerWinv1.gif" alt="Player Win GIF" width="180" /><br>
-      <sub>Player Win Animation</sub>
-    </td>
-    <td align="center">
-      <img src="randomVideo.gif" alt="Random Event GIF" width="180" /><br>
-      <sub>Random Event Animation</sub>
-    </td>
-  </tr>
-  <tr>
-    <th>Random Event 2</th>
-    <th>Stealing Event</th>
-    <th>Win V1</th>
-    <th>Win V2</th>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="randomVideo2.gif" alt="Random Event 2 GIF" width="180" /><br>
-      <sub>Random Event 2 Animation</sub>
-    </td>
-    <td align="center">
-      <img src="stealingVideo.gif" alt="Stealing Event GIF" width="180" /><br>
-      <sub>Stealing Event Animation</sub>
-    </td>
-    <td align="center">
-      <img src="winv1.gif" alt="Win V1 GIF" width="180" /><br>
-      <sub>Win Animation V1</sub>
-    </td>
-    <td align="center">
-      <img src="winv2.gif" alt="Win V2 GIF" width="180" /><br>
-      <sub>Win Animation V2</sub>
-    </td>
-  </tr>
-</table>
+
+## 📸 GIF Demo Gallery
+
+All gameplay and event GIFs are shown below as live demos. All GIFs are stored in the root of the project and will display directly on GitHub:
+
+<p align="center">
+  <img src="CaptainScottathyRichAnimation2.gif" alt="Captain Scottathy Rich Animation" width="320" />
+  <br><sub>Captain Scottathy Rich Animation</sub>
+</p>
+
+<p align="center">
+  <img src="gameOverV1.gif" alt="Game Over Animation" width="320" />
+  <br><sub>Game Over Animation</sub>
+</p>
+
+<p align="center">
+  <img src="playerWinv1.gif" alt="Player Win Animation" width="320" />
+  <br><sub>Player Win Animation</sub>
+</p>
+
+<p align="center">
+  <img src="randomVideo.gif" alt="Random Event Animation" width="320" />
+  <br><sub>Random Event Animation</sub>
+</p>
+
+<p align="center">
+  <img src="randomVideo2.gif" alt="Random Event 2 Animation" width="320" />
+  <br><sub>Random Event 2 Animation</sub>
+</p>
+
+<p align="center">
+  <img src="stealingVideo.gif" alt="Stealing Event Animation" width="320" />
+  <br><sub>Stealing Event Animation</sub>
+</p>
+
+<p align="center">
+  <img src="winv1.gif" alt="Win Animation V1" width="320" />
+  <br><sub>Win Animation V1</sub>
+</p>
+
+<p align="center">
+  <img src="winv2.gif" alt="Win Animation V2" width="320" />
+  <br><sub>Win Animation V2</sub>
+</p>
 
 ---
 

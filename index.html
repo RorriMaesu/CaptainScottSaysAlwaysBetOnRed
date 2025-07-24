@@ -1006,19 +1006,19 @@
             // Use different GIFs for different animation types
             switch (animationType) {
                 case 'win':
-                    captainImage.src = 'CaptainScottathyRichAnimation2.gif';
+                    captainImage.src = 'CaptainScottathyRichAnimation2.mp4';
                     break;
                 case 'smug':
-                    captainImage.src = 'playerWinv1.gif';
+                    captainImage.src = 'playerWinv1.mp4';
                     break;
                 case 'rage':
-                    captainImage.src = 'gameOverV1.gif';
+                    captainImage.src = 'gameOverV1.mp4';
                     break;
                 case 'cheat':
-                    captainImage.src = 'stealingVideo.gif';
+                    captainImage.src = 'stealingVideo.mp4';
                     break;
                 case 'insult':
-                    captainImage.src = 'randomVideo.gif';
+                    captainImage.src = 'randomVideo.mp4';
                     break;
                 default:
                     captainImage.src = 'CaptainScottathy.png';
@@ -1059,27 +1059,32 @@
 
         // --- Show all GIFs for demo or random event ---
         function showAllGifsDemo() {
-            const gifList = [
-                'CaptainScottathyRichAnimation2.gif',
-                'gameOverV1.gif',
-                'playerWinv1.gif',
-                'randomVideo.gif',
-                'randomVideo2.gif',
-                'stealingVideo.gif',
-                'winv1.gif',
-                'winv2.gif'
+            const mediaList = [
+                { type: 'mp4', src: 'CaptainScottathyRichAnimation2.mp4' },
+                { type: 'mp4', src: 'gameOverV1.mp4' },
+                { type: 'mp4', src: 'playerWinv1.mp4' },
+                { type: 'mp4', src: 'randomVideo.mp4' },
+                { type: 'mp4', src: 'randomVideo2.mp4' },
+                { type: 'mp4', src: 'stealingVideo.mp4' },
+                { type: 'mp4', src: 'winv1.mp4' },
+                { type: 'mp4', src: 'winv2.mp4' }
             ];
             let idx = 0;
-            function showNextGif() {
-                if (idx >= gifList.length) return;
-                showGameVideo(gifList[idx]);
+            function showNextMedia() {
+                if (idx >= mediaList.length) return;
+                const item = mediaList[idx];
+                if (item.type === 'mp4') {
+                    showGameVideo(item.src);
+                } else {
+                    showGameVideo(item.src);
+                }
                 idx++;
                 setTimeout(() => {
                     hideGameVideo();
-                    setTimeout(showNextGif, 500);
+                    setTimeout(showNextMedia, 500);
                 }, 1800);
             }
-            showNextGif();
+            showNextMedia();
         }
 
         // Example: show all GIFs on a special event or for testing
@@ -1486,7 +1491,7 @@
 
                 if (balance <= 0) {
                     // Game Over GIF
-                    showGameVideo('gameOverV1.gif');
+                    showGameVideo('gameOverV1.mp4');
                     const threats = [
                         "The Captain's patience is gone! The loan sharks are comin' for ye!",
                         "Ye owe the Captain! Pay up, or you'll be sleepin' with the fishes!",
@@ -1505,24 +1510,24 @@
                     if (winningsForVisuals > 0) {
                         // Big win (specific number)
                         if (animationType === 'win' && winningsForVisuals >= 350) {
-                            showGameVideo('playerWinv1.gif');
+                            showGameVideo('playerWinv1.mp4');
                         } else if (animationType === 'win') {
                             // Normal win
-                            showGameVideo('winv1.gif');
+                            showGameVideo('winv1.mp4');
                         } else {
                             // Other win
-                            showGameVideo('winv2.gif');
+                            showGameVideo('winv2.mp4');
                         }
                         // Fun random win event for variety
                         if (Math.random() < 0.15) {
-                            setTimeout(() => { showGameVideo('randomVideo2.gif'); }, 1200);
+                            setTimeout(() => { showGameVideo('randomVideo2.mp4'); }, 1200);
                         }
                     } else if (winningsForVisuals < 0) {
                         // Random loss event
-                        showGameVideo('randomVideo.gif');
+                        showGameVideo('randomVideo.mp4');
                         // Fun random loss event for variety
                         if (Math.random() < 0.15) {
-                            setTimeout(() => { showGameVideo('randomVideo2.gif'); }, 1200);
+                            setTimeout(() => { showGameVideo('randomVideo2.mp4'); }, 1200);
                         }
                     }
                     animateCaptain(animationType, message);
@@ -1567,7 +1572,7 @@
                 balance = 0;
                 totalWinLoss += currentRoundWinnings;
                 // Play Kraken/stealing GIF
-                showGameVideo('stealingVideo.gif');
+                showGameVideo('stealingVideo.mp4');
                 // Fun: sometimes play randomVideo2.gif for extra drama
                 if (Math.random() < 0.25) {
                     setTimeout(() => { showGameVideo('randomVideo2.gif'); }, 1200);
