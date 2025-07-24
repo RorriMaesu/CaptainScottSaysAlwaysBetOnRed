@@ -36,10 +36,35 @@ A satirical, animated web experience that pokes fun at capitalism, luck, and the
 
 ---
 
+
 ## 📸 Gallery
-| Animation | Game Over | Player Win | Random Event |
-|-----------|-----------|------------|-------------|
-| ![Animation](CaptainScottathyRichAnimation2.gif) | ![Game Over](gameOverV1.mp4) | ![Win](playerWinv1.mp4) | ![Random](randomVideo.mp4) |
+
+<table>
+  <tr>
+    <th>Animation</th>
+    <th>Game Over</th>
+    <th>Player Win</th>
+    <th>Random Event</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="CaptainScottathyRichAnimation2.gif" alt="Animation" width="180" /><br>
+      <sub>Captain Scottathy Rich Animation</sub>
+    </td>
+    <td align="center">
+      <a href="gameOverV1.mp4">🎬 Game Over Video</a><br>
+      <sub>(Click to watch)</sub>
+    </td>
+    <td align="center">
+      <a href="playerWinv1.mp4">🎬 Player Win Video</a><br>
+      <sub>(Click to watch)</sub>
+    </td>
+    <td align="center">
+      <a href="randomVideo.mp4">🎬 Random Event Video</a><br>
+      <sub>(Click to watch)</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
