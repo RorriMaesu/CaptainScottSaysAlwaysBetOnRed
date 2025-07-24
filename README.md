@@ -40,6 +40,7 @@ A satirical, animated web experience that pokes fun at capitalism, luck, and the
 
 
 
+
 ## 📸 GIF Demo Gallery
 
 All gameplay and event GIFs are shown below as live demos. All GIFs are stored in the root of the project and will display directly on GitHub:
